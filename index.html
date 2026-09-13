@@ -870,7 +870,7 @@ function finishPreload(){
   startHeroReveal();
 }
 
-if (REDUCE){
+if (REDUCE || window.location.hash){
   finishPreload();
 } else {
   window.scrollTo(0,0);
