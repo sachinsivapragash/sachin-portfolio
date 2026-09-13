@@ -859,7 +859,12 @@ const preloader = document.getElementById("preloader");
 const countEl = preloader.querySelector(".num");
 
 function finishPreload(){
-  window.scrollTo(0,0);
+  const hashTarget = window.location.hash ? document.querySelector(window.location.hash) : null;
+  if(hashTarget){
+    hashTarget.scrollIntoView({ behavior:"auto", block:"start" });
+  } else {
+    window.scrollTo(0,0);
+  }
   preloader.classList.add("hidden");
   lenis.start();
   startHeroReveal();
