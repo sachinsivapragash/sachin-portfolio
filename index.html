@@ -498,6 +498,15 @@ html.no-motion .marquee-track{ animation:none !important; }
     width:100%;
     max-width:100%;
     overflow-x:hidden;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+  }
+
+  html{
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
   }
 
   header#site-nav{
@@ -1157,22 +1166,33 @@ function applyAdaptiveGrid(){
 applyAdaptiveGrid();
 window.addEventListener("resize", applyAdaptiveGrid);
 
-/* ---------- Lenis (loaded from CDN; falls back to native smooth scroll if unreachable) ---------- */
+/* ---------- Lenis ----------
+   Safari/iOS fix: keep native touch scrolling on phones and tablets.
+   Lenis is used only on desktop so it cannot lock the mobile page.
+*/
+const IS_TOUCH_DEVICE = window.matchMedia("(pointer: coarse)").matches ||
+                        "ontouchstart" in window ||
+                        navigator.maxTouchPoints > 0;
+
 let lenis = {
   stop(){}, start(){},
   scrollTo(el){ el.scrollIntoView({ behavior:"smooth", block:"start" }); }
 };
-try{
-  const mod = await import("lenis");
-  const Lenis = mod.default;
-  lenis = new Lenis({ smoothWheel: true });
-  function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
-  requestAnimationFrame(raf);
-}catch(err){
-  console.warn("Lenis unavailable, using native smooth scroll instead.", err);
+
+if (!IS_TOUCH_DEVICE){
+  try{
+    const mod = await import("lenis");
+    const Lenis = mod.default;
+    lenis = new Lenis({ smoothWheel: true });
+    function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+  }catch(err){
+    console.warn("Lenis unavailable, using native smooth scroll instead.", err);
+  }
 }
+
 window.lenis = lenis;
-lenis.stop();
+if (!IS_TOUCH_DEVICE) lenis.stop();
 
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener("click", (e)=>{
@@ -1198,7 +1218,7 @@ function finishPreload(){
     window.scrollTo(0,0);
   }
   preloader.classList.add("hidden");
-  lenis.start();
+  if (!IS_TOUCH_DEVICE) lenis.start();
   startHeroReveal();
 }
 
