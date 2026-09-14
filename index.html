@@ -726,6 +726,97 @@ html.no-motion .marquee-track{ animation:none !important; }
 }
 </style>
 
+
+<style id="fresh-mobile-hero-marquee-fix">
+/* FRESH MOBILE-ONLY FIX — desktop/laptop remains unchanged */
+@media (max-width: 639px){
+
+  /* 1) Make the oversized SACHIN background text smaller.
+        Keep it behind the portrait so both outer edges remain visible. */
+  /*
+    SACHIN background text:
+    smaller than the previous version, but still wider than the phone.
+    The word is centered, so only about half of the first S and last N
+    are visible at the two screen edges.
+  */
+  .hero-name{
+    width:100%;
+    left:0;
+    right:0;
+    bottom:.25rem;
+    padding:0;
+    font-size:clamp(4rem,22vw,7rem) !important;
+    line-height:.84;
+    transform:none !important;
+    z-index:10;
+    overflow:visible;
+  }
+
+  .hero-name .word{
+    display:block;
+    width:max-content !important;
+    max-width:none !important;
+    margin:0 auto;
+    white-space:nowrap;
+    overflow:visible !important;
+    transform:none !important;
+  }
+
+  /* 2) Do NOT alter the hero image sizing/asset. Only keep its layer
+        clipped to the hero so it cannot visibly pop outside. */
+  #top{
+    overflow:hidden;
+  }
+
+  .hero-portrait-wrap{
+    overflow:hidden;
+  }
+
+  /* 3) Smooth, continuous moving text below the hero. */
+  .marquee-section{
+    width:100%;
+    overflow:hidden;
+    contain:layout paint;
+  }
+
+  .marquee-track{
+    display:flex;
+    flex-wrap:nowrap;
+    width:max-content;
+    animation:mobile-marquee 28s linear infinite !important;
+    will-change:transform;
+    transform:translate3d(0,0,0);
+    backface-visibility:hidden;
+  }
+
+  .marquee-track .word,
+  .marquee-track .dot{
+    flex:0 0 auto;
+  }
+
+  .marquee-track .word{
+    white-space:nowrap;
+  }
+
+  @keyframes mobile-marquee{
+    from{transform:translate3d(0,0,0);}
+    to{transform:translate3d(-33.333333%,0,0);}
+  }
+
+  /* Override any mobile no-motion class so the portfolio marquee
+     continues to move for normal viewers. */
+  html.no-motion .marquee-track{
+    animation:mobile-marquee 28s linear infinite !important;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .marquee-track{
+      animation:mobile-marquee 28s linear infinite !important;
+    }
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -1168,7 +1259,7 @@ const words = ["Build Boldly","Design With Purpose","Solve Real Problems","Build
 const track = document.getElementById("marquee-track");
 function renderMarquee(){
   track.innerHTML = "";
-  for(let rep=0; rep<2; rep++){
+  for(let rep=0; rep<3; rep++){
     words.forEach(w=>{
       const span = document.createElement("span");
       span.className = "word";
