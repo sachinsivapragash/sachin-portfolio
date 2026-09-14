@@ -737,17 +737,12 @@ html.no-motion .marquee-track{ animation:none !important; }
 
 
 <style id="fresh-mobile-hero-marquee-fix">
-/* FRESH MOBILE-ONLY FIX — desktop/laptop remains unchanged */
+/* FINAL MOBILE HERO + MARQUEE STABILITY FIX
+   Desktop/laptop styling is left unchanged. */
 @media (max-width: 639px){
 
-  /* 1) Make the oversized SACHIN background text smaller.
-        Keep it behind the portrait so both outer edges remain visible. */
-  /*
-    SACHIN background text:
-    smaller than the previous version, but still wider than the phone.
-    The word is centered, so only about half of the first S and last N
-    are visible at the two screen edges.
-  */
+  /* Keep the large SACHIN lettering behind the portrait without clipping
+     the outer S and N. */
   .hero-name{
     width:100%;
     left:0;
@@ -771,31 +766,51 @@ html.no-motion .marquee-track{ animation:none !important; }
     transform:none !important;
   }
 
-  /* 2) Do NOT alter the hero image sizing/asset. Only keep its layer
-        clipped to the hero so it cannot visibly pop outside. */
+  /* Hard clip the portrait to the hero so it never visually pops outside
+     the hero when Safari repaints the page after scrolling. */
   #top{
     overflow:hidden;
+    isolation:isolate;
   }
 
   .hero-portrait-wrap{
     overflow:hidden;
+    contain:layout paint;
+    isolation:isolate;
   }
 
-  /* 3) Smooth, continuous moving text below the hero. */
+  .hero-portrait-wrap figure{
+    overflow:hidden;
+    contain:paint;
+  }
+
+  .hero-portrait-wrap img{
+    transform:translate3d(0,0,0);
+    backface-visibility:hidden;
+    /* The SVG displacement filter is expensive on mobile Safari and can
+       cause repaint stutter/pop-in. Keep the same visual grading without it. */
+    filter:saturate(.92) contrast(1.03) !important;
+  }
+
+  /* Smooth continuous marquee. The JS below also safely restarts it when
+     Safari restores the page from a section/back-forward navigation. */
   .marquee-section{
     width:100%;
     overflow:hidden;
     contain:layout paint;
+    isolation:isolate;
   }
 
   .marquee-track{
     display:flex;
     flex-wrap:nowrap;
     width:max-content;
-    animation:mobile-marquee 28s linear infinite !important;
+    animation:mobile-marquee 30s linear infinite !important;
+    animation-play-state:running !important;
     will-change:transform;
     transform:translate3d(0,0,0);
     backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
   }
 
   .marquee-track .word,
@@ -812,15 +827,17 @@ html.no-motion .marquee-track{ animation:none !important; }
     to{transform:translate3d(-33.333333%,0,0);}
   }
 
-  /* Override any mobile no-motion class so the portfolio marquee
-     continues to move for normal viewers. */
+  /* Always keep the marquee moving for normal users, even if a stale
+     no-motion class was left on the document. */
   html.no-motion .marquee-track{
-    animation:mobile-marquee 28s linear infinite !important;
+    animation:mobile-marquee 30s linear infinite !important;
+    animation-play-state:running !important;
   }
 
   @media (prefers-reduced-motion: reduce){
     .marquee-track{
-      animation:mobile-marquee 28s linear infinite !important;
+      animation:mobile-marquee 30s linear infinite !important;
+      animation-play-state:running !important;
     }
   }
 }
@@ -1292,6 +1309,32 @@ function renderMarquee(){
   }
 }
 renderMarquee();
+
+/* ---------- Safari/iOS marquee recovery ----------
+   CSS animation is normally enough, but Safari can occasionally keep a
+   composited transform visually frozen after scrolling away and returning.
+   Restart only when the page/hero is restored; do not touch the animation
+   continuously, so the motion stays smooth. */
+function restartMarquee(){
+  if(!track) return;
+  track.style.animation = "none";
+  track.style.transform = "translate3d(0,0,0)";
+  void track.offsetWidth; /* force one layout/repaint */
+  track.style.animation = "";
+  track.style.animationPlayState = "running";
+}
+
+window.addEventListener("pageshow", restartMarquee);
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState === "visible") restartMarquee();
+});
+
+let wasAtTop = window.scrollY < 20;
+window.addEventListener("scroll", ()=>{
+  const atTop = window.scrollY < 20;
+  if(atTop && !wasAtTop) restartMarquee();
+  wasAtTop = atTop;
+}, {passive:true});
 
 /* ---------- Nav active link on scroll ---------- */
 const sections = ["top","story","projects","skills","testimonials","contact"].map(id=>document.getElementById(id)).filter(Boolean);
