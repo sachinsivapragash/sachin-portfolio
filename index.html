@@ -792,8 +792,9 @@ html.no-motion .marquee-track{ animation:none !important; }
     filter:saturate(.92) contrast(1.03) !important;
   }
 
-  /* Smooth continuous marquee. The JS below also safely restarts it when
-     Safari restores the page from a section/back-forward navigation. */
+  /* Mobile marquee: movement is driven by a tiny time-based JS loop below.
+     This avoids CSS-animation compositing freezes when mobile browsers
+     scroll the marquee off-screen and later bring it back. */
   .marquee-section{
     width:100%;
     overflow:hidden;
@@ -805,8 +806,7 @@ html.no-motion .marquee-track{ animation:none !important; }
     display:flex;
     flex-wrap:nowrap;
     width:max-content;
-    animation:mobile-marquee 30s linear infinite !important;
-    animation-play-state:running !important;
+    animation:none !important;
     will-change:transform;
     transform:translate3d(0,0,0);
     backface-visibility:hidden;
@@ -822,23 +822,11 @@ html.no-motion .marquee-track{ animation:none !important; }
     white-space:nowrap;
   }
 
-  @keyframes mobile-marquee{
-    from{transform:translate3d(0,0,0);}
-    to{transform:translate3d(-33.333333%,0,0);}
-  }
-
-  /* Always keep the marquee moving for normal users, even if a stale
-     no-motion class was left on the document. */
-  html.no-motion .marquee-track{
-    animation:mobile-marquee 30s linear infinite !important;
-    animation-play-state:running !important;
-  }
-
+  /* The JS loop controls transform on mobile, so reduced-motion rules
+     cannot accidentally freeze this element after a section change. */
+  html.no-motion .marquee-track{ animation:none !important; }
   @media (prefers-reduced-motion: reduce){
-    .marquee-track{
-      animation:mobile-marquee 30s linear infinite !important;
-      animation-play-state:running !important;
-    }
+    .marquee-track{ animation:none !important; }
   }
 }
 </style>
@@ -1310,31 +1298,82 @@ function renderMarquee(){
 }
 renderMarquee();
 
-/* ---------- Safari/iOS marquee recovery ----------
-   CSS animation is normally enough, but Safari can occasionally keep a
-   composited transform visually frozen after scrolling away and returning.
-   Restart only when the page/hero is restored; do not touch the animation
-   continuously, so the motion stays smooth. */
-function restartMarquee(){
-  if(!track) return;
-  track.style.animation = "none";
-  track.style.transform = "translate3d(0,0,0)";
-  void track.offsetWidth; /* force one layout/repaint */
-  track.style.animation = "";
-  track.style.animationPlayState = "running";
+/* ---------- Mobile marquee: continuous, time-based motion ----------
+   CSS animations can occasionally appear frozen after a mobile browser
+   scrolls an element off-screen. A requestAnimationFrame loop avoids that
+   compositing edge case. It is paused while the marquee is off-screen and
+   resumes from the exact same position when it comes back. */
+if (track && window.matchMedia("(max-width: 639px)").matches) {
+  let marqueeX = 0;
+  let lastTime = null;
+  let cycleWidth = 0;
+  let running = false;
+  let rafId = 0;
+
+  function measureMarquee(){
+    cycleWidth = track.scrollWidth / 3;
+    if (!Number.isFinite(cycleWidth) || cycleWidth <= 0) cycleWidth = track.scrollWidth;
+  }
+
+  function drawMarquee(){
+    track.style.transform = `translate3d(${marqueeX}px,0,0)`;
+  }
+
+  function marqueeFrame(now){
+    if (!running) return;
+    if (lastTime === null) lastTime = now;
+
+    const dt = Math.min(now - lastTime, 50);
+    lastTime = now;
+
+    if (cycleWidth > 0){
+      /* 30 seconds per complete repeated set, matching the previous speed. */
+      marqueeX -= (cycleWidth / 30) * (dt / 1000);
+      if (marqueeX <= -cycleWidth) marqueeX += cycleWidth;
+      drawMarquee();
+    }
+
+    rafId = requestAnimationFrame(marqueeFrame);
+  }
+
+  function startMarquee(){
+    if (running) return;
+    measureMarquee();
+    running = true;
+    lastTime = null;
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(marqueeFrame);
+  }
+
+  function stopMarquee(){
+    running = false;
+    lastTime = null;
+    cancelAnimationFrame(rafId);
+  }
+
+  const marqueeObserver = new IntersectionObserver((entries)=>{
+    if (entries[0].isIntersecting) startMarquee();
+    else stopMarquee();
+  }, {threshold:0});
+
+  marqueeObserver.observe(track);
+
+  window.addEventListener("resize", measureMarquee, {passive:true});
+  window.addEventListener("orientationchange", ()=>{
+    measureMarquee();
+    drawMarquee();
+  }, {passive:true});
+
+  document.addEventListener("visibilitychange", ()=>{
+    if (document.visibilityState === "hidden") stopMarquee();
+    else if (document.visibilityState === "visible") startMarquee();
+  });
+
+  window.addEventListener("pageshow", ()=>{
+    measureMarquee();
+    startMarquee();
+  });
 }
-
-window.addEventListener("pageshow", restartMarquee);
-document.addEventListener("visibilitychange", ()=>{
-  if(document.visibilityState === "visible") restartMarquee();
-});
-
-let wasAtTop = window.scrollY < 20;
-window.addEventListener("scroll", ()=>{
-  const atTop = window.scrollY < 20;
-  if(atTop && !wasAtTop) restartMarquee();
-  wasAtTop = atTop;
-}, {passive:true});
 
 /* ---------- Nav active link on scroll ---------- */
 const sections = ["top","story","projects","skills","testimonials","contact"].map(id=>document.getElementById(id)).filter(Boolean);
