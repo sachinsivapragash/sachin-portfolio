@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 7 — IoT &amp; Cloud Tasks | ProtoSem</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 7 Task 5 — Firebase Logging, Automation &amp; Data Export | ProtoSem</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
 /* ---------- Reset ---------- */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -602,9 +602,31 @@ html.no-motion .marquee-track{ animation:none !important; }
 .flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
 .flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
 .flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
 .ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
 .ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
 .ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
+.ph img{width:100%;display:block;border:1px solid var(--line);border-radius:.25rem;margin-bottom:.4rem}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+.sub{margin-top:1.6rem}
+.sub h3{font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.05);font-weight:600;color:var(--foreground);margin-bottom:.6rem}
+.todo{margin-top:.6rem;padding:.75rem 1rem;border:1px dashed var(--line-strong);border-radius:.25rem;color:var(--muted);font-size:var(--fs-eyebrow);letter-spacing:.04em}
+.sec p a,.sec li a,.media-grid figcaption a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.sec p a:hover,.sec li a:hover,.media-grid figcaption a:hover{color:var(--accent-2)}
 pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:.25rem;overflow-x:auto;color:#d9d6cc;font:.85rem/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
 .btn{display:inline-block;margin-top:.8rem;padding:.8rem 1.4rem;border:1px solid var(--accent);border-radius:9999px;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;transition:background .3s,color .3s}
 .btn:hover{background:var(--accent);color:var(--background)}
@@ -627,7 +649,261 @@ pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1p
   <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
   <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
 </div>
-<main><div class="tk"><p class="eyebrow">Week 7</p><h1>IoT &amp; Cloud Tasks</h1><p class="lead">Five IoT assignments, each documented on its own page: from a local ESP32 web server to a Firebase dashboard with data logging and export. Choose a task to open it.</p><a class="back" href="protosem.html">← Back to ProtoSem</a><div class="proto-grid"><a class="proto-card" href="protosem-week-7-task-1.html"><span class="proto-num">TASK 1</span><h2>ESP32 Web Server &amp; HTML LED Control</h2><p>Turn the ESP32 into a web server and switch an LED on and off from a browser page.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-2.html"><span class="proto-num">TASK 2</span><h2>Adafruit IO Dashboard &amp; MQTT</h2><p>Control the LED from an Adafruit IO cloud dashboard using MQTT.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-3.html"><span class="proto-num">TASK 3</span><h2>IFTTT + Adafruit IO IoT Automation</h2><p>Trigger an IFTTT applet that drives an Adafruit IO feed and the ESP32 automatically.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-4.html"><span class="proto-num">TASK 4</span><h2>Firebase IoT Monitoring Dashboard</h2><p>Monitor temperature, humidity and light in a login-protected Firebase dashboard and control a bulb.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-5.html"><span class="proto-num">TASK 5</span><h2>Firebase Logging, Automation &amp; Data Export</h2><p>The complete system: automatic LDR lighting, Firebase data logging, charts and CSV export.</p><span class="arrow">VIEW TASK →</span></a></div></div></main>
+<main><div class="tk"><p class="eyebrow">Week 7 · Task 5 of 5</p><h1>Firebase Logging, Automation &amp; Data Export</h1><nav class="tabs" aria-label="Week 7 tasks"><a href="protosem-week-7.html">← Week 7</a><a href="protosem-week-7-task-1.html">Task 1</a><a href="protosem-week-7-task-2.html">Task 2</a><a href="protosem-week-7-task-3.html">Task 3</a><a href="protosem-week-7-task-4.html">Task 4</a><a href="protosem-week-7-task-5.html" class="on" aria-current="page">Task 5</a></nav><div class="tk-grid"><article><div class="sec" id="s1"><h2><em>01</em>Overview</h2><p>The objective is the finished IoT system: it monitors temperature, humidity and light, switches the bulb manually from the dashboard or automatically from temperature and humidity thresholds, logs every reading with a timestamp in Firebase, and lets the user view history and download it as CSV. This builds directly on Task 4's dashboard and database — same project, same login, same <code>sensors</code>/<code>control</code>/<code>logs</code>/<code>status</code> structure — with the automation and logging/export pieces now wired up end to end.</p><div style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.8rem"><a class="btn" style="margin-top:0" href="https://env-monitor-845af.web.app/index.html" target="_blank" rel="noopener">Login page →</a><a class="btn" style="margin-top:0" href="https://env-monitor-845af.web.app/dashboard.html" target="_blank" rel="noopener">Dashboard →</a></div></div><div class="sec" id="s2"><h2><em>02</em>Concepts</h2><div class="cards"><div><h3>Manual and Automatic mode</h3><p>In Manual mode the dashboard switch decides the bulb state directly. In Automatic mode the ESP32 decides on its own, from sensor readings against a threshold.</p></div><div><h3>Temperature + humidity hysteresis automation</h3><p>In this build, Auto mode is driven by temperature and humidity together, not light: the bulb turns ON if temperature crosses a high threshold <em style="font-style:normal;color:var(--accent)">or</em> humidity crosses its own high threshold, and only turns OFF once temperature drops back down <em style="font-style:normal;color:var(--accent)">and</em> humidity is back under its threshold. The LDR value is still read and logged, but is kept in the code only as a reference for optional light-based logic, not an active trigger.</p></div><div><h3>Why a hysteresis gap</h3><p>Turning ON as soon as temperature <em style="font-style:normal;color:var(--accent)">or</em> humidity crosses its high threshold, but only turning OFF once <em style="font-style:normal;color:var(--accent)">both</em> have dropped back down (30.0°C / 70% ON, 26.0°C / under 70% OFF), stops the bulb from rapidly switching on and off when a reading sits right at one edge — the state only flips once it clearly crosses into the other band.</p></div><div><h3>Historical logging</h3><p>Each reading is pushed as a new timestamped record under <code>logs</code> instead of overwriting the last value, which builds a history the dashboard can query and chart.</p></div><div><h3>Log record</h3><p>Each entry stores <code>timestamp</code>, <code>temperature</code>, <code>humidity</code>, <code>light</code>, <code>bulb</code> and <code>mode</code> — visible directly in the Realtime Database under <code>logs</code>.</p></div><div><h3>CSV export</h3><p>The dashboard turns the stored log records into rows and downloads them as a <code>.csv</code> file that opens in a spreadsheet.</p></div></div></div><div class="sec" id="s3"><h2><em>03</em>System Design</h2><div class="flow"><span>DHT11 + LDR</span><i>→</i><span>ESP32 (mode + hysteresis logic)</span><i>→</i><span>Firebase (sensors / control / logs / status)</span><i>→</i><span>Dashboard (live view, history, CSV)</span></div><p>Mode changes and manual bulb commands travel the reverse path: dashboard → Firebase <code>control</code> → ESP32. The ESP32 also pushes a new record to <code>logs</code> on every reading cycle, independent of whether a human is looking at the dashboard at that moment.</p><div class="arch-diagram"><svg viewBox="0 0 960 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DHT11 and LDR feed the ESP32, which applies mode and hysteresis logic and writes to Firebase sensors, control, logs and status, which the dashboard reads and writes back to control">
+<defs>
+<marker id="arrow5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ff3b1d"/></marker>
+</defs>
+<g font-family="Onest, sans-serif">
+<!-- Sensors -->
+<rect x="10" y="55" width="150" height="90" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="85" y="88" fill="#f3f1ea" font-size="14" font-weight="600" text-anchor="middle">DHT11 + LDR</text>
+<text x="85" y="107" fill="#807f78" font-size="11" text-anchor="middle">temp, humidity,</text>
+<text x="85" y="122" fill="#807f78" font-size="11" text-anchor="middle">light (raw)</text>
+<line x1="160" y1="100" x2="204" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow5)"/>
+<!-- ESP32 -->
+<rect x="205" y="45" width="190" height="110" rx="4" fill="none" stroke="#ff3b1d" stroke-width="1.5"/>
+<text x="300" y="76" fill="#ff3b1d" font-size="14" font-weight="600" text-anchor="middle">ESP32</text>
+<text x="300" y="95" fill="#f3f1ea" font-size="11.5" text-anchor="middle">mode switch +</text>
+<text x="300" y="111" fill="#f3f1ea" font-size="11.5" text-anchor="middle">temp/humidity</text>
+<text x="300" y="127" fill="#f3f1ea" font-size="11.5" text-anchor="middle">hysteresis logic</text>
+<line x1="395" y1="100" x2="439" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow5)"/>
+<!-- Firebase -->
+<rect x="440" y="35" width="240" height="130" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="560" y="60" fill="#f3f1ea" font-size="14" font-weight="600" text-anchor="middle">Firebase RTDB</text>
+<rect x="455" y="72" width="100" height="40" rx="3" fill="none" stroke="#f3f1ea" stroke-opacity="0.25"/>
+<text x="505" y="97" fill="#b9b7ae" font-size="11" text-anchor="middle">sensors</text>
+<rect x="565" y="72" width="100" height="40" rx="3" fill="none" stroke="#f3f1ea" stroke-opacity="0.25"/>
+<text x="615" y="97" fill="#b9b7ae" font-size="11" text-anchor="middle">control</text>
+<rect x="455" y="120" width="100" height="40" rx="3" fill="none" stroke="#f3f1ea" stroke-opacity="0.25"/>
+<text x="505" y="145" fill="#b9b7ae" font-size="11" text-anchor="middle">logs</text>
+<rect x="565" y="120" width="100" height="40" rx="3" fill="none" stroke="#f3f1ea" stroke-opacity="0.25"/>
+<text x="615" y="145" fill="#b9b7ae" font-size="11" text-anchor="middle">status</text>
+<line x1="680" y1="100" x2="724" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow5)"/>
+<!-- Dashboard -->
+<rect x="725" y="55" width="225" height="90" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="837" y="88" fill="#f3f1ea" font-size="14" font-weight="600" text-anchor="middle">Dashboard</text>
+<text x="837" y="107" fill="#807f78" font-size="11" text-anchor="middle">live view, history,</text>
+<text x="837" y="122" fill="#807f78" font-size="11" text-anchor="middle">chart, CSV export</text>
+<!-- return path -->
+<path d="M837,145 C837,200 85,200 85,145" fill="none" stroke="#807f78" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="461" y="220" fill="#807f78" font-size="10.5" text-anchor="middle">Manual mode / bulb writes travel dashboard → control → ESP32</text>
+</g>
+</svg></div></div><div class="sec" id="s4"><h2><em>04</em>Hardware &amp; Software</h2><div class="cards"><div><h3>Hardware</h3><ul><li>ESP32 development board</li><li>DHT11 sensor</li><li>LDR with a fixed resistor (voltage divider)</li><li>Bulb wired through a 2-channel relay module</li><li>Breadboard and jumper wires</li></ul></div><div><h3>Software &amp; platforms</h3><ul><li>Firebase project (Authentication + Realtime Database + Hosting) — same <code>env-monitor</code> project as Task 4</li><li>Arduino IDE 2.3.10 with the <b style="color:var(--foreground)">Firebase Arduino Client Library for ESP8266 and ESP32</b> (Mobizt, v4.4.17) — installed from the Library Manager search results, which also list the separate "Firebase ESP32 Client" and "Firebase ESP8266 Client" packages by the same author — and the <b style="color:var(--foreground)">DHT sensor</b> library</li><li>HTML/JS dashboard using the Firebase web SDK and a chart for Live Environment Trends</li></ul></div></div>
+<div class="media-grid">
+<figure><img src="assets/task5/task5-hardware-relay-bulb.jpg" alt="ESP32, 2-channel relay module, breadboard and bulb wired together on a desk" loading="lazy"><figcaption><b>Hardware</b>ESP32, relay module and bulb wired on the breadboard</figcaption></figure>
+<figure><img src="assets/task5/task5-firebase-library-config.jpg" alt="Arduino IDE Library Manager with Firebase ESP32 Client search, and the sketch showing Firebase_ESP_Client.h, DATABASE_URL, DHTPIN, LDR_PIN, BULB_PIN and threshold defines" loading="lazy"><figcaption><b>Library</b>Installing the Firebase Arduino Client Library (Mobizt, v4.4.17)</figcaption></figure>
+</div>
+</div><div class="sec" id="s5"><h2><em>05</em>Wiring / Setup</h2><table class="pin-table"><thead><tr><th>ESP32 pin</th><th>Connects to</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GPIO 4</code></td><td>DHT11 data pin</td><td>Temperature + humidity (<code>DHTPIN</code>)</td></tr><tr><td><code>GPIO 34</code> (analog)</td><td>LDR + fixed resistor divider</td><td>Ambient light, raw value (<code>LDR_PIN</code>) — monitored only</td></tr><tr><td><code>GPIO 5</code></td><td>Relay module <b>IN</b></td><td>Switches the bulb (<code>BULB_PIN</code>)</td></tr></tbody></table><table class="pin-table"><thead><tr><th>Constant</th><th>Value</th><th>Effect in Auto mode</th></tr></thead><tbody><tr><td><code>TEMP_HIGH_THRESHOLD</code></td><td>30.0°C</td><td>Bulb turns ON if crossed (OR)</td></tr><tr><td><code>HUMIDITY_HIGH_THRESHOLD</code></td><td>70%</td><td>Bulb turns ON if crossed (OR)</td></tr><tr><td><code>TEMP_LOW_THRESHOLD</code></td><td>26.0°C</td><td>Bulb turns OFF, only once <em style="font-style:normal;color:var(--accent)">both</em> conditions clear</td></tr><tr><td><code>LDR_DARK_THRESHOLD</code></td><td>1500</td><td>Defined but not wired to a decision — reference only</td></tr><tr><td><code>READ_INTERVAL_MS</code> / <code>LOG_INTERVAL_MS</code></td><td>3s / 15s</td><td>How often sensors are read / a log entry is pushed</td></tr></tbody></table><p>The bulb runs on mains voltage, so it stays isolated behind the relay module rather than driven directly from the ESP32.</p></div><div class="sec" id="s6"><h2><em>06</em>Implementation</h2><pre class="code">// task5_esp32_firebase.ino
+/*
+  ESP32 + Firebase Environment Monitor
+  -------------------------------------------------
+  Reads: DHT11 (temperature, humidity), LDR (ambient light — monitored only)
+  Writes: /sensors/{temperature,humidity,light}, /logs/{push}
+  Reads control: /control/mode ("auto"/"manual"), /control/bulb (bool)
+  Drives: relay/LED pin for the bulb
+
+  AUTOMATION LOGIC (auto mode):
+    Bulb turns ON when temperature &gt;= TEMP_HIGH_THRESHOLD OR humidity &gt;= HUMIDITY_HIGH_THRESHOLD
+    Bulb turns OFF when temperature &lt;= TEMP_LOW_THRESHOLD AND humidity &lt; HUMIDITY_HIGH_THRESHOLD
+    (The gap between TEMP_LOW and TEMP_HIGH is a hysteresis band so it doesn't flicker on/off
+    when the reading hovers right at one threshold.)
+
+  MANUAL MODE:
+    Bulb simply follows whatever value the dashboard last wrote to /control/bulb.
+
+  LIBRARIES REQUIRED (Arduino IDE &gt; Library Manager):
+    - Firebase ESP Client   by Mobizt   ("Firebase ESP32 Client")
+    - DHT sensor library    by Adafruit
+    - Adafruit Unified Sensor (dependency of DHT)
+
+  BOARD: ESP32 Dev Module (Tools &gt; Board)
+
+  WIRING (adjust pins as needed):
+    DHT11 data  -&gt; GPIO 4
+    LDR (analog)-&gt; GPIO 34 (ADC1_CH6)
+    Relay/Bulb  -&gt; GPIO 5
+*/
+
+#include &lt;WiFi.h&gt;
+#include &lt;Firebase_ESP_Client.h&gt;
+#include "addons/TokenHelper.h"
+#include "addons/RTDBHelper.h"
+#include &lt;DHT.h&gt;
+
+// ---------------- USER CONFIG ----------------
+#define WIFI_SSID       "protosem"
+#define WIFI_PASSWORD   "Proto#123"
+
+#define API_KEY         "AIzaSyCh3NPhL1QsHDZVAcNPAIpYOqL_QqnNY-c"
+#define DATABASE_URL    "https://env-monitor-845af-default-rtdb.firebaseio.com/"
+#define USER_EMAIL      "device@example.com"   // create this user in Firebase Auth
+#define USER_PASSWORD   "device_password"
+
+#define DHTPIN          4
+#define DHTTYPE         DHT11
+#define LDR_PIN         34
+#define BULB_PIN        5
+
+#define LDR_DARK_THRESHOLD  1500   // (kept for reference / optional LDR-based logic)
+#define TEMP_HIGH_THRESHOLD   30.0 // °C — above this, auto mode turns bulb/fan ON
+#define TEMP_LOW_THRESHOLD    26.0 // °C — below this, auto mode turns bulb/fan OFF (hysteresis gap avoids flicker)
+#define HUMIDITY_HIGH_THRESHOLD 70.0 // % — above this also forces ON regardless of temp
+#define READ_INTERVAL_MS    3000
+#define LOG_INTERVAL_MS     15000
+// ----------------------------------------------
+
+DHT dht(DHTPIN, DHTTYPE);
+
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+unsigned long lastRead = 0;
+unsigned long lastLog = 0;
+bool signupOK = false;
+bool autoBulbState = false;   // remembered across loops, for hysteresis
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(BULB_PIN, OUTPUT);
+  digitalWrite(BULB_PIN, LOW);
+  dht.begin();
+
+  // ---- WiFi ----
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(300);
+  }
+  Serial.println();
+  Serial.print("Connected, IP: ");
+  Serial.println(WiFi.localIP());
+
+  // ---- Firebase ----
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+  auth.user.email = USER_EMAIL;
+  auth.user.password = USER_PASSWORD;
+  config.token_status_callback = tokenStatusCallback;
+
+  Firebase.begin(&amp;config, &amp;auth);
+  Firebase.reconnectWiFi(true);
+
+  Serial.println("Signing in to Firebase...");
+  unsigned long start = millis();
+  while (auth.token.uid == "" &amp;&amp; millis() - start &lt; 10000) {
+    delay(200);
+  }
+  Serial.println("Firebase ready.");
+
+  // Mark device online, and automatically flip to offline if connection drops
+  Firebase.RTDB.setBool(&amp;fbdo, "status/online", true);
+
+  // Set defaults if they don't exist yet
+  if (!Firebase.RTDB.getString(&amp;fbdo, "control/mode")) {
+    Firebase.RTDB.setString(&amp;fbdo, "control/mode", "auto");
+  }
+}
+
+void applyBulb(bool on) {
+  digitalWrite(BULB_PIN, on ? HIGH : LOW);
+  Firebase.RTDB.setBool(&amp;fbdo, "control/bulb", on);
+}
+
+void loop() {
+  if (millis() - lastRead &gt;= READ_INTERVAL_MS) {
+    lastRead = millis();
+
+    float temperature = dht.readTemperature();
+    float humidity = dht.readHumidity();
+    int lightRaw = analogRead(LDR_PIN);
+
+    if (isnan(temperature) || isnan(humidity)) {
+      Serial.println("DHT11 read failed, skipping this cycle.");
+      return;
+    }
+
+    // ---- Push live readings ----
+    Firebase.RTDB.setFloat(&amp;fbdo, "sensors/temperature", temperature);
+    Firebase.RTDB.setFloat(&amp;fbdo, "sensors/humidity", humidity);
+    Firebase.RTDB.setInt(&amp;fbdo, "sensors/light", lightRaw);
+
+    Serial.printf("Temp: %.1f C  Hum: %.1f %%  Light: %d\n", temperature, humidity, lightRaw);
+
+    // ---- Mode + bulb logic ----
+    String mode = "auto";
+    if (Firebase.RTDB.getString(&amp;fbdo, "control/mode")) {
+      mode = fbdo.stringData();
+    }
+
+    bool bulbState = false;
+    if (mode == "manual") {
+      // Bulb state is driven by whatever the dashboard last set — just apply it.
+      if (Firebase.RTDB.getBool(&amp;fbdo, "control/bulb")) {
+        bulbState = fbdo.boolData();
+      }
+      digitalWrite(BULB_PIN, bulbState ? HIGH : LOW);
+    } else {
+      // AUTO: decide from temperature + humidity, with hysteresis to avoid rapid flicker.
+      // Turn ON if it's hot enough OR too humid; turn OFF only once it drops below the lower band.
+      if (temperature &gt;= TEMP_HIGH_THRESHOLD || humidity &gt;= HUMIDITY_HIGH_THRESHOLD) {
+        autoBulbState = true;
+      } else if (temperature &lt;= TEMP_LOW_THRESHOLD &amp;&amp; humidity &lt; HUMIDITY_HIGH_THRESHOLD) {
+        autoBulbState = false;
+      }
+      // else: stays in whatever state it was already in (dead-band between LOW and HIGH thresholds)
+
+      bulbState = autoBulbState;
+      applyBulb(bulbState);
+    }
+
+    // ---- Periodic JSON log entry: timestamp, temp, humidity, LDR, bulb state, mode ----
+    if (millis() - lastLog &gt;= LOG_INTERVAL_MS) {
+      lastLog = millis();
+      FirebaseJson json;
+      json.set("temperature", temperature);
+      json.set("humidity", humidity);
+      json.set("light", lightRaw);
+      json.set("bulb", bulbState);
+      json.set("mode", mode);
+      json.set("timestamp/.sv", "timestamp"); // Firebase server timestamp
+      Firebase.RTDB.pushJSON(&amp;fbdo, "logs", &amp;json);
+    }
+  }
+}</pre><p>Explain these key sections in your own words:</p><ul><li><b style="color:var(--foreground)">Wi-Fi and Firebase config</b> &mdash; connects to Wi-Fi, then sets <code>API_KEY</code>, <code>DATABASE_URL</code>, and signs in with a dedicated <code>USER_EMAIL</code>/<code>USER_PASSWORD</code> device account (a separate Auth user from the human login used on the dashboard) before <code>Firebase.begin()</code> and waiting for a token.</li><li><b style="color:var(--foreground)">Reading DHT11 and LDR</b> &mdash; every <code>READ_INTERVAL_MS</code> (3s), reads temperature and humidity off the DHT11 and a raw analog value off the LDR pin, skipping the cycle entirely if the DHT11 read comes back <code>NaN</code>.</li><li><b style="color:var(--foreground)">Mode switch and combined hysteresis logic</b> &mdash; in <code>"manual"</code> mode the bulb just follows whatever <code>control/bulb</code> the dashboard last wrote. In <code>"auto"</code> mode the bulb turns ON if temperature crosses <code>TEMP_HIGH_THRESHOLD</code> <b style="color:var(--foreground)">or</b> humidity crosses <code>HUMIDITY_HIGH_THRESHOLD</code>, and only turns OFF once temperature drops to <code>TEMP_LOW_THRESHOLD</code> <b style="color:var(--foreground)">and</b> humidity is back under the high threshold — with the state remembered in <code>autoBulbState</code> so it holds steady in the dead-band between the two temperature thresholds instead of flickering.</li><li><b style="color:var(--foreground)">Pushing timestamped log records</b> &mdash; separately, every <code>LOG_INTERVAL_MS</code> (15s), pushes a new child under <code>logs</code> with <code>temperature</code>, <code>humidity</code>, <code>light</code>, <code>bulb</code>, <code>mode</code> and a Firebase server-side <code>timestamp</code>, which is what the Historical Data table and CSV export both read from.</li><li><b style="color:var(--foreground)">Dashboard history table and chart</b> &mdash; <code>dashboard.html</code> queries <code>logs</code> ordered by <code>timestamp</code> to fill the table and the Live Environment Trends chart.</li><li><b style="color:var(--foreground)">CSV generation and download</b> &mdash; the Download CSV button serializes whatever log rows are currently loaded into a <code>.csv</code> file client-side.</li></ul>
+<div class="media-grid">
+<figure><img src="assets/task5/task5-compiling-sketch.jpg" alt="Arduino IDE compiling the sketch for the ESP32 Dev Module" loading="lazy"><figcaption><b>Compile</b>Compiling the sketch for the ESP32 Dev Module</figcaption></figure>
+<figure><img src="assets/task5/task5-done-uploading.jpg" alt="Arduino IDE showing Done uploading after flashing the ESP32" loading="lazy"><figcaption><b>Upload</b>Flashed — "Done uploading"</figcaption></figure>
+</div>
+</div><div class="sec" id="s7"><h2><em>07</em>Configuration</h2><ol><li>Created a dedicated device account (<code>device@example.com</code>) in Firebase Auth for the ESP32 to sign in with, separate from the human login used on the dashboard</li><li>Reused the <code>logs</code> node already scoped in Task 4's database rules (<code>.read</code>/<code>.write</code> gated on <code>auth != null</code>, <code>.indexOn: ["timestamp"]</code>) rather than creating a new structure</li><li>Confirmed each record actually written under <code>logs</code> holds <code>bulb</code>, <code>humidity</code>, <code>light</code>, <code>mode</code>, <code>temperature</code> and <code>timestamp</code> by inspecting the live data in the Firebase console</li><li>Calibrated the automatic-mode thresholds as ON/OFF pairs for both signals — <code>30.0°C</code> / <code>70%</code> humidity to turn ON, <code>26.0°C</code> and under <code>70%</code> humidity to turn OFF — instead of single cutoffs, so the bulb doesn't flicker while a reading sits in between</li><li>Verified the Historical Data table and the downloaded CSV both reflect the same rows as the Firebase console, across both Manual and Auto mode entries</li></ol>
+<div class="media-grid">
+<figure><img src="assets/task5/task5-firebase-rtdb-logs.jpg" alt="Firebase Realtime Database showing the logs node with real records containing bulb, humidity, light, mode, temperature and timestamp" loading="lazy"><figcaption><b>Screenshot</b>Real <code>logs</code> records in the Realtime Database</figcaption></figure>
+</div>
+</div><div class="sec" id="s8"><h2><em>08</em>Evidence</h2>
+
+<div class="sub"><h3>Live dashboard</h3><div class="media-grid">
+<figure><img src="assets/task5/task5-login-page-live.jpg" alt="Environment Monitor login page live at env-monitor-845af.web.app" loading="lazy"><figcaption><b>Screenshot</b>Login page gating the dashboard</figcaption></figure>
+<figure><img src="assets/task5/task5-dashboard-live-online.jpg" alt="Environment Monitor dashboard showing Device online, real temperature 27.1C, humidity 63%, LDR 1, and a live chart with real data points" loading="lazy"><figcaption><b>Screenshot</b>Dashboard live — <b style="color:var(--accent)">Device online</b>, real readings and a populated chart</figcaption></figure>
+<figure><img src="assets/task5/task5-historical-data-auto-manual.jpg" alt="Historical Data table with rows alternating between AUTO and MANUAL mode and the bulb switching ON and OFF" loading="lazy"><figcaption><b>Screenshot</b>Historical Data table — Auto/Manual rows, bulb toggling</figcaption></figure>
+</div></div>
+
+<div class="sub"><h3>Physical setup</h3><div class="media-grid">
+<figure><img src="assets/task5/task5-bulb-off-physical.jpg" alt="Physical bulb switched off next to the laptop showing the dashboard" loading="lazy"><figcaption><b>Photo</b>Bulb OFF — relay de-energized</figcaption></figure>
+<figure><img src="assets/task5/task5-bulb-on-physical.jpg" alt="Physical bulb lit up next to the laptop showing the dashboard" loading="lazy"><figcaption><b>Photo</b>Bulb ON — relay switched, bulb lit</figcaption></figure>
+</div></div>
+
+<div class="sub"><h3>Auth usage</h3><div class="media-grid">
+<figure><img src="assets/task5/task5-auth-usage-dau-mau.jpg" alt="Firebase Authentication Usage tab showing Daily Active Users peaking at 2 and Monthly Active Users at 3 across the billing period" loading="lazy"><figcaption><b>Screenshot</b>Real sign-ins over time — Daily Active Users (peak 2) and cumulative Monthly Active Users (3)</figcaption></figure>
+</div></div>
+
+<div class="sub"><h3>Data export</h3><div class="media-grid media-wide">
+<figure><video src="assets/task5/task5-demo-video.mp4" controls preload="metadata" playsinline></video><figcaption><b>Video</b>Full system demo — live readings, mode switch and the bulb responding</figcaption></figure>
+</div>
+<p>Source files (<code>index.html</code>, <code>dashboard.html</code>, <code>firebase.config.js</code>) and the full historical data, as CSV and as a converted Excel workbook: <a href="https://drive.google.com/drive/folders/1xW0GiJWKqV8Wh8Vf9mvSClvzJ3pUDE5f?usp=drive_link" target="_blank" rel="noopener">Google Drive folder →</a></p>
+</div>
+
+</div><div class="sec" id="s9"><h2><em>09</em>Challenges &amp; Fixes</h2><ul><li><b style="color:var(--foreground)">Switched automation from LDR to temperature + humidity</b> &mdash; the original plan was light-driven auto lighting, but the firmware ended up combining temperature and humidity thresholds for Auto mode instead, with <code>LDR_DARK_THRESHOLD</code> left in the code only as a reference for optional light-based logic. The LDR is still read and logged every cycle; it just isn't the active trigger in this build.</li><li><b style="color:var(--foreground)">Avoiding flicker at the threshold</b> &mdash; an early single-cutoff version would have made the bulb chatter on and off whenever a reading hovered near the line. The fix uses an OR to turn ON (temperature <b style="color:var(--foreground)">or</b> humidity crosses its high mark) but an AND to turn OFF (temperature <b style="color:var(--foreground)">and</b> humidity both back under their marks), with the last state remembered in <code>autoBulbState</code> — so it only changes state when clearly crossing into the other band, not on every small fluctuation.</li><li><b style="color:var(--foreground)">Confirming Auto mode actually matches the log</b> &mdash; the Historical Data table shows the same temperature (27.1°C) with the bulb both ON and OFF across different Auto-mode rows, which is exactly what hysteresis looks like from the outside: the bulb's state depends on which threshold it crossed most recently (and on humidity at that moment), not just the instantaneous temperature, so two rows at the same temperature can legitimately show different bulb states.</li></ul></div><div class="sec" id="s10"><h2><em>10</em>Reflection</h2><p>Across the five tasks, the control path kept getting one layer further from "a button that directly flips a pin." Task 1 was a browser talking straight to the ESP32. Tasks 2 and 3 moved that through Adafruit IO and then IFTTT, so the ESP32 only ever had to trust a value on a feed, not who or what sent it. Task 4 replaced the open feed with a real backend — login, authorization rules, structured data. This task is where that backend finally does something on its own: the ESP32 doesn't wait to be told to turn the bulb on, it decides that itself from a sensor reading, and separately keeps a timestamped record of everything regardless of whether anyone's watching.</p><p>The main limitation right now is that "automatic" covers temperature and humidity but not light, even though the dashboard still surfaces an LDR card and the firmware still logs a light value — the LDR-driven logic exists as a threshold constant but isn't wired into the decision. A natural next step would be folding light in as a third signal (e.g. only auto-lighting when it's both dark and within a comfortable temperature/humidity range) rather than leaving it purely informational. The CSV export is also a snapshot of whatever's currently loaded in the table rather than the full history, so a proper export would need to page through all of <code>logs</code> first.</p><p>The broader lesson across all five tasks is that most of the actual engineering wasn't in getting a sensor value from A to B — every task in this set could do that. It was in deciding who's authorized to act on that value (Task 4), and here, in deciding when the system should act on its own versus wait to be told (Task 5).</p></div><div class="sec" id="s11"><h2><em>11</em>Repository Link</h2><p>Full firmware and dashboard source for this task.</p><a class="btn" href="https://github.com/sachinsivapragash/Firebase-Logging-Automation-Data-Export.git" target="_blank" rel="noopener">Open Task 5 on GitHub →</a></div><div class="sec"><h2>Other tasks</h2><div class="cards oth"><a href="protosem-week-7-task-1.html"><b>TASK 1</b><h3>ESP32 Web Server &amp; HTML LED Control</h3><p>Turn the ESP32 into a web server and switch an LED on and off from a browser page.</p></a><a href="protosem-week-7-task-2.html"><b>TASK 2</b><h3>Adafruit IO Dashboard &amp; MQTT</h3><p>Control the LED from an Adafruit IO cloud dashboard using MQTT.</p></a><a href="protosem-week-7-task-3.html"><b>TASK 3</b><h3>IFTTT + Adafruit IO IoT Automation</h3><p>Trigger an IFTTT applet that drives an Adafruit IO feed and the ESP32 automatically.</p></a><a href="protosem-week-7-task-4.html"><b>TASK 4</b><h3>Firebase IoT Monitoring Dashboard</h3><p>Monitor temperature, humidity and light in a login-protected Firebase dashboard and control a bulb.</p></a></div></div></article><aside class="side"><p class="eyebrow">Tasks</p><a href="protosem-week-7-task-1.html">1 · Web Server &amp; LED</a><a href="protosem-week-7-task-2.html">2 · Adafruit IO &amp; MQTT</a><a href="protosem-week-7-task-3.html">3 · IFTTT Automation</a><a href="protosem-week-7-task-4.html">4 · Firebase Dashboard</a><a href="protosem-week-7-task-5.html" class="on">5 · Logging &amp; CSV Export</a><p class="eyebrow">On this page</p><a href="#s1">01 Overview</a><a href="#s2">02 Concepts</a><a href="#s3">03 System Design</a><a href="#s4">04 Hardware &amp; Software</a><a href="#s5">05 Wiring / Setup</a><a href="#s6">06 Implementation</a><a href="#s7">07 Configuration</a><a href="#s8">08 Evidence</a><a href="#s9">09 Challenges &amp; Fixes</a><a href="#s10">10 Reflection</a><a href="#s11">11 Repository Link</a></aside></div></div></main>
 <script>
 const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
 if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}

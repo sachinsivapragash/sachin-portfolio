@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 7 — IoT &amp; Cloud Tasks | ProtoSem</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 7 Task 2 — Adafruit IO Dashboard &amp; MQTT | ProtoSem</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
 /* ---------- Reset ---------- */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -602,6 +602,13 @@ html.no-motion .marquee-track{ animation:none !important; }
 .flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
 .flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
 .flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
 .ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
 .ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
 .ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
@@ -610,7 +617,17 @@ pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1p
 .btn:hover{background:var(--accent);color:var(--background)}
 .oth a{display:block}.oth a:hover{background:var(--surface)}.oth a:hover h3{color:var(--accent)}
 .oth b{display:block;margin-bottom:.4rem;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent);font-weight:500}
-.proto-grid .proto-card:last-child{grid-column:1/-1}</style></head><body>
+.proto-grid .proto-card:last-child{grid-column:1/-1}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+</style></head><body>
 <header id="site-nav"><nav>
   <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
   <ul class="nav-links">
@@ -627,7 +644,307 @@ pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1p
   <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
   <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
 </div>
-<main><div class="tk"><p class="eyebrow">Week 7</p><h1>IoT &amp; Cloud Tasks</h1><p class="lead">Five IoT assignments, each documented on its own page: from a local ESP32 web server to a Firebase dashboard with data logging and export. Choose a task to open it.</p><a class="back" href="protosem.html">← Back to ProtoSem</a><div class="proto-grid"><a class="proto-card" href="protosem-week-7-task-1.html"><span class="proto-num">TASK 1</span><h2>ESP32 Web Server &amp; HTML LED Control</h2><p>Turn the ESP32 into a web server and switch an LED on and off from a browser page.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-2.html"><span class="proto-num">TASK 2</span><h2>Adafruit IO Dashboard &amp; MQTT</h2><p>Control the LED from an Adafruit IO cloud dashboard using MQTT.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-3.html"><span class="proto-num">TASK 3</span><h2>IFTTT + Adafruit IO IoT Automation</h2><p>Trigger an IFTTT applet that drives an Adafruit IO feed and the ESP32 automatically.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-4.html"><span class="proto-num">TASK 4</span><h2>Firebase IoT Monitoring Dashboard</h2><p>Monitor temperature, humidity and light in a login-protected Firebase dashboard and control a bulb.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-5.html"><span class="proto-num">TASK 5</span><h2>Firebase Logging, Automation &amp; Data Export</h2><p>The complete system: automatic LDR lighting, Firebase data logging, charts and CSV export.</p><span class="arrow">VIEW TASK →</span></a></div></div></main>
+<main><div class="tk"><p class="eyebrow">Week 7 · Task 2 of 5</p><h1>Adafruit IO Dashboard &amp; MQTT</h1><nav class="tabs" aria-label="Week 7 tasks"><a href="protosem-week-7.html">← Week 7</a><a href="protosem-week-7-task-1.html">Task 1</a><a href="protosem-week-7-task-2.html" class="on" aria-current="page">Task 2</a><a href="protosem-week-7-task-3.html">Task 3</a><a href="protosem-week-7-task-4.html">Task 4</a><a href="protosem-week-7-task-5.html">Task 5</a></nav><div class="tk-grid"><article><div class="sec" id="s1"><h2><em>01</em>Overview</h2><p>The objective is to control the ESP32 from anywhere, not only from the local network. Adafruit IO hosts the dashboard and acts as the MQTT broker, so a switch on the dashboard reaches the ESP32 through the cloud.</p></div><div class="sec" id="s2"><h2><em>02</em>Concepts</h2><div class="cards"><div><h3>Adafruit IO</h3><p>A cloud IoT platform that stores data in feeds and shows it on dashboards with switches, gauges and charts.</p></div><div><h3>MQTT</h3><p>A lightweight publish/subscribe protocol built for small devices. Devices exchange short messages through a broker instead of talking to each other directly.</p></div><div><h3>Publisher, Subscriber, Broker</h3><p>The dashboard switch publishes a message, the ESP32 subscribes to receive it, and Adafruit IO is the broker that passes it between them.</p></div><div><h3>Topic / Feed</h3><p>A topic is the named channel messages travel on. In Adafruit IO each feed maps to a topic, for example username/feeds/led.</p></div></div></div><div class="sec" id="s3"><h2><em>03</em>System Design</h2><div class="flow"><span>Adafruit IO dashboard toggle</span><i>→</i><span>bulb-control feed (MQTT broker)</span><i>→</i><span>ESP32 subscriber</span><i>→</i><span>Relay module</span><i>→</i><span>230V AC Bulb</span></div><p>Tapping the switch on the <em style="font-style:normal;color:var(--accent)">Bulb Control</em> dashboard publishes a value to the <code>bulb-control</code> feed. Adafruit IO, acting as the MQTT broker, holds that value. The ESP32 is subscribed to the same feed, so as soon as a new value arrives it runs <code>processBulbCommand()</code> and switches the relay &mdash; no port forwarding or fixed IP needed on my end, since the ESP32 only ever reaches <em style="font-style:normal;color:var(--accent)">out</em> to Adafruit IO's servers.</p><div class="arch-diagram"><svg viewBox="0 0 960 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data flow: Adafruit IO dashboard toggle to bulb-control feed to ESP32 subscriber to relay module to 230V AC bulb">
+<defs>
+<marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ff3b1d"/></marker>
+</defs>
+<g font-family="Onest, sans-serif">
+<!-- Dashboard -->
+<rect x="10" y="65" width="140" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="80" y="95" fill="#f3f1ea" font-size="14" font-weight="600" text-anchor="middle">Dashboard</text>
+<text x="80" y="116" fill="#807f78" font-size="11" text-anchor="middle">toggle switch</text>
+<line x1="150" y1="100" x2="194" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow2)"/>
+<!-- Adafruit IO -->
+<rect x="195" y="55" width="170" height="90" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="280" y="88" fill="#f3f1ea" font-size="14" font-weight="600" text-anchor="middle">Adafruit IO</text>
+<text x="280" y="108" fill="#807f78" font-size="11" text-anchor="middle">bulb-control feed</text>
+<text x="280" y="124" fill="#807f78" font-size="11" text-anchor="middle">(MQTT broker)</text>
+<line x1="365" y1="100" x2="409" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow2)"/>
+<!-- ESP32 -->
+<rect x="410" y="55" width="170" height="90" rx="4" fill="none" stroke="#ff3b1d" stroke-width="1.5"/>
+<text x="495" y="86" fill="#ff3b1d" font-size="14" font-weight="600" text-anchor="middle">ESP32</text>
+<text x="495" y="105" fill="#f3f1ea" font-size="12" text-anchor="middle">MQTT subscriber</text>
+<text x="495" y="123" fill="#807f78" font-size="10.5" text-anchor="middle">processBulbCommand()</text>
+<line x1="580" y1="100" x2="624" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow2)"/>
+<!-- Relay -->
+<rect x="625" y="65" width="150" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="700" y="95" fill="#f3f1ea" font-size="14" font-weight="600" text-anchor="middle">Relay Module</text>
+<text x="700" y="116" fill="#807f78" font-size="11" text-anchor="middle">switches AC line</text>
+<line x1="775" y1="100" x2="819" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow2)"/>
+<!-- Bulb -->
+<rect x="820" y="65" width="130" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<circle cx="885" cy="90" r="9" fill="#ff6a3d"/>
+<text x="885" y="118" fill="#f3f1ea" font-size="12" font-weight="600" text-anchor="middle">230V AC Bulb</text>
+</g>
+</svg></div></div><div class="sec" id="s4"><h2><em>04</em>Hardware &amp; Software</h2><div class="cards"><div><h3>Hardware</h3><ul><li>ESP32 Dev Module (WROOM-32)</li><li>5V single-channel relay module</li><li>230V AC Bulb &amp; holder (mains-powered)</li><li>Jumper wires + mains cable to the relay</li></ul></div><div><h3>Software &amp; platforms</h3><ul><li>Adafruit IO account (feed + dashboard)</li><li>Arduino IDE 2.3.10</li><li>Adafruit IO Arduino + Adafruit MQTT libraries</li><li>WiFi.h for the network connection</li></ul></div></div><div class="media-grid"><figure><img src="assets/task2/task2-hardware-relay-bulb.jpeg" alt="ESP32, 5V relay module and 230V AC bulb wired together on the desk" loading="lazy"><figcaption><b>Hardware</b>ESP32, relay module and the 230V AC bulb wired together</figcaption></figure></div></div><div class="sec" id="s5"><h2><em>05</em>Wiring / Setup</h2><table class="pin-table"><thead><tr><th>ESP32 pin</th><th>Connects to</th><th>Signal</th></tr></thead><tbody><tr><td><code>GPIO 23</code></td><td>Relay module <b>IN</b></td><td>Control signal (logic level)</td></tr><tr><td><code>5V</code></td><td>Relay module <b>VCC</b></td><td>5V power</td></tr><tr><td><code>GND</code></td><td>Relay module <b>GND</b></td><td>Common ground</td></tr><tr><td colspan="2">Mains live wire</td><td>Runs through relay <b>COM</b> → <b>NO</b> in series with the bulb, so the relay opens/closes that line like a switch</td></tr></tbody></table><p>This side of the circuit is mains voltage, not the 3.3V/5V logic side, so I kept the AC wiring taped down and double-checked every joint by hand before plugging it in &mdash; the ESP32 itself never touches mains directly, it only switches the relay's coil.</p><div class="arch-diagram"><svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg">
+<style>
+  .box{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:1.5}
+  .lbl{font-family:var(--font-sans);font-size:15px;fill:var(--foreground);font-weight:600}
+  .sub{font-family:var(--font-sans);font-size:12px;fill:var(--muted)}
+  .pin{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;fill:#b9b7ae}
+  .wire{stroke-width:2.5;fill:none}
+</style>
+<rect class="box" x="40" y="150" width="180" height="140" rx="8"/>
+<text class="lbl" x="130" y="185" text-anchor="middle">ESP32</text>
+<text class="sub" x="130" y="203" text-anchor="middle">Dev Module</text>
+<text class="pin" x="60" y="235">GPIO 23</text><circle cx="220" cy="230" r="4" fill="var(--accent)"/>
+<text class="pin" x="60" y="260">5V</text><circle cx="220" cy="255" r="4" fill="#e5484d"/>
+<text class="pin" x="60" y="280">GND</text><circle cx="220" cy="275" r="4" fill="#9a9890"/>
+
+<rect class="box" x="360" y="120" width="190" height="200" rx="8"/>
+<text class="lbl" x="455" y="150" text-anchor="middle">Relay Module</text>
+<text class="sub" x="455" y="168" text-anchor="middle">5V single-channel</text>
+<text class="pin" x="375" y="200">IN</text><circle cx="360" cy="195" r="4" fill="var(--accent)"/>
+<text class="pin" x="375" y="225">VCC</text><circle cx="360" cy="220" r="4" fill="#e5484d"/>
+<text class="pin" x="375" y="250">GND</text><circle cx="360" cy="245" r="4" fill="#9a9890"/>
+<text class="pin" x="480" y="200" text-anchor="end">COM</text><circle cx="550" cy="195" r="4" fill="#f2c94c"/>
+<text class="pin" x="480" y="290" text-anchor="end">NO</text><circle cx="550" cy="285" r="4" fill="#f2c94c"/>
+
+<rect class="box" x="360" y="360" width="140" height="70" rx="8"/>
+<text class="lbl" x="430" y="390" text-anchor="middle">Mains Plug</text>
+<text class="sub" x="430" y="408" text-anchor="middle">230V AC</text>
+<text class="pin" x="375" y="345">Live</text><circle cx="360" cy="360" r="4" fill="#f2c94c"/>
+<text class="pin" x="480" y="345" text-anchor="end">Neutral</text><circle cx="500" cy="360" r="4" fill="#9a9890"/>
+
+<circle cx="770" cy="200" r="46" class="box"/>
+<text class="lbl" x="770" y="270" text-anchor="middle">230V AC Bulb</text>
+<text class="pin" x="700" y="180" text-anchor="end">L</text><circle cx="724" cy="180" r="4" fill="#f2c94c"/>
+<text class="pin" x="700" y="225" text-anchor="end">N</text><circle cx="724" cy="225" r="4" fill="#9a9890"/>
+
+<path class="wire" stroke="var(--accent)" d="M220,230 L360,195"/>
+<path class="wire" stroke="#e5484d" d="M220,255 L360,220"/>
+<path class="wire" stroke="#9a9890" d="M220,275 L360,245"/>
+
+<path class="wire" stroke="#f2c94c" d="M360,360 L550,195"/>
+<path class="wire" stroke="#f2c94c" d="M550,285 L724,180"/>
+<path class="wire" stroke="#9a9890" d="M500,360 L724,225"/>
+
+<g font-family="var(--font-sans)" font-size="12" fill="var(--muted)">
+  <circle cx="60" cy="420" r="5" fill="var(--accent)"/><text x="72" y="424">Control signal (logic)</text>
+  <circle cx="260" cy="420" r="5" fill="#e5484d"/><text x="272" y="424">5V power</text>
+  <circle cx="400" cy="420" r="5" fill="#9a9890"/><text x="412" y="424">GND / Neutral</text>
+  <circle cx="560" cy="420" r="5" fill="#f2c94c"/><text x="572" y="424">230V AC (mains)</text>
+</g>
+</svg></div></div><div class="sec" id="s6"><h2><em>06</em>Implementation</h2><pre class="code">// task2_adafruit_mqtt.ino
+#include &lt;WiFi.h&gt;
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
+
+// =================================================
+// Wi-Fi
+// =================================================
+
+#define WIFI_SSID "protosem"
+#define WIFI_PASS "Proto#123"
+
+// =================================================
+// Adafruit IO
+// =================================================
+
+#define AIO_SERVER      "io.adafruit.com"
+#define AIO_SERVERPORT  1883
+#define AIO_USERNAME    "sachinn__s"
+#define AIO_KEY         "YOUR_NEW_ADAFRUIT_IO_KEY"
+
+// =================================================
+// RELAY
+// =================================================
+
+#define RELAY_PIN 23
+
+// Relay logic
+#define RELAY_ON  HIGH
+#define RELAY_OFF LOW
+
+// =================================================
+// MQTT
+// =================================================
+
+WiFiClient client;
+
+Adafruit_MQTT_Client mqtt(
+  &amp;client,
+  AIO_SERVER,
+  AIO_SERVERPORT,
+  AIO_USERNAME,
+  AIO_KEY
+);
+
+// =================================================
+// BULB FEED
+// =================================================
+
+Adafruit_MQTT_Subscribe bulbControl =
+  Adafruit_MQTT_Subscribe(
+    &amp;mqtt,
+    AIO_USERNAME "/feeds/bulb-control"
+  );
+
+// =================================================
+// CONNECT TO WIFI
+// =================================================
+
+void connectWiFi() {
+
+  Serial.print("Connecting to WiFi");
+
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println();
+  Serial.println("WiFi Connected!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+}
+
+// =================================================
+// CONNECT TO ADAFRUIT IO
+// =================================================
+
+void connectMQTT() {
+
+  while (!mqtt.connected()) {
+
+    Serial.print("Connecting to Adafruit IO...");
+
+    int8_t ret = mqtt.connect();
+
+    if (ret == 0) {
+      Serial.println("Connected to Adafruit IO!");
+    }
+    else {
+      Serial.print("Failed, error = ");
+      Serial.println(mqtt.connectErrorString(ret));
+
+      mqtt.disconnect();
+      delay(5000);
+    }
+  }
+}
+
+// =================================================
+// PROCESS BULB COMMAND
+// =================================================
+
+void processBulbCommand(String command) {
+
+  command.trim();
+  command.toLowerCase();
+
+  Serial.print("Received command: ");
+  Serial.println(command);
+
+  // -------------------------
+  // BULB ON
+  // -------------------------
+
+  if (command == "1" ||
+      command == "on" ||
+      command == "bulb on" ||
+      command == "bulbon") {
+
+    digitalWrite(RELAY_PIN, RELAY_ON);
+
+    Serial.println("&gt;&gt;&gt; BULB ON");
+  }
+
+  // -------------------------
+  // BULB OFF
+  // -------------------------
+
+  else if (command == "0" ||
+           command == "off" ||
+           command == "bulb off" ||
+           command == "bulb of" ||
+           command == "bulboff" ||
+           command == "of") {
+
+    digitalWrite(RELAY_PIN, RELAY_OFF);
+
+    Serial.println("&gt;&gt;&gt; BULB OFF");
+  }
+
+  // -------------------------
+  // UNKNOWN
+  // -------------------------
+
+  else {
+
+    Serial.print("Unknown command: ");
+    Serial.println(command);
+  }
+}
+
+// =================================================
+// SETUP
+// =================================================
+
+void setup() {
+
+  Serial.begin(115200);
+
+  delay(1000);
+
+  Serial.println();
+  Serial.println("================================");
+  Serial.println("ESP32 BULB CONTROL");
+  Serial.println("================================");
+
+  // Relay setup
+  pinMode(RELAY_PIN, OUTPUT);
+
+  // Start with bulb OFF
+  digitalWrite(RELAY_PIN, RELAY_OFF);
+
+  // WiFi
+  connectWiFi();
+
+  // Subscribe to feed
+  mqtt.subscribe(&amp;bulbControl);
+
+  // MQTT
+  connectMQTT();
+
+  Serial.println("System ready!");
+}
+
+// =================================================
+// LOOP
+// =================================================
+
+void loop() {
+
+  // Reconnect WiFi if necessary
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi();
+  }
+
+  // Reconnect MQTT if necessary
+  if (!mqtt.connected()) {
+    connectMQTT();
+  }
+
+  // Keep MQTT connection alive
+  mqtt.processPackets(1000);
+
+  // Check for new feed value
+  Adafruit_MQTT_Subscribe *subscription;
+
+  while ((subscription = mqtt.readSubscription(100)) != NULL) {
+
+    if (subscription == &amp;bulbControl) {
+
+      String command = String((char *)bulbControl.lastread);
+
+      processBulbCommand(command);
+    }
+  }
+}
+</pre><p>Key sections, in my own words:</p><ul><li><b style="color:var(--foreground)">Wi-Fi + Adafruit IO connection</b> &mdash; <code>connectWiFi()</code> joins the <em style="font-style:normal;color:var(--accent)">protosem</em> network the same way as Task 1, then the <code>Adafruit_MQTT_Client</code> object is configured with my Adafruit IO username and key so <code>connectMQTT()</code> can authenticate to <code>io.adafruit.com</code> on port 1883.</li><li><b style="color:var(--foreground)">Subscribing to the feed</b> &mdash; <code>bulbControl</code> is an <code>Adafruit_MQTT_Subscribe</code> pointed at <code>sachinn__s/feeds/bulb-control</code>, and <code>mqtt.subscribe(&amp;bulbControl)</code> in <code>setup()</code> tells the broker to forward me every new value published to that feed.</li><li><b style="color:var(--foreground)">processBulbCommand()</b> &mdash; the dashboard toggle can send a few different strings depending on how it's configured, so I trim and lowercase whatever comes in and match it against several ON variants (<code>1</code>, <code>on</code>, <code>bulb on</code>, <code>bulbon</code>) and OFF variants (<code>0</code>, <code>off</code>, <code>bulb off</code>, <code>bulboff</code>) before driving <code>RELAY_PIN</code> HIGH or LOW.</li><li><b style="color:var(--foreground)">Reconnect logic</b> &mdash; every pass through <code>loop()</code> checks <code>WiFi.status()</code> and <code>mqtt.connected()</code> and reconnects either one if it dropped, before calling <code>mqtt.processPackets(1000)</code> and reading the subscription queue &mdash; this is what keeps the relay in sync even after a brief Wi-Fi hiccup.</li></ul><div class="media-grid"><figure><img src="assets/task2/task2-library-install.jpeg" alt="Installing the Adafruit IO Arduino library in the Arduino IDE Library Manager" loading="lazy"><figcaption><b>Setup</b>Installing the Adafruit IO Arduino library</figcaption></figure><figure><img src="assets/task2/task2-compiling-sketch.jpeg" alt="Compiling the MQTT sketch in Arduino IDE 2.3.10" loading="lazy"><figcaption><b>Compile</b>Compiling the sketch in Arduino IDE 2.3.10</figcaption></figure><figure><img src="assets/task2/task2-serial-monitor-connected.jpeg" alt="Serial Monitor showing WiFi connected and Adafruit IO MQTT connected" loading="lazy"><figcaption><b>Serial Monitor</b>Wi-Fi connected, then MQTT connected to Adafruit IO</figcaption></figure><figure><img src="assets/task2/task2-board-select.jpeg" alt="Arduino IDE Tools menu, Board set to ESP32 Dev Module" loading="lazy"><figcaption><b>Board</b>Tools &rarr; Board &rarr; esp32 &rarr; ESP32 Dev Module</figcaption></figure><figure><img src="assets/task2/task2-port-select.jpeg" alt="Arduino IDE Tools menu, Port set to COM9" loading="lazy"><figcaption><b>Port</b>Tools &rarr; Port &rarr; COM9</figcaption></figure></div></div><div class="sec" id="s7"><h2><em>07</em>Configuration</h2><ol><li>Create a free Adafruit IO account and note the username (<code>sachinn__s</code>)</li><li>Create a feed named <code>bulb-control</code> under Feeds &rarr; New Feed</li><li>Create a new dashboard, name it <em style="font-style:normal;color:var(--accent)">Bulb Control</em>, and add a Toggle block linked to the <code>bulb-control</code> feed</li><li>Open <em style="font-style:normal;color:var(--accent)">View AIO Key</em>, copy the username and key into the sketch's <code>AIO_USERNAME</code> / <code>AIO_KEY</code> fields, and keep the key out of the public repo</li></ol><div class="media-grid"><figure><img src="assets/task2/task2-io-feed.jpeg" alt="Adafruit IO Feeds page showing the bulb-control feed" loading="lazy"><figcaption><b>Feed</b>The bulb-control feed under Feeds</figcaption></figure><figure><img src="assets/task2/task2-io-dashboards-list.jpeg" alt="Adafruit IO Dashboards page listing the Bulb Control dashboard" loading="lazy"><figcaption><b>Dashboard</b>The Bulb Control dashboard, created Sept 10</figcaption></figure><figure><img src="assets/task2/task2-io-create-block.jpeg" alt="Adafruit IO Create a new block dialog, choosing the Toggle block" loading="lazy"><figcaption><b>Block</b>Adding a Toggle block to the dashboard</figcaption></figure><figure><img src="assets/task2/task2-io-edit-dashboard.jpeg" alt="Adafruit IO Edit Dashboard dialog showing the dashboard name and key" loading="lazy"><figcaption><b>Settings</b>Dashboard name &amp; key under Edit Dashboard</figcaption></figure></div></div><div class="sec" id="s8"><h2><em>08</em>Evidence</h2><div class="media-grid"><figure><img src="assets/task2/task2-io-dashboard-view.png" alt="Adafruit IO Bulb Control dashboard with the toggle switch showing OFF" loading="lazy"><figcaption><b>Screenshot</b>The Bulb Control dashboard on Adafruit IO</figcaption></figure><figure><img src="assets/task2/task2-physical-bulb-on.jpeg" alt="Bulb lit up while the Adafruit IO dashboard toggle shows ON" loading="lazy"><figcaption><b>Photo</b>Bulb ON, matching the dashboard toggle</figcaption></figure><figure><img src="assets/task2/task2-physical-bulb-off.jpeg" alt="Bulb off while the Adafruit IO dashboard toggle shows OFF" loading="lazy"><figcaption><b>Photo</b>Bulb OFF, matching the dashboard toggle</figcaption></figure><figure><img src="assets/task2/task2-feed-graph.jpeg" alt="Adafruit IO feed chart for bulb-control showing values over several days" loading="lazy"><figcaption><b>Screenshot</b>bulb-control feed history over several days</figcaption></figure></div><div class="media-grid media-wide"><figure><img src="assets/task2/task2-feed-data-log.jpeg" alt="Adafruit IO feed data log listing each 1/0 value with a timestamp" loading="lazy"><figcaption><b>Screenshot</b>Raw feed log &mdash; every toggle logged with a timestamp</figcaption></figure></div><div class="media-grid media-wide"><figure><video src="assets/task2/task2-demo-bulb-on.mp4" controls preload="metadata" playsinline></video><figcaption><b>Video</b>Demo: switching the bulb ON from the Adafruit IO dashboard</figcaption></figure><figure><video src="assets/task2/task2-demo-bulb-off.mp4" controls preload="metadata" playsinline></video><figcaption><b>Video</b>Demo: switching the bulb OFF from the Adafruit IO dashboard</figcaption></figure></div><div class="media-grid media-wide"><figure><img src="assets/task2/task2-demo-photo.jpeg" alt="Sachin demonstrating the Adafruit IO Bulb Control dashboard live on the laptop, with the bulb lit on the desk" loading="lazy"><figcaption><b>Photo</b>Demonstrating the Bulb Control dashboard live, bulb lit on the desk</figcaption></figure></div></div><div class="sec" id="s9"><h2><em>09</em>Challenges &amp; Fixes</h2><ul><li><b style="color:var(--foreground)">MQTT authentication kept failing</b> &mdash; the Serial Monitor printed a connect error instead of "Connected to Adafruit IO!", which turned out to be an old AIO key left in the sketch from an earlier test. I regenerated the key from the dashboard's key dialog and swapped it into <code>AIO_KEY</code>, and the connection went through on the first try after that.</li><li><b style="color:var(--foreground)">The topic name had to match exactly</b> &mdash; I originally typed the feed name slightly differently in the sketch than the feed I'd actually created on Adafruit IO, so subscribing silently did nothing since the topic didn't exist. Double-checking the feed's key on the Feeds page against <code>AIO_USERNAME "/feeds/bulb-control"</code> in the code fixed it.</li><li><b style="color:var(--foreground)">The toggle block didn't send the value I expected</b> &mdash; depending on how I set up the Toggle block, Adafruit IO sometimes published <code>ON</code>/<code>OFF</code> text instead of <code>1</code>/<code>0</code>. Rather than fight the dashboard's default labels, I made <code>processBulbCommand()</code> accept several equivalent strings (<code>on</code>, <code>bulb on</code>, <code>bulbon</code>, and so on), so the relay responds correctly no matter which format the block sends.</li></ul></div><div class="sec" id="s10"><h2><em>10</em>Reflection</h2><p>The biggest difference from Task 1's local web server is that I no longer need to know the ESP32's IP address at all. In Task 1, the browser had to reach the ESP32 directly, so both devices had to share a network and I had to re-read the IP every time it changed. Here, the ESP32 only ever makes an outbound connection to Adafruit IO, and the dashboard talks to Adafruit IO too &mdash; the broker in the middle means I can flip the bulb from my phone on mobile data, nowhere near the <em style="font-style:normal;color:var(--accent)">protosem</em> Wi-Fi, and it still works.</p><p>Publish/subscribe also changed how I think about the connection between "client" and "server." Neither side is really either one &mdash; the dashboard publishes to a feed, the ESP32 subscribes to that same feed, and Adafruit IO just routes the message between whoever's interested. That decoupling is what let me swap the relay/bulb hardware in without touching anything about how the dashboard is built.</p></div><div class="sec" id="s11"><h2><em>11</em>Repository Link</h2><p>Full sketch and project files for this task.</p><a class="btn" href="https://github.com/sachinsivapragash/Adafruit-IO-Dashboard-MQTT.git" target="_blank" rel="noopener">Open Task 2 on GitHub →</a></div><div class="sec"><h2>Other tasks</h2><div class="cards oth"><a href="protosem-week-7-task-1.html"><b>TASK 1</b><h3>ESP32 Web Server &amp; HTML LED Control</h3><p>Turn the ESP32 into a web server and switch an LED on and off from a browser page.</p></a><a href="protosem-week-7-task-3.html"><b>TASK 3</b><h3>IFTTT + Adafruit IO IoT Automation</h3><p>Trigger an IFTTT applet that drives an Adafruit IO feed and the ESP32 automatically.</p></a><a href="protosem-week-7-task-4.html"><b>TASK 4</b><h3>Firebase IoT Monitoring Dashboard</h3><p>Monitor temperature, humidity and light in a login-protected Firebase dashboard and control a bulb.</p></a><a href="protosem-week-7-task-5.html"><b>TASK 5</b><h3>Firebase Logging, Automation &amp; Data Export</h3><p>The complete system: automatic LDR lighting, Firebase data logging, charts and CSV export.</p></a></div></div></article><aside class="side"><p class="eyebrow">Tasks</p><a href="protosem-week-7-task-1.html">1 · Web Server &amp; LED</a><a href="protosem-week-7-task-2.html" class="on">2 · Adafruit IO &amp; MQTT</a><a href="protosem-week-7-task-3.html">3 · IFTTT Automation</a><a href="protosem-week-7-task-4.html">4 · Firebase Dashboard</a><a href="protosem-week-7-task-5.html">5 · Logging &amp; CSV Export</a><p class="eyebrow">On this page</p><a href="#s1">01 Overview</a><a href="#s2">02 Concepts</a><a href="#s3">03 System Design</a><a href="#s4">04 Hardware &amp; Software</a><a href="#s5">05 Wiring / Setup</a><a href="#s6">06 Implementation</a><a href="#s7">07 Configuration</a><a href="#s8">08 Evidence</a><a href="#s9">09 Challenges &amp; Fixes</a><a href="#s10">10 Reflection</a><a href="#s11">11 Repository Link</a></aside></div></div></main>
 <script>
 const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
 if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}

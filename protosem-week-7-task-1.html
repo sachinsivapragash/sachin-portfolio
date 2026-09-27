@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ProtoSem — Sachin</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 7 Task 1 — ESP32 Web Server &amp; HTML LED Control | ProtoSem</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
 /* ---------- Reset ---------- */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -383,304 +383,8 @@ html.no-motion .marquee-track{ animation:none !important; }
 .proto-empty{border-top:1px solid var(--line);margin-top:4rem;padding-top:2rem;color:var(--muted)}
 @media(max-width:900px){.proto-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}.detail-main,.detail-side{grid-column:1}.proto-wrap,.proto-detail{padding-top:7rem}}
 </style>
-<style id="protosem-roadmap">
-/* Interactive roadmap presentation */
-.proto-wrap{
-  max-width:88rem;
-  margin:0 auto;
-  padding-top:8rem;
-  padding-bottom:8rem;
-}
-
-.proto-title{
-  max-width:12ch;
-}
-
-.proto-intro{
-  max-width:48ch;
-}
-
-.proto-roadmap{
-  position:relative;
-  margin-top:5rem;
-  padding:1rem 0 2rem;
-}
-
-.proto-roadmap::before{
-  content:"";
-  position:absolute;
-  top:0;
-  bottom:0;
-  left:50%;
-  width:1px;
-  background:linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--line-strong) 5%,
-    var(--line-strong) 95%,
-    transparent 100%
-  );
-  transform:translateX(-50%);
-}
-
-.proto-roadmap-progress{
-  position:absolute;
-  top:0;
-  left:50%;
-  width:2px;
-  height:0;
-  background:var(--accent);
-  transform:translateX(-50%);
-  transition:height .35s ease;
-}
-
-.proto-milestone{
-  position:relative;
-  display:grid;
-  grid-template-columns:1fr 4rem 1fr;
-  align-items:center;
-  min-height:10rem;
-}
-
-.proto-milestone + .proto-milestone{
-  margin-top:1.25rem;
-}
-
-.proto-milestone .proto-node{
-  grid-column:2;
-  grid-row:1;
-  justify-self:center;
-  width:1rem;
-  height:1rem;
-  border:2px solid var(--foreground);
-  border-radius:50%;
-  background:var(--background);
-  box-shadow:0 0 0 0 var(--accent);
-  z-index:3;
-  transition:
-    background .28s ease,
-    border-color .28s ease,
-    transform .28s ease,
-    box-shadow .28s ease;
-}
-
-.proto-milestone .proto-connector{
-  grid-row:1;
-  height:1px;
-  background:var(--line);
-  transition:background .28s ease;
-}
-
-.proto-milestone.left .proto-connector{ grid-column:2; margin-left:0; }
-.proto-milestone.right .proto-connector{ grid-column:2; margin-right:0; }
-
-.proto-milestone .proto-card{
-  grid-row:1;
-  min-height:0;
-  padding:1.5rem 1.75rem;
-  border:1px solid var(--line);
-  background:rgba(8,8,10,.82);
-  border-radius:.25rem;
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  display:block;
-  transition:
-    transform .32s ease,
-    background .32s ease,
-    border-color .32s ease,
-    box-shadow .32s ease;
-}
-
-.proto-milestone.left .proto-card{
-  grid-column:1;
-  margin-right:2rem;
-  text-align:right;
-}
-
-.proto-milestone.right .proto-card{
-  grid-column:3;
-  margin-left:2rem;
-}
-
-.proto-milestone .proto-card::after{
-  content:"";
-  display:block;
-  width:2rem;
-  height:1px;
-  margin-top:1.25rem;
-  background:var(--accent);
-  opacity:.7;
-  transition:width .3s ease;
-}
-
-.proto-milestone.left .proto-card::after{ margin-left:auto; }
-
-.proto-milestone .proto-num{
-  display:block;
-  font-size:var(--fs-eyebrow);
-  letter-spacing:.18em;
-  color:var(--accent);
-}
-
-.proto-milestone .proto-card h2{
-  margin-top:.7rem;
-  font-family:var(--font-sans);
-  font-size:var(--fs-h3);
-  font-weight:600;
-  line-height:1.15;
-  max-width:28ch;
-}
-
-.proto-milestone.left .proto-card h2{ margin-left:auto; }
-
-.proto-milestone .proto-card p{
-  margin-top:.65rem;
-  color:var(--muted);
-  font-size:var(--fs-body);
-  line-height:1.5;
-  max-width:48ch;
-}
-
-.proto-milestone.left .proto-card p{ margin-left:auto; }
-
-.proto-milestone .arrow{
-  display:inline-block;
-  margin-top:1.25rem;
-  color:var(--foreground);
-  font-size:var(--fs-eyebrow);
-  text-transform:uppercase;
-  letter-spacing:.2em;
-  transition:color .25s ease, transform .25s ease;
-}
-
-.proto-milestone:hover .proto-card,
-.proto-milestone:focus-within .proto-card,
-.proto-milestone.is-active .proto-card{
-  border-color:var(--accent);
-  background:var(--surface);
-  box-shadow:0 0 0 1px rgba(255,59,29,.12), 0 1.25rem 3rem rgba(0,0,0,.28);
-  transform:translateY(-3px);
-}
-
-.proto-milestone:hover .proto-node,
-.proto-milestone:focus-within .proto-node,
-.proto-milestone.is-active .proto-node{
-  background:var(--accent);
-  border-color:var(--accent);
-  transform:scale(1.22);
-  box-shadow:0 0 0 7px rgba(255,59,29,.12);
-}
-
-.proto-milestone:hover .proto-connector,
-.proto-milestone:focus-within .proto-connector,
-.proto-milestone.is-active .proto-connector{
-  background:var(--accent);
-}
-
-.proto-milestone:hover .proto-card::after,
-.proto-milestone:focus-within .proto-card::after,
-.proto-milestone.is-active .proto-card::after{
-  width:4rem;
-}
-
-.proto-milestone:hover .arrow,
-.proto-milestone:focus-within .arrow,
-.proto-milestone.is-active .arrow{
-  color:var(--accent);
-  transform:translateX(4px);
-}
-
-.proto-roadmap-key{
-  margin-top:3rem;
-  padding-top:1.5rem;
-  border-top:1px solid var(--line);
-  display:flex;
-  justify-content:space-between;
-  gap:2rem;
-  color:var(--muted);
-  font-size:var(--fs-eyebrow);
-  text-transform:uppercase;
-  letter-spacing:.18em;
-}
-
-.proto-roadmap-key strong{
-  color:var(--foreground);
-  font-weight:500;
-}
-
-@media(max-width:900px){
-  .proto-roadmap{
-    padding-left:0;
-  }
-
-  .proto-roadmap::before,
-  .proto-roadmap-progress{
-    left:1.15rem;
-    transform:none;
-  }
-
-  .proto-milestone{
-    display:grid;
-    grid-template-columns:2.3rem 1fr;
-    min-height:auto;
-    align-items:start;
-  }
-
-  .proto-milestone .proto-node{
-    grid-column:1;
-    grid-row:1;
-    margin-top:1.75rem;
-  }
-
-  .proto-milestone .proto-connector{
-    display:none;
-  }
-
-  .proto-milestone.left .proto-card,
-  .proto-milestone.right .proto-card{
-    grid-column:2;
-    margin:0 0 0 1rem;
-    text-align:left;
-  }
-
-  .proto-milestone.left .proto-card h2,
-  .proto-milestone.left .proto-card p{
-    margin-left:0;
-    margin-right:0;
-  }
-
-  .proto-milestone.left .proto-card::after{
-    margin-left:0;
-  }
-}
-
-@media(max-width:640px){
-  .proto-wrap{
-    padding-top:7rem;
-  }
-
-  .proto-roadmap{
-    margin-top:3.5rem;
-  }
-
-  .proto-milestone .proto-card{
-    padding:1.2rem 1rem;
-  }
-
-  .proto-milestone .proto-card h2{
-    font-size:1.35rem;
-  }
-
-  .proto-roadmap-key{
-    flex-direction:column;
-    gap:.75rem;
-  }
-}
-</style>
-
-
 <style id="mobile-optimization">
-/* Mobile-only optimization — desktop/laptop layout remains unchanged */
+/* Mobile-only optimization: desktop/laptop layout remains unchanged */
 @media (max-width: 639px){
   html{
     font-size:16px !important;
@@ -865,7 +569,65 @@ html.no-motion .marquee-track{ animation:none !important; }
 }
 </style>
 
-</head><body>
+<style id="week7-tasks">main{overflow:visible;overflow-x:clip}
+@media(min-width:640px) and (max-width:1024px){html{font-size:max(1.5625vw,14px)}}
+.tk{max-width:100rem;margin:0 auto;padding:8.5rem var(--gutter) 6rem}
+@media(max-width:639px){.tk{padding:6.5rem var(--gutter) 4rem}}
+.tk h1{margin-top:1.2rem;max-width:18ch;font-family:var(--font-display);font-size:clamp(36px,5vw,84px);line-height:.94;text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
+.tk .lead{margin-top:1.5rem;max-width:56ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:#b9b7ae}
+.tk .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.tk .back:hover{color:var(--accent)}
+.tabs{margin-top:2rem;display:flex;flex-wrap:wrap;gap:.6rem}
+.tabs a{border:1px solid var(--line-strong);border-radius:9999px;padding:.6rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);transition:color .3s,border-color .3s}
+.tabs a.on,.tabs a:hover{color:var(--foreground);border-color:var(--accent)}
+.tk-grid{margin-top:3.5rem;display:grid;grid-template-columns:minmax(0,1fr);gap:3rem}
+@media(min-width:1024px){.tk-grid{grid-template-columns:minmax(0,1fr) 19rem;gap:5rem}}
+.side{display:none}
+@media(min-width:1024px){.side{display:block;position:sticky;top:6.5rem;align-self:start}}
+.side .eyebrow{margin:0 0 .6rem}.side a+.eyebrow{margin-top:2rem}
+.side a{display:block;padding:.5rem 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.12em;transition:color .3s}
+.side a:hover{color:var(--accent)}.side a.on{color:var(--foreground)}
+.sec{border-top:1px solid var(--line);padding:2rem 0;scroll-margin-top:6rem}
+.sec h2{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.1rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;letter-spacing:-.01em}
+.sec h2 em{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.sec p,.sec li{color:#b9b7ae;font-size:var(--fs-body);line-height:1.65}
+.sec p{max-width:70ch;margin:.5rem 0}
+.sec ul{margin:.3rem 0}.sec ul li{position:relative;padding:.4rem 0 .4rem 1.3rem}
+.sec ul li::before{content:"";position:absolute;left:0;top:1.05em;width:.4rem;height:.4rem;border-radius:9999px;background:var(--accent)}
+.sec ol{list-style:decimal;padding-left:1.5rem}.sec ol li{padding:.4rem 0 .4rem .3rem}.sec ol li::marker{color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.cards>*{background:var(--background);padding:1.25rem}
+.cards h3{font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.15);font-weight:600;color:var(--foreground);transition:color .3s}
+.cards p{margin:.5rem 0 0}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
+.flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
+.flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
+.ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
+.ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
+.ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
+pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:.25rem;overflow-x:auto;color:#d9d6cc;font:.85rem/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.btn{display:inline-block;margin-top:.8rem;padding:.8rem 1.4rem;border:1px solid var(--accent);border-radius:9999px;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;transition:background .3s,color .3s}
+.btn:hover{background:var(--accent);color:var(--background)}
+.oth a{display:block}.oth a:hover{background:var(--surface)}.oth a:hover h3{color:var(--accent)}
+.oth b{display:block;margin-bottom:.4rem;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent);font-weight:500}
+.proto-grid .proto-card:last-child{grid-column:1/-1}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+</style></head><body>
 <header id="site-nav"><nav>
   <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
   <ul class="nav-links">
@@ -882,238 +644,120 @@ html.no-motion .marquee-track{ animation:none !important; }
   <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
   <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
 </div>
-<main><section class="proto-wrap"><p class="eyebrow">Learning Journal</p><h1 class="proto-title">ProtoSem: a weekly record of progress.</h1><p class="proto-intro">A week-by-week record of learning, activities, reflections, and supporting resources.</p><div class="proto-roadmap" id="proto-roadmap">
-  <div class="proto-roadmap-progress" id="proto-roadmap-progress" aria-hidden="true"></div>
-  <div class="proto-milestone left" data-week="0">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-0.html">
-    <span class="proto-num">WEEK 0</span>
-    <h2>Forge Orientation &amp; Team Building</h2>
-    <p>Week 0 marked the beginning of my ProtoSem journey through the Forge Accelerator Orientation Program.</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="1">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-1.html">
-    <span class="proto-num">WEEK 1</span>
-    <h2>5S Implementation</h2>
-    <p>Open the separate weekly page.</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="2">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-2.html">
-    <span class="proto-num">WEEK 2</span>
-    <h2>Problem Solving &amp; Application Development</h2>
-    <p>Week 2 focused on developing problem-solving and computational thinking skills through interactive sessions and practical activities.</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="3">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-3.html">
-    <span class="proto-num">WEEK 3</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="4">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-4.html">
-    <span class="proto-num">WEEK 4</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="5">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-5.html">
-    <span class="proto-num">WEEK 5</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="6">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-6.html">
-    <span class="proto-num">WEEK 6</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="7">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-7.html">
-    <span class="proto-num">WEEK 7</span>
-    <h2>IoT &amp; Cloud Tasks</h2>
-    <p>Five IoT tasks: ESP32 web server, Adafruit IO &amp; MQTT, IFTTT automation, Firebase dashboard, and data logging with CSV export.</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="8">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-8.html">
-    <span class="proto-num">WEEK 8</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="9">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-9.html">
-    <span class="proto-num">WEEK 9</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="10">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-10.html">
-    <span class="proto-num">WEEK 10</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="11">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-11.html">
-    <span class="proto-num">WEEK 11</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="12">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-12.html">
-    <span class="proto-num">WEEK 12</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="13">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-13.html">
-    <span class="proto-num">WEEK 13</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="14">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-14.html">
-    <span class="proto-num">WEEK 14</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="15">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-15.html">
-    <span class="proto-num">WEEK 15</span>
-    <h2>Click to add activity</h2>
-    <p>Click to add activity</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="16">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-16.html">
-    <span class="proto-num">WEEK 16</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="17">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-17.html">
-    <span class="proto-num">WEEK 17</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="18">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-18.html">
-    <span class="proto-num">WEEK 18</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone right" data-week="19">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-19.html">
-    <span class="proto-num">WEEK 19</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div><div class="proto-milestone left" data-week="20">
-  <span class="proto-node" aria-hidden="true"></span>
-  <span class="proto-connector" aria-hidden="true"></span>
-  <a class="proto-card" href="protosem-week-20.html">
-    <span class="proto-num">WEEK 20</span>
-    <h2>Yet to Unfold</h2>
-    <p>Yet to Unfold</p>
-    <span class="arrow">VIEW WEEK →</span>
-  </a>
-</div>
-</div>
-<div class="proto-roadmap-key">
-  <span><strong>21 milestones</strong> · Week 0 → Week 20</span>
-  <span>Click a milestone to enter its weekly page</span>
-</div></section></main>
+<main><div class="tk"><p class="eyebrow">Week 7 · Task 1 of 5</p><h1>ESP32 Web Server &amp; HTML LED Control</h1><nav class="tabs" aria-label="Week 7 tasks"><a href="protosem-week-7.html">← Week 7</a><a href="protosem-week-7-task-1.html" class="on" aria-current="page">Task 1</a><a href="protosem-week-7-task-2.html">Task 2</a><a href="protosem-week-7-task-3.html">Task 3</a><a href="protosem-week-7-task-4.html">Task 4</a><a href="protosem-week-7-task-5.html">Task 5</a></nav><div class="tk-grid"><article><div class="sec" id="s1"><h2><em>01</em>Overview</h2><p>The objective is to control a physical LED from a webpage. Normally a device needs a physical switch or a cable to a computer; here the ESP32 joins Wi-Fi, hosts its own webpage, and any phone or laptop on the same network becomes the remote control.</p></div><div class="sec" id="s2"><h2><em>02</em>Concepts</h2><div class="cards"><div><h3>ESP32 web server</h3><p>The ESP32 connects to Wi-Fi, gets an IP address and listens on port 80. Every HTTP request it receives is answered with an HTML page or an action.</p></div><div><h3>Browser ↔ ESP32</h3><p>The browser sends an HTTP GET request to the ESP32&#x27;s IP address and the ESP32 replies with the HTML control page. Both talk over the same Wi-Fi network.</p></div><div><h3>Sending a command</h3><p>Each button points to a route such as /on or /off. When the ESP32 receives that route, it sets the LED pin HIGH or LOW.</p></div></div></div><div class="sec" id="s3"><h2><em>03</em>System Design</h2><div class="flow"><span>Browser</span><i>→</i><span>Wi-Fi router</span><i>→</i><span>ESP32 web server</span><i>→</i><span>GPIO pin</span><i>→</i><span>LED</span></div><div class="arch-diagram"><svg viewBox="0 0 920 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data flow: browser to Wi-Fi router to ESP32 web server to GPIO 2 to onboard LED">
+<defs>
+<marker id="arrow1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ff3b1d"/></marker>
+</defs>
+<g font-family="Onest, sans-serif">
+<!-- Browser -->
+<rect x="10" y="65" width="150" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="85" y="95" fill="#f3f1ea" font-size="15" font-weight="600" text-anchor="middle">Browser</text>
+<text x="85" y="116" fill="#807f78" font-size="11" text-anchor="middle">toggle switch UI</text>
+<line x1="160" y1="100" x2="204" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow1)"/>
+<!-- Wi-Fi router -->
+<rect x="205" y="65" width="150" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="280" y="95" fill="#f3f1ea" font-size="15" font-weight="600" text-anchor="middle">Wi-Fi Router</text>
+<text x="280" y="116" fill="#807f78" font-size="11" text-anchor="middle">protosem network</text>
+<line x1="355" y1="100" x2="399" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow1)"/>
+<!-- ESP32 -->
+<rect x="400" y="55" width="180" height="90" rx="4" fill="none" stroke="#ff3b1d" stroke-width="1.5"/>
+<text x="490" y="88" fill="#ff3b1d" font-size="15" font-weight="600" text-anchor="middle">ESP32</text>
+<text x="490" y="108" fill="#f3f1ea" font-size="12" text-anchor="middle">Web server :80</text>
+<text x="490" y="126" fill="#807f78" font-size="11" text-anchor="middle">/on  /off  /</text>
+<line x1="580" y1="100" x2="624" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow1)"/>
+<!-- GPIO -->
+<rect x="625" y="65" width="130" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="690" y="95" fill="#f3f1ea" font-size="15" font-weight="600" text-anchor="middle">GPIO 2</text>
+<text x="690" y="116" fill="#807f78" font-size="11" text-anchor="middle">digitalWrite()</text>
+<line x1="755" y1="100" x2="799" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow1)"/>
+<!-- LED -->
+<rect x="800" y="65" width="110" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<circle cx="855" cy="90" r="9" fill="#ff6a3d"/>
+<text x="855" y="118" fill="#f3f1ea" font-size="13" font-weight="600" text-anchor="middle">Onboard LED</text>
+<!-- return path -->
+<path d="M855,145 C855,175 85,175 85,145" fill="none" stroke="#807f78" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="470" y="188" fill="#807f78" font-size="10.5" text-anchor="middle">HTTP request/response carries the ON / OFF state back to the browser</text>
+</g>
+</svg></div></div><div class="sec" id="s4"><h2><em>04</em>Hardware &amp; Software</h2><div class="cards"><div><h3>Hardware</h3><ul><li>ESP32 Dev Module (WROOM-32)</li><li>Micro-USB cable (data-capable)</li><li>Laptop / PC on the same Wi-Fi network</li></ul><p style="margin-top:.8rem;color:#b9b7ae">No breadboard or external LED is used &mdash; the sketch drives the ESP32 module's onboard LED on GPIO 2.</p></div><div><h3>Software &amp; platforms</h3><ul><li>Arduino IDE 2.3.10</li><li>ESP32 board package (esp32 by Espressif)</li><li>WiFi.h and WebServer.h libraries</li><li>Any web browser on the same network</li></ul></div></div><div class="media-grid"><figure><img src="assets/task1/task1-hardware-esp32-cable.jpeg" alt="ESP32 Dev Module and the Micro-USB cable used for programming and power" loading="lazy"><figcaption><b>Hardware</b>ESP32 Dev Module and the Micro-USB cable used for programming and power</figcaption></figure></div></div><div class="sec" id="s5"><h2><em>05</em>Wiring / Setup</h2><p>No external wiring is required for this task. The onboard LED on the ESP32 dev board is wired internally to <b style="color:var(--foreground)">GPIO 2</b>, and the sketch below drives that pin directly &mdash; connect the board to the laptop with the USB cable and it is ready to run.</p><table class="pin-table"><thead><tr><th>ESP32 pin</th><th>Connects to</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GPIO 2</code></td><td>Onboard LED (built in)</td><td><code>digitalWrite()</code> toggles it HIGH/LOW from <code>/on</code> and <code>/off</code></td></tr><tr><td>USB</td><td>Laptop</td><td>5V power, plus the serial/upload connection</td></tr></tbody></table></div><div class="sec" id="s6"><h2><em>06</em>Implementation</h2><pre class="code">// task1_esp32_webserver.ino
+#include &lt;WiFi.h&gt;
+#include &lt;WebServer.h&gt;
+
+// ================================
+// WiFi Credentials
+// ================================
+const char* ssid = "protosem";
+const char* password = "Proto#123";
+
+// ================================
+// LED Configuration
+// ================================
+#define LED_PIN 2
+
+WebServer server(80);
+bool ledState = false;
+
+// ================================
+// Create Web Page
+// ================================
+String htmlPage() {
+  String html = "";
+  html += "&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;ESP32 LED Control&lt;/title&gt;";
+  html += "&lt;style&gt;body{background:#000;color:#fff;text-align:center;font-family:Arial;padding-top:80px;}";
+  html += "h1{font-size:28px;} .switch{position:relative;display:inline-block;width:60px;height:34px;}";
+  html += ".switch input{display:none;} .slider{position:absolute;top:0;left:0;right:0;bottom:0;background:#555;border-radius:34px;transition:.3s;cursor:pointer;}";
+  html += ".slider:before{position:absolute;content:'';height:26px;width:26px;left:4px;bottom:4px;background:white;border-radius:50%;transition:.3s;}";
+  html += "input:checked + .slider{background:#4CAF50;} input:checked + .slider:before{transform:translateX(26px);}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;";
+  html += "&lt;h1&gt;ESP32 LED Control&lt;/h1&gt;";
+  html += "&lt;label class='switch'&gt;&lt;input type='checkbox' id='ledSwitch' onchange='toggleLED()' " + String(ledState ? "checked" : "") + "&gt;&lt;span class='slider'&gt;&lt;/span&gt;&lt;/label&gt;";
+  html += "&lt;p id='status'&gt;LED is " + String(ledState ? "ON" : "OFF") + "&lt;/p&gt;";
+  html += "&lt;script&gt;function toggleLED(){var xhr=new XMLHttpRequest();var state=document.getElementById('ledSwitch').checked;";
+  html += "xhr.open('GET', state ? '/on' : '/off', true);xhr.onload=function(){document.getElementById('status').innerText='LED is '+(state?'ON':'OFF');};xhr.send();}&lt;/script&gt;";
+  html += "&lt;/body&gt;&lt;/html&gt;";
+  return html;
+}
+
+// ================================
+// Route Handlers
+// ================================
+void handleRoot() { server.send(200, "text/html", htmlPage()); }
+
+void handleOn()  { ledState = true;  digitalWrite(LED_PIN, HIGH); server.send(200, "text/plain", "LED is ON"); }
+void handleOff() { ledState = false; digitalWrite(LED_PIN, LOW);  server.send(200, "text/plain", "LED is OFF"); }
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+
+  Serial.println("================================");
+  Serial.println("ESP32 WiFi LED Control");
+  Serial.println("================================");
+
+  Serial.print("Connecting to WiFi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.println("WiFi connected!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  server.on("/", handleRoot);
+  server.on("/on", handleOn);
+  server.on("/off", handleOff);
+  server.begin();
+
+  Serial.println("Web server started!");
+  Serial.println("Open the IP address in your browser.");
+}
+
+void loop() {
+  server.handleClient();
+}</pre><p>Key sections, in my own words:</p><ul><li><b style="color:var(--foreground)">Wi-Fi + web server setup</b> &mdash; <code>setup()</code> connects to the <em style="font-style:normal;color:var(--accent)">protosem</em> network, then starts a <code>WebServer</code> on port 80 and prints the assigned IP address to the Serial Monitor so I know where to point the browser.</li><li><b style="color:var(--foreground)">htmlPage()</b> &mdash; builds the dark-themed page with the toggle switch shown in the screenshots, and reflects the LED&rsquo;s current state (checked/unchecked, ON/OFF text) whenever the page loads.</li><li><b style="color:var(--foreground)">/on and /off routes</b> &mdash; <code>handleOn()</code> and <code>handleOff()</code> set <code>LED_PIN</code> HIGH or LOW and update <code>ledState</code>.</li><li><b style="color:var(--foreground)">Client-side JS</b> &mdash; <code>toggleLED()</code> reads the switch and fires an XMLHttpRequest to <code>/on</code> or <code>/off</code> without reloading the page, so the toggle feels instant.</li><li><b style="color:var(--foreground)">loop()</b> &mdash; calls <code>server.handleClient()</code> continuously so the ESP32 keeps answering browser requests.</li></ul><div class="media-grid"><figure><img src="assets/task1/task1-compiling-sketch.jpeg" alt="Compiling the sketch in Arduino IDE 2.3.10" loading="lazy"><figcaption><b>Compile</b>Compiling the sketch in Arduino IDE 2.3.10</figcaption></figure><figure><video src="assets/task1/task1-uploading-sketch.mp4" controls preload="metadata" playsinline></video><figcaption><b>Upload</b>Uploading the compiled sketch to the ESP32 over USB</figcaption></figure></div></div><div class="sec" id="s7"><h2><em>07</em>Configuration</h2><ol><li>Enter your Wi-Fi name and password in the sketch</li><li>Upload it and read the ESP32 IP address in the Serial Monitor</li><li>Open that IP in a browser on the same network</li></ol><div class="media-grid"><figure><img src="assets/task1/task1-board-select.jpeg" alt="Tools -&gt; Board -&gt; esp32 -&gt; ESP32 Dev Module" loading="lazy"><figcaption><b>Board</b>Tools -&gt; Board -&gt; esp32 -&gt; ESP32 Dev Module</figcaption></figure><figure><img src="assets/task1/task1-port-select.jpeg" alt="Tools -&gt; Port -&gt; COM9" loading="lazy"><figcaption><b>Port</b>Tools -&gt; Port -&gt; COM9</figcaption></figure><figure><img src="assets/task1/task1-serial-monitor-ip.jpeg" alt="Serial Monitor: Wi-Fi connected, IP 192.168.56.220" loading="lazy"><figcaption><b>Serial Monitor</b>Serial Monitor: Wi-Fi connected, IP 192.168.56.220</figcaption></figure></div></div><div class="sec" id="s8"><h2><em>08</em>Evidence</h2><div class="media-grid"><figure><img src="assets/task1/task1-hardware-esp32-cable.jpeg" alt="ESP32 Dev Module and USB cable" loading="lazy"><figcaption><b>Photo</b>ESP32 Dev Module and USB cable</figcaption></figure><figure><img src="assets/task1/task1-physical-led-on.jpeg" alt="Physical board -- onboard LED ON, matching the webpage toggle" loading="lazy"><figcaption><b>Photo</b>Physical board -- onboard LED ON, matching the webpage toggle</figcaption></figure><figure><img src="assets/task1/task1-physical-led-off.jpeg" alt="Physical board -- onboard LED OFF, matching the webpage toggle" loading="lazy"><figcaption><b>Photo</b>Physical board -- onboard LED OFF, matching the webpage toggle</figcaption></figure><figure><img src="assets/task1/task1-webpage-off.jpeg" alt="Web interface at 192.168.56.220 -- LED is OFF" loading="lazy"><figcaption><b>Screenshot</b>Web interface at 192.168.56.220 -- LED is OFF</figcaption></figure></div><div class="media-grid media-wide"><figure><img src="assets/task1/task1-demo-photo.jpeg" alt="Sachin demonstrating the ESP32 LED control webpage live on the laptop, with the ESP32 wired up on the desk" loading="lazy"><figcaption><b>Photo</b>Demonstrating the LED control webpage live, ESP32 connected on the desk</figcaption></figure></div><div class="media-grid media-wide"><figure><video src="assets/task1/task1-demo-led-control.mp4" controls preload="metadata" playsinline></video><figcaption><b>Video</b>Demo: toggling the onboard LED on and off from the webpage</figcaption></figure><figure><video src="assets/task1/task1-serial-monitor-running.mp4" controls preload="metadata" playsinline></video><figcaption><b>Video</b>Serial Monitor logging each browser request as the LED is toggled</figcaption></figure></div></div><div class="sec" id="s9"><h2><em>09</em>Challenges &amp; Fixes</h2><ul><li><b style="color:var(--foreground)">The IP address kept changing between test runs</b> &mdash; the first time I ran the sketch I bookmarked the IP from the Serial Monitor, but after restarting the router the ESP32 was handed a different address by DHCP and the old bookmark just timed out. I got into the habit of re-opening the Serial Monitor after every power cycle and reading the printed <code>WiFi.localIP()</code> line before touching the browser, instead of assuming the address would stay the same.</li><li><b style="color:var(--foreground)">The LED didn&rsquo;t respond the first time I toggled it</b> &mdash; I'd initially written the sketch expecting an external LED on a GPIO pin with a resistor, the way most tutorials set it up, but the ESP32 Dev Module I'm using only has the onboard LED wired to GPIO 2. Nothing happened when I hit the switch because I was driving the wrong assumption, not the wrong pin. Once I set <code>LED_PIN</code> to 2 and pointed the code at the onboard LED instead of external wiring, it toggled correctly on both the board and the web page.</li><li><b style="color:var(--foreground)">The page wouldn&rsquo;t load on my phone at first</b> &mdash; my laptop was on the <em style="font-style:normal;color:var(--accent)">protosem</em> Wi-Fi network but my phone had fallen back to mobile data, so the IP printed in the Serial Monitor was unreachable from it. The fix was just making sure both devices were joined to the same network before entering the address &mdash; an easy thing to overlook since the browser gives no error explaining why the page won't load.</li></ul></div><div class="sec" id="s10"><h2><em>10</em>Reflection</h2><p>Building this made the request/response cycle feel concrete instead of abstract. Every time I tap the toggle, the browser fires off a plain GET request to <code>/on</code> or <code>/off</code>, the ESP32's <code>WebServer</code> matches that path to a handler, flips the pin, and sends a short text response back &mdash; there's no magic in between, just a tiny device on my network answering HTTP requests the same way a real web server would. Watching the Serial Monitor log each request as I clicked the switch made it obvious that the "web" here is really just my laptop and the ESP32 talking directly to each other over Wi-Fi.</p><p>If I were to take this further, I'd add proper state feedback instead of trusting the client-side toggle blindly &mdash; right now the page assumes the request succeeded rather than confirming the LED's actual state. I'd also like to control more than one LED from the same page, and add at least basic authentication before opening this up to anything beyond a closed classroom network, since right now anyone on the same Wi-Fi can hit <code>/on</code> and <code>/off</code> with no login at all.</p></div><div class="sec" id="s11"><h2><em>11</em>Repository Link</h2><p>Full sketch and project files for this task.</p><a class="btn" href="https://github.com/sachinsivapragash/ESP32-Web-Server-HTML-LED-Control.git" target="_blank" rel="noopener">Open Task 1 on GitHub →</a></div><div class="sec"><h2>Other tasks</h2><div class="cards oth"><a href="protosem-week-7-task-2.html"><b>TASK 2</b><h3>Adafruit IO Dashboard &amp; MQTT</h3><p>Control the LED from an Adafruit IO cloud dashboard using MQTT.</p></a><a href="protosem-week-7-task-3.html"><b>TASK 3</b><h3>IFTTT + Adafruit IO IoT Automation</h3><p>Trigger an IFTTT applet that drives an Adafruit IO feed and the ESP32 automatically.</p></a><a href="protosem-week-7-task-4.html"><b>TASK 4</b><h3>Firebase IoT Monitoring Dashboard</h3><p>Monitor temperature, humidity and light in a login-protected Firebase dashboard and control a bulb.</p></a><a href="protosem-week-7-task-5.html"><b>TASK 5</b><h3>Firebase Logging, Automation &amp; Data Export</h3><p>The complete system: automatic LDR lighting, Firebase data logging, charts and CSV export.</p></a></div></div></article><aside class="side"><p class="eyebrow">Tasks</p><a href="protosem-week-7-task-1.html" class="on">1 · Web Server &amp; LED</a><a href="protosem-week-7-task-2.html">2 · Adafruit IO &amp; MQTT</a><a href="protosem-week-7-task-3.html">3 · IFTTT Automation</a><a href="protosem-week-7-task-4.html">4 · Firebase Dashboard</a><a href="protosem-week-7-task-5.html">5 · Logging &amp; CSV Export</a><p class="eyebrow">On this page</p><a href="#s1">01 Overview</a><a href="#s2">02 Concepts</a><a href="#s3">03 System Design</a><a href="#s4">04 Hardware &amp; Software</a><a href="#s5">05 Wiring / Setup</a><a href="#s6">06 Implementation</a><a href="#s7">07 Configuration</a><a href="#s8">08 Evidence</a><a href="#s9">09 Challenges &amp; Fixes</a><a href="#s10">10 Reflection</a><a href="#s11">11 Repository Link</a></aside></div></div></main>
 <script>
 const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
 if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}
 </script>
-
-<script id="proto-roadmap-script">
-(function(){
-  const roadmap = document.getElementById("proto-roadmap");
-  const progress = document.getElementById("proto-roadmap-progress");
-  const milestones = [...document.querySelectorAll(".proto-milestone")];
-  if(!roadmap || !progress || !milestones.length) return;
-
-  function updateActive(){
-    const center = window.innerHeight * 0.48;
-    let closest = milestones[0];
-    let min = Infinity;
-
-    milestones.forEach(m => {
-      const r = m.getBoundingClientRect();
-      const d = Math.abs((r.top + r.height/2) - center);
-      if(d < min){ min = d; closest = m; }
-    });
-
-    milestones.forEach(m => m.classList.toggle("is-active", m === closest));
-
-    const rr = roadmap.getBoundingClientRect();
-    const last = milestones[milestones.length-1].getBoundingClientRect();
-    const span = Math.max(0, Math.min(last.top + last.height/2 - rr.top, rr.height));
-    progress.style.height = span + "px";
-  }
-
-  window.addEventListener("scroll", updateActive, {passive:true});
-  window.addEventListener("resize", updateActive);
-  updateActive();
-})();
-</script>
-
 </body></html>

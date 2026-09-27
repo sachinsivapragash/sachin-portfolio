@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 7 — IoT &amp; Cloud Tasks | ProtoSem</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 7 Task 3 — IFTTT + Adafruit IO IoT Automation | ProtoSem</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
 /* ---------- Reset ---------- */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -602,6 +602,13 @@ html.no-motion .marquee-track{ animation:none !important; }
 .flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
 .flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
 .flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
 .ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
 .ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
 .ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
@@ -610,7 +617,17 @@ pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1p
 .btn:hover{background:var(--accent);color:var(--background)}
 .oth a{display:block}.oth a:hover{background:var(--surface)}.oth a:hover h3{color:var(--accent)}
 .oth b{display:block;margin-bottom:.4rem;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent);font-weight:500}
-.proto-grid .proto-card:last-child{grid-column:1/-1}</style></head><body>
+.proto-grid .proto-card:last-child{grid-column:1/-1}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+</style></head><body>
 <header id="site-nav"><nav>
   <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
   <ul class="nav-links">
@@ -627,7 +644,313 @@ pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1p
   <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
   <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
 </div>
-<main><div class="tk"><p class="eyebrow">Week 7</p><h1>IoT &amp; Cloud Tasks</h1><p class="lead">Five IoT assignments, each documented on its own page: from a local ESP32 web server to a Firebase dashboard with data logging and export. Choose a task to open it.</p><a class="back" href="protosem.html">← Back to ProtoSem</a><div class="proto-grid"><a class="proto-card" href="protosem-week-7-task-1.html"><span class="proto-num">TASK 1</span><h2>ESP32 Web Server &amp; HTML LED Control</h2><p>Turn the ESP32 into a web server and switch an LED on and off from a browser page.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-2.html"><span class="proto-num">TASK 2</span><h2>Adafruit IO Dashboard &amp; MQTT</h2><p>Control the LED from an Adafruit IO cloud dashboard using MQTT.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-3.html"><span class="proto-num">TASK 3</span><h2>IFTTT + Adafruit IO IoT Automation</h2><p>Trigger an IFTTT applet that drives an Adafruit IO feed and the ESP32 automatically.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-4.html"><span class="proto-num">TASK 4</span><h2>Firebase IoT Monitoring Dashboard</h2><p>Monitor temperature, humidity and light in a login-protected Firebase dashboard and control a bulb.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-7-task-5.html"><span class="proto-num">TASK 5</span><h2>Firebase Logging, Automation &amp; Data Export</h2><p>The complete system: automatic LDR lighting, Firebase data logging, charts and CSV export.</p><span class="arrow">VIEW TASK →</span></a></div></div></main>
+<main><div class="tk"><p class="eyebrow">Week 7 · Task 3 of 5</p><h1>IFTTT + Adafruit IO IoT Automation</h1><nav class="tabs" aria-label="Week 7 tasks"><a href="protosem-week-7.html">← Week 7</a><a href="protosem-week-7-task-1.html">Task 1</a><a href="protosem-week-7-task-2.html">Task 2</a><a href="protosem-week-7-task-3.html" class="on" aria-current="page">Task 3</a><a href="protosem-week-7-task-4.html">Task 4</a><a href="protosem-week-7-task-5.html">Task 5</a></nav><div class="tk-grid"><article><div class="sec" id="s1"><h2><em>01</em>Overview</h2><p>The objective is to automate the system so it reacts to an event without anyone pressing a button. An IFTTT applet watches for a trigger and writes an action to an Adafruit IO feed, which the ESP32 already listens to.</p></div><div class="sec" id="s2"><h2><em>02</em>Concepts</h2><div class="cards"><div><h3>IoT automation</h3><p>A system that senses a condition or event and acts on it by itself, with no manual input.</p></div><div><h3>IFTTT</h3><p>A service that connects apps and devices through applets built on the rule If This, Then That.</p></div><div><h3>Trigger → Action</h3><p>The trigger is the event being watched; the action is what happens in response. Here the action sends a value to an Adafruit IO feed.</p></div><div><h3>Role of Adafruit IO</h3><p>The feed is the bridge: IFTTT writes to it and the ESP32 receives the value over MQTT.</p></div></div></div><div class="sec" id="s3"><h2><em>03</em>System Design</h2><div class="flow"><span>"Okay Google, activate Bulb On"</span><i>→</i><span>IFTTT applet</span><i>→</i><span>bulb-control feed</span><i>→</i><span>ESP32 subscriber</span><i>→</i><span>Relay</span><i>→</i><span>230V AC Bulb</span></div><p>Saying the phrase fires a Google Assistant trigger in IFTTT, and the applet's action writes a value straight to the <code>bulb-control</code> Adafruit IO feed. Adafruit IO, acting as the MQTT broker, holds that value; the ESP32 is subscribed to the same feed, so the instant a new value lands it runs <code>processBulbCommand()</code> and switches the relay. The ESP32 has no way to tell whether the value came from a person tapping a dashboard switch or a voice command firing an applet &mdash; both are just MQTT publishes to a feed it's already listening to.</p><div class="arch-diagram"><svg viewBox="0 0 1180 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data flow: voice command to IFTTT applet to bulb-control feed to ESP32 subscriber to relay to 230V AC bulb">
+<defs>
+<marker id="arrow3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ff3b1d"/></marker>
+</defs>
+<g font-family="Onest, sans-serif">
+<!-- Voice command -->
+<rect x="10" y="55" width="165" height="90" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="92" y="88" fill="#f3f1ea" font-size="13.5" font-weight="600" text-anchor="middle">"Okay Google,</text>
+<text x="92" y="105" fill="#f3f1ea" font-size="13.5" font-weight="600" text-anchor="middle">activate Bulb On"</text>
+<text x="92" y="124" fill="#807f78" font-size="10.5" text-anchor="middle">voice trigger</text>
+<line x1="175" y1="100" x2="219" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow3)"/>
+<!-- IFTTT -->
+<rect x="220" y="65" width="150" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="295" y="95" fill="#f3f1ea" font-size="14" font-weight="600" text-anchor="middle">IFTTT Applet</text>
+<text x="295" y="116" fill="#807f78" font-size="11" text-anchor="middle">Assistant → Adafruit</text>
+<line x1="370" y1="100" x2="414" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow3)"/>
+<!-- Adafruit IO -->
+<rect x="415" y="55" width="170" height="90" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="500" y="88" fill="#f3f1ea" font-size="14" font-weight="600" text-anchor="middle">Adafruit IO</text>
+<text x="500" y="108" fill="#807f78" font-size="11" text-anchor="middle">bulb-control feed</text>
+<text x="500" y="124" fill="#807f78" font-size="11" text-anchor="middle">(MQTT broker)</text>
+<line x1="585" y1="100" x2="629" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow3)"/>
+<!-- ESP32 -->
+<rect x="630" y="55" width="170" height="90" rx="4" fill="none" stroke="#ff3b1d" stroke-width="1.5"/>
+<text x="715" y="86" fill="#ff3b1d" font-size="14" font-weight="600" text-anchor="middle">ESP32</text>
+<text x="715" y="105" fill="#f3f1ea" font-size="12" text-anchor="middle">MQTT subscriber</text>
+<text x="715" y="123" fill="#807f78" font-size="10.5" text-anchor="middle">processBulbCommand()</text>
+<line x1="800" y1="100" x2="844" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow3)"/>
+<!-- Relay -->
+<rect x="845" y="65" width="140" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<text x="915" y="95" fill="#f3f1ea" font-size="13" font-weight="600" text-anchor="middle">Relay Module</text>
+<text x="915" y="116" fill="#807f78" font-size="10.5" text-anchor="middle">switches AC line</text>
+<line x1="985" y1="100" x2="1029" y2="100" stroke="#ff3b1d" stroke-width="2" marker-end="url(#arrow3)"/>
+<!-- Bulb -->
+<rect x="1030" y="65" width="140" height="70" rx="4" fill="none" stroke="#f3f1ea" stroke-opacity="0.35"/>
+<circle cx="1100" cy="90" r="9" fill="#ff6a3d"/>
+<text x="1100" y="118" fill="#f3f1ea" font-size="12" font-weight="600" text-anchor="middle">230V AC Bulb</text>
+</g>
+</svg></div></div><div class="sec" id="s4"><h2><em>04</em>Hardware &amp; Software</h2><div class="cards"><div><h3>Hardware</h3><ul><li>ESP32 Dev Module (WROOM-32)</li><li>5V single-channel relay module</li><li>230V AC bulb &amp; holder (mains-powered)</li><li>Jumper wires + mains cable to the relay</li><li>Phone with Google Assistant, for speaking the voice command</li></ul></div><div><h3>Software &amp; platforms</h3><ul><li>IFTTT account with the Google Assistant and Adafruit services connected</li><li>Adafruit IO account &mdash; feed <code>bulb-control</code>, dashboard <em style="font-style:normal;color:var(--accent)">Bulb Control</em></li><li>Arduino IDE 2.3.10</li><li>Adafruit IO Arduino + Adafruit MQTT libraries</li><li>WiFi.h for the network connection</li></ul></div></div><div class="media-grid"><figure><img src="assets/task3/task3-hardware-relay-bulb.jpeg" alt="ESP32, relay module and 230V AC bulb wired together on the desk" loading="lazy"><figcaption><b>Hardware</b>ESP32, relay module and 230V AC bulb wired together</figcaption></figure></div></div><div class="sec" id="s5"><h2><em>05</em>Wiring / Setup</h2><table class="pin-table"><thead><tr><th>ESP32 pin</th><th>Connects to</th><th>Signal</th></tr></thead><tbody><tr><td><code>GPIO 23</code></td><td>Relay module <b>IN</b></td><td>Control signal (logic level)</td></tr><tr><td><code>5V</code></td><td>Relay module <b>VCC</b></td><td>5V power</td></tr><tr><td><code>GND</code></td><td>Relay module <b>GND</b></td><td>Common ground</td></tr><tr><td colspan="2">Mains live wire</td><td>Runs through relay <b>COM</b> → <b>NO</b> in series with the bulb, same as Task 2 — unchanged for this task</td></tr></tbody></table><p>This is mains-voltage wiring, not the 3.3V/5V logic side, so I kept every AC joint taped down and double-checked by hand before powering it on &mdash; the ESP32 itself never touches mains, it only switches the relay's coil. The physical circuit doesn't change when IFTTT is added on top: the relay and bulb are still driven purely by whatever value lands on <code>RELAY_PIN</code>, regardless of what wrote that value to the feed.</p><div class="arch-diagram"><svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg">
+<style>
+  .box{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:1.5}
+  .lbl{font-family:var(--font-sans);font-size:15px;fill:var(--foreground);font-weight:600}
+  .sub{font-family:var(--font-sans);font-size:12px;fill:var(--muted)}
+  .pin{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;fill:#b9b7ae}
+  .wire{stroke-width:2.5;fill:none}
+</style>
+<rect class="box" x="40" y="150" width="180" height="140" rx="8"/>
+<text class="lbl" x="130" y="185" text-anchor="middle">ESP32</text>
+<text class="sub" x="130" y="203" text-anchor="middle">Dev Module</text>
+<text class="pin" x="60" y="235">GPIO 23</text><circle cx="220" cy="230" r="4" fill="var(--accent)"/>
+<text class="pin" x="60" y="260">5V</text><circle cx="220" cy="255" r="4" fill="#e5484d"/>
+<text class="pin" x="60" y="280">GND</text><circle cx="220" cy="275" r="4" fill="#9a9890"/>
+
+<rect class="box" x="360" y="120" width="190" height="200" rx="8"/>
+<text class="lbl" x="455" y="150" text-anchor="middle">Relay Module</text>
+<text class="sub" x="455" y="168" text-anchor="middle">5V single-channel</text>
+<text class="pin" x="375" y="200">IN</text><circle cx="360" cy="195" r="4" fill="var(--accent)"/>
+<text class="pin" x="375" y="225">VCC</text><circle cx="360" cy="220" r="4" fill="#e5484d"/>
+<text class="pin" x="375" y="250">GND</text><circle cx="360" cy="245" r="4" fill="#9a9890"/>
+<text class="pin" x="480" y="200" text-anchor="end">COM</text><circle cx="550" cy="195" r="4" fill="#f2c94c"/>
+<text class="pin" x="480" y="290" text-anchor="end">NO</text><circle cx="550" cy="285" r="4" fill="#f2c94c"/>
+
+<rect class="box" x="360" y="360" width="140" height="70" rx="8"/>
+<text class="lbl" x="430" y="390" text-anchor="middle">Mains Plug</text>
+<text class="sub" x="430" y="408" text-anchor="middle">230V AC</text>
+<text class="pin" x="375" y="345">Live</text><circle cx="360" cy="360" r="4" fill="#f2c94c"/>
+<text class="pin" x="480" y="345" text-anchor="end">Neutral</text><circle cx="500" cy="360" r="4" fill="#9a9890"/>
+
+<circle cx="770" cy="200" r="46" class="box"/>
+<text class="lbl" x="770" y="270" text-anchor="middle">230V AC Bulb</text>
+<text class="pin" x="700" y="180" text-anchor="end">L</text><circle cx="724" cy="180" r="4" fill="#f2c94c"/>
+<text class="pin" x="700" y="225" text-anchor="end">N</text><circle cx="724" cy="225" r="4" fill="#9a9890"/>
+
+<path class="wire" stroke="var(--accent)" d="M220,230 L360,195"/>
+<path class="wire" stroke="#e5484d" d="M220,255 L360,220"/>
+<path class="wire" stroke="#9a9890" d="M220,275 L360,245"/>
+
+<path class="wire" stroke="#f2c94c" d="M360,360 L550,195"/>
+<path class="wire" stroke="#f2c94c" d="M550,285 L724,180"/>
+<path class="wire" stroke="#9a9890" d="M500,360 L724,225"/>
+
+<g font-family="var(--font-sans)" font-size="12" fill="var(--muted)">
+  <circle cx="60" cy="420" r="5" fill="var(--accent)"/><text x="72" y="424">Control signal (logic)</text>
+  <circle cx="260" cy="420" r="5" fill="#e5484d"/><text x="272" y="424">5V power</text>
+  <circle cx="400" cy="420" r="5" fill="#9a9890"/><text x="412" y="424">GND / Neutral</text>
+  <circle cx="560" cy="420" r="5" fill="#f2c94c"/><text x="572" y="424">230V AC (mains)</text>
+</g>
+</svg></div><div class="media-grid"><figure><img src="assets/task3/task3-hardware-relay-bulb.jpeg" alt="Pictorial wiring: red wires from the bulb holder to the relay's NO/COM terminals, ESP32 GPIO 23 to relay IN, mains plug to the relay's power side" loading="lazy"><figcaption><b>Wiring</b>Bulb &rarr; relay &rarr; ESP32, and the mains plug feeding the relay</figcaption></figure></div></div><div class="sec" id="s6"><h2><em>06</em>Implementation</h2><pre class="code">// task3_ifttt_automation.ino
+#include &lt;WiFi.h&gt;
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
+
+// =================================================
+// Wi-Fi
+// =================================================
+
+#define WIFI_SSID "protosem"
+#define WIFI_PASS "Proto#123"
+
+// =================================================
+// Adafruit IO
+// =================================================
+
+#define AIO_SERVER      "io.adafruit.com"
+#define AIO_SERVERPORT  1883
+#define AIO_USERNAME    "sachinn__s"
+#define AIO_KEY         "YOUR_NEW_ADAFRUIT_IO_KEY"
+
+// =================================================
+// RELAY
+// =================================================
+
+#define RELAY_PIN 23
+
+// Relay logic
+#define RELAY_ON  HIGH
+#define RELAY_OFF LOW
+
+// =================================================
+// MQTT
+// =================================================
+
+WiFiClient client;
+
+Adafruit_MQTT_Client mqtt(
+  &amp;client,
+  AIO_SERVER,
+  AIO_SERVERPORT,
+  AIO_USERNAME,
+  AIO_KEY
+);
+
+// =================================================
+// BULB FEED
+// =================================================
+
+Adafruit_MQTT_Subscribe bulbControl =
+  Adafruit_MQTT_Subscribe(
+    &amp;mqtt,
+    AIO_USERNAME "/feeds/bulb-control"
+  );
+
+// =================================================
+// CONNECT TO WIFI
+// =================================================
+
+void connectWiFi() {
+
+  Serial.print("Connecting to WiFi");
+
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println();
+  Serial.println("WiFi Connected!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+}
+
+// =================================================
+// CONNECT TO ADAFRUIT IO
+// =================================================
+
+void connectMQTT() {
+
+  while (!mqtt.connected()) {
+
+    Serial.print("Connecting to Adafruit IO...");
+
+    int8_t ret = mqtt.connect();
+
+    if (ret == 0) {
+      Serial.println("Connected to Adafruit IO!");
+    }
+    else {
+      Serial.print("Failed, error = ");
+      Serial.println(mqtt.connectErrorString(ret));
+
+      mqtt.disconnect();
+      delay(5000);
+    }
+  }
+}
+
+// =================================================
+// PROCESS BULB COMMAND
+// =================================================
+
+void processBulbCommand(String command) {
+
+  command.trim();
+  command.toLowerCase();
+
+  Serial.print("Received command: ");
+  Serial.println(command);
+
+  // -------------------------
+  // BULB ON
+  // -------------------------
+
+  if (command == "1" ||
+      command == "on" ||
+      command == "bulb on" ||
+      command == "bulbon") {
+
+    digitalWrite(RELAY_PIN, RELAY_ON);
+
+    Serial.println("&gt;&gt;&gt; BULB ON");
+  }
+
+  // -------------------------
+  // BULB OFF
+  // -------------------------
+
+  else if (command == "0" ||
+           command == "off" ||
+           command == "bulb off" ||
+           command == "bulb of" ||
+           command == "bulboff" ||
+           command == "of") {
+
+    digitalWrite(RELAY_PIN, RELAY_OFF);
+
+    Serial.println("&gt;&gt;&gt; BULB OFF");
+  }
+
+  // -------------------------
+  // UNKNOWN
+  // -------------------------
+
+  else {
+
+    Serial.print("Unknown command: ");
+    Serial.println(command);
+  }
+}
+
+// =================================================
+// SETUP
+// =================================================
+
+void setup() {
+
+  Serial.begin(115200);
+
+  delay(1000);
+
+  Serial.println();
+  Serial.println("================================");
+  Serial.println("ESP32 BULB CONTROL");
+  Serial.println("================================");
+
+  // Relay setup
+  pinMode(RELAY_PIN, OUTPUT);
+
+  // Start with bulb OFF
+  digitalWrite(RELAY_PIN, RELAY_OFF);
+
+  // WiFi
+  connectWiFi();
+
+  // Subscribe to feed
+  mqtt.subscribe(&amp;bulbControl);
+
+  // MQTT
+  connectMQTT();
+
+  Serial.println("System ready!");
+}
+
+// =================================================
+// LOOP
+// =================================================
+
+void loop() {
+
+  // Reconnect WiFi if necessary
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi();
+  }
+
+  // Reconnect MQTT if necessary
+  if (!mqtt.connected()) {
+    connectMQTT();
+  }
+
+  // Keep MQTT connection alive
+  mqtt.processPackets(1000);
+
+  // Check for new feed value
+  Adafruit_MQTT_Subscribe *subscription;
+
+  while ((subscription = mqtt.readSubscription(100)) != NULL) {
+
+    if (subscription == &amp;bulbControl) {
+
+      String command = String((char *)bulbControl.lastread);
+
+      processBulbCommand(command);
+    }
+  }
+}
+</pre><p>Key sections, in my own words:</p><ul><li><b style="color:var(--foreground)">Wi-Fi + Adafruit IO connection</b> &mdash; <code>connectWiFi()</code> joins the <em style="font-style:normal;color:var(--accent)">protosem</em> network and prints the assigned IP once connected. The <code>Adafruit_MQTT_Client</code> object is set up with my Adafruit IO username and key so <code>connectMQTT()</code> can authenticate to <code>io.adafruit.com</code> on port 1883, retrying every 5 seconds if the handshake fails.</li><li><b style="color:var(--foreground)">Subscribing to the feed IFTTT writes to</b> &mdash; <code>bulbControl</code> is an <code>Adafruit_MQTT_Subscribe</code> pointed at <code>sachinn__s/feeds/bulb-control</code>, and <code>mqtt.subscribe(&amp;bulbControl)</code> in <code>setup()</code> tells the broker to push me every new value on that feed. The ESP32 has no idea whether that value came from a dashboard tap or a voice command &mdash; both arrive as the exact same kind of MQTT publish, which is what makes stacking IFTTT on top possible without touching this part.</li><li><b style="color:var(--foreground)">processBulbCommand()</b> &mdash; the incoming string is trimmed and lowercased, then matched against several ON variants (<code>1</code>, <code>on</code>, <code>bulb on</code>, <code>bulbon</code>) and OFF variants (<code>0</code>, <code>off</code>, <code>bulb off</code>, <code>bulboff</code>, <code>of</code>) before driving <code>RELAY_PIN</code> HIGH or LOW with <code>digitalWrite()</code>. The IFTTT action is configured to send exactly <code>1</code> or <code>0</code>, both of which this function already handles, so no new cases were needed for the voice trigger to work.</li><li><b style="color:var(--foreground)">Serial logging</b> &mdash; <code>Serial.print("Received command: ")</code> followed by <code>Serial.println(">>> BULB ON/OFF")</code> logs every command as it arrives, which is how I confirmed each voice-triggered value actually reached the board while testing.</li><li><b style="color:var(--foreground)">Reconnect logic in loop()</b> &mdash; every pass checks <code>WiFi.status()</code> and <code>mqtt.connected()</code> and reconnects either one if it dropped, then calls <code>mqtt.processPackets(1000)</code> and reads the subscription queue, so a brief Wi-Fi hiccup doesn't leave the relay stuck out of sync with the feed.</li></ul><div class="media-grid"><figure><img src="assets/task3/task3-library-install.jpeg" alt="Arduino IDE Library Manager showing the Adafruit IO Arduino library installed" loading="lazy"><figcaption><b>Setup</b>Confirming the Adafruit IO library is installed</figcaption></figure><figure><img src="assets/task3/task3-compiling-sketch.jpeg" alt="Compiling the bulb-control sketch in Arduino IDE 2.3.10" loading="lazy"><figcaption><b>Compile</b>Compiling the sketch in Arduino IDE 2.3.10</figcaption></figure><figure><img src="assets/task3/task3-serial-monitor-connected.jpeg" alt="Serial Monitor showing WiFi and Adafruit IO MQTT connected" loading="lazy"><figcaption><b>Serial Monitor</b>Confirming Wi-Fi + MQTT still connect before adding IFTTT</figcaption></figure><figure><img src="assets/task3/task3-board-select.jpeg" alt="Arduino IDE Tools menu, Board set to ESP32 Dev Module" loading="lazy"><figcaption><b>Board</b>Tools &rarr; Board &rarr; esp32 &rarr; ESP32 Dev Module</figcaption></figure><figure><img src="assets/task3/task3-port-select.jpeg" alt="Arduino IDE Tools menu, Port set to COM9" loading="lazy"><figcaption><b>Port</b>Tools &rarr; Port &rarr; COM9</figcaption></figure></div></div><div class="sec" id="s7"><h2><em>07</em>Configuration</h2><ol><li>In IFTTT, create a new applet and pick <b style="color:var(--foreground)">Google Assistant &rarr; Activate scene</b> as the trigger, then connect the Google Assistant service to my account</li><li>Choose <b style="color:var(--foreground)">Adafruit &rarr; Send data to Adafruit IO</b> as the action, and authorize IFTTT to read/write my Adafruit IO feed data</li><li>Set the action's feed to <code>bulb-control</code> and the data to save to <code>1</code>, then review and finish the applet</li><li>Repeat the same flow for a second applet with the scene name <em style="font-style:normal;color:var(--accent)">Bulb off</em>, sending <code>0</code> instead</li></ol><div class="media-grid"><figure><img src="assets/task3/task3-ifttt-trigger-select.jpeg" alt="IFTTT Choose a trigger screen, Google Assistant Activate scene selected" loading="lazy"><figcaption><b>Trigger</b>Google Assistant &rarr; Activate scene</figcaption></figure><figure><img src="assets/task3/task3-ifttt-connect-google.jpeg" alt="IFTTT Connect service screen for Google Assistant" loading="lazy"><figcaption><b>Connect</b>Linking my Google Assistant account</figcaption></figure><figure><img src="assets/task3/task3-ifttt-action-select.jpeg" alt="IFTTT Choose an action screen, Adafruit Send data to Adafruit IO selected" loading="lazy"><figcaption><b>Action</b>Adafruit &rarr; Send data to Adafruit IO</figcaption></figure><figure><img src="assets/task3/task3-adafruit-authorize.jpeg" alt="Adafruit account authorization screen granting IFTTT access" loading="lazy"><figcaption><b>Authorize</b>Granting IFTTT read/write access to my feed data</figcaption></figure></div><div class="media-grid"><figure><img src="assets/task3/task3-ifttt-action-config.jpeg" alt="IFTTT Send data to Adafruit IO action configured with feed bulb-control and data 1" loading="lazy"><figcaption><b>Configure</b>Feed <code>bulb-control</code>, data <code>1</code></figcaption></figure><figure><img src="assets/task3/task3-ifttt-applet-summary.jpeg" alt="IFTTT applet summary, If Activate scene Then Send data to Adafruit IO" loading="lazy"><figcaption><b>Review</b>If Activate scene &rarr; Then Send data to Adafruit IO</figcaption></figure><figure><img src="assets/task3/task3-ifttt-bulb-on-connected.jpeg" alt="Finished IFTTT applet: If you say Okay Google activate Bulb On, then Send data to bulb-control feed, Connected" loading="lazy"><figcaption><b>Done</b>"Bulb On" applet, connected</figcaption></figure><figure><img src="assets/task3/task3-ifttt-bulb-off-trigger.jpeg" alt="Creating the second IFTTT trigger with scene name Bulb off" loading="lazy"><figcaption><b>Second applet</b>Setting up the mirrored "Bulb off" scene</figcaption></figure></div><div class="media-grid"><figure><img src="assets/task3/task3-ifttt-bulb-off-action-config.jpeg" alt="IFTTT Send data to Adafruit IO action for the Bulb off applet, data set to 0" loading="lazy"><figcaption><b>Configure</b>"Bulb off" action &mdash; same feed, data <code>0</code></figcaption></figure><figure><img src="assets/task3/task3-ifttt-bulb-off-review.jpeg" alt="IFTTT review and finish screen for the Bulb off applet" loading="lazy"><figcaption><b>Review</b>Reviewing the finished "Bulb off" applet</figcaption></figure><figure><img src="assets/task3/task3-ifttt-bulb-off-connected.jpeg" alt="Finished IFTTT applet: If you say Okay Google activate Bulb off, then Send data to bulb-control feed, Connected" loading="lazy"><figcaption><b>Done</b>"Bulb off" applet, connected</figcaption></figure><figure><img src="assets/task3/task3-ifttt-my-applets.jpeg" alt="IFTTT My Applets page showing both Bulb On and Bulb off applets connected" loading="lazy"><figcaption><b>Overview</b>Both applets live under My Applets</figcaption></figure></div><p>I also linked IFTTT from the Google Home app itself, under Settings &rarr; Works with Google &rarr; search "IFTTT" &mdash; this is the mobile-side equivalent of the "Connect" step above and confirms the two accounts are talking to each other from the phone I actually speak the command into.</p><div class="media-grid"><figure><img src="assets/task3/task3-google-home-menu.jpeg" alt="Google Home app menu showing Device, Automation, and Link app or service options" loading="lazy"><figcaption><b>Google Home</b>The app's add/link menu</figcaption></figure><figure><img src="assets/task3/task3-google-home-services.jpeg" alt="Google Home Services page listing Linked apps and Works with Google" loading="lazy"><figcaption><b>Services</b>Works with Google, under Services</figcaption></figure><figure><img src="assets/task3/task3-google-home-ifttt-search.jpeg" alt="Searching for IFTTT in the Google Home Works with Google search" loading="lazy"><figcaption><b>Search</b>Finding IFTTT to confirm the link</figcaption></figure><figure><img src="assets/task3/task3-google-home-link-account.jpeg" alt="Link an account to control IFTTT on any device confirmation screen" loading="lazy"><figcaption><b>Confirm</b>Linking the account to control IFTTT on any device</figcaption></figure></div></div><div class="sec" id="s8"><h2><em>08</em>Evidence</h2><div class="media-grid"><figure><img src="assets/task3/task3-voice-command-transcript.jpeg" alt="Google Assistant transcript: OK Google activate bulb on, Sure activating the Bulb On, followed by bulb of and bulb on again" loading="lazy"><figcaption><b>Transcript</b>Saying "Okay Google, activate Bulb On / of" and Assistant confirming each one</figcaption></figure><figure><img src="assets/task3/task3-physical-bulb-on.jpeg" alt="230V AC bulb lit while the Adafruit IO dashboard toggle shows ON" loading="lazy"><figcaption><b>Photo</b>Bulb ON after the "Bulb On" applet fires</figcaption></figure><figure><img src="assets/task3/task3-physical-bulb-off.jpeg" alt="230V AC bulb off while the Adafruit IO dashboard toggle shows OFF" loading="lazy"><figcaption><b>Photo</b>Bulb OFF after the "Bulb off" applet fires</figcaption></figure><figure><img src="assets/task3/task3-hardware-relay-bulb.jpeg" alt="ESP32, relay module and 230V AC bulb wired together on the desk" loading="lazy"><figcaption><b>Hardware</b>ESP32, relay module and 230V AC bulb wired together</figcaption></figure></div><div class="media-grid media-wide"><figure><img src="assets/task3/task3-demo-photo.jpeg" alt="Sachin speaking the voice command into his phone next to the laptop showing the Bulb Control dashboard, bulb lit in the background" loading="lazy"><figcaption><b>Photo</b>Saying the command live, dashboard and bulb responding</figcaption></figure><figure><video src="assets/task3/task3-demo-voice-automation.mp4" controls preload="metadata" playsinline></video><figcaption><b>Video</b>Demo: the full voice-to-bulb automation, start to finish</figcaption></figure></div></div><div class="sec" id="s9"><h2><em>09</em>Challenges &amp; Fixes</h2><ul><li><b style="color:var(--foreground)">One applet could only ever turn the bulb ON</b> &mdash; my first instinct was that a single "Bulb" scene could toggle the light, but an IFTTT Activate-scene trigger only fires an action, it can't read the bulb's current state to flip it. I had to create a second, separate applet with its own scene name (<em style="font-style:normal;color:var(--accent)">Bulb off</em>) and its own action sending <code>0</code>, so ON and OFF are really two independent automations that happen to write to the same feed.</li><li><b style="color:var(--foreground)">IFTTT couldn't write to my feed until I authorized it</b> &mdash; the first attempt at the action step just sat there, and I realized I hadn't granted the Adafruit authorization request yet. Approving the "Read and write to your feed data" permission on the Adafruit account page let the action actually save.</li><li><b style="color:var(--foreground)">Making sure the value matched what the sketch expects</b> &mdash; since <code>processBulbCommand()</code> already accepts <code>1</code>/<code>0</code> exactly, I just had to type those values into the "Data to save" field rather than leaving IFTTT's default text in place.</li></ul></div><div class="sec" id="s10"><h2><em>10</em>Reflection</h2><p>What stood out most is how little the ESP32 side had to change for a completely different kind of trigger. Task 2 proved that publish/subscribe decouples the dashboard from the device, and this task pushed that further: IFTTT is just another publisher on the same feed, alongside the dashboard toggle, and the ESP32 never needs to know which one sent the value. That's the real payoff of building on Adafruit IO rather than hardcoding a single control path.</p><p>The automation does have a seam, though &mdash; needing two separate applets for ON and OFF instead of one smart toggle shows that IFTTT's Activate-scene trigger only knows how to fire a fixed action, not read or branch on current state. Anything more conditional (say, "turn off only if it's already on") would need a service on IFTTT's Pro tier or logic added back on the ESP32 itself.</p></div><div class="sec" id="s11"><h2><em>11</em>Repository Link</h2><p>Full sketch and project files for this task.</p><a class="btn" href="https://github.com/sachinsivapragash/IFTTT-Adafruit-IO-IoT-Automation.git" target="_blank" rel="noopener">Open Task 3 on GitHub →</a></div><div class="sec"><h2>Other tasks</h2><div class="cards oth"><a href="protosem-week-7-task-1.html"><b>TASK 1</b><h3>ESP32 Web Server &amp; HTML LED Control</h3><p>Turn the ESP32 into a web server and switch an LED on and off from a browser page.</p></a><a href="protosem-week-7-task-2.html"><b>TASK 2</b><h3>Adafruit IO Dashboard &amp; MQTT</h3><p>Control the LED from an Adafruit IO cloud dashboard using MQTT.</p></a><a href="protosem-week-7-task-4.html"><b>TASK 4</b><h3>Firebase IoT Monitoring Dashboard</h3><p>Monitor temperature, humidity and light in a login-protected Firebase dashboard and control a bulb.</p></a><a href="protosem-week-7-task-5.html"><b>TASK 5</b><h3>Firebase Logging, Automation &amp; Data Export</h3><p>The complete system: automatic LDR lighting, Firebase data logging, charts and CSV export.</p></a></div></div></article><aside class="side"><p class="eyebrow">Tasks</p><a href="protosem-week-7-task-1.html">1 · Web Server &amp; LED</a><a href="protosem-week-7-task-2.html">2 · Adafruit IO &amp; MQTT</a><a href="protosem-week-7-task-3.html" class="on">3 · IFTTT Automation</a><a href="protosem-week-7-task-4.html">4 · Firebase Dashboard</a><a href="protosem-week-7-task-5.html">5 · Logging &amp; CSV Export</a><p class="eyebrow">On this page</p><a href="#s1">01 Overview</a><a href="#s2">02 Concepts</a><a href="#s3">03 System Design</a><a href="#s4">04 Hardware &amp; Software</a><a href="#s5">05 Wiring / Setup</a><a href="#s6">06 Implementation</a><a href="#s7">07 Configuration</a><a href="#s8">08 Evidence</a><a href="#s9">09 Challenges &amp; Fixes</a><a href="#s10">10 Reflection</a><a href="#s11">11 Repository Link</a></aside></div></div></main>
 <script>
 const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
 if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}
