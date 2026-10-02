@@ -1,5 +1,0 @@
-marshmallow-tower.jpg is already here.
-Add your other six photos with exactly these names (capital .JPG):
-w01.JPG  w02.JPG  w03.JPG  w04.JPG  w05.JPG  w06.JPG
-They appear in this order down the page (the tower photo is photo 4).
-Tip: resize each photo to about 1600 px wide first so the page loads fast on phones.
