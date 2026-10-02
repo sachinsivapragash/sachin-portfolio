@@ -1,0 +1,652 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 10 — Task 7: Modbus TCP PLC Simulation | ProtoSem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
+/* ---------- Reset ---------- */
+*{margin:0;padding:0;box-sizing:border-box}
+img,video{display:block;max-width:100%}
+ul,ol{list-style:none}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;appearance:none;cursor:pointer}
+svg{display:block}
+
+/* ---------- Tokens ---------- */
+:root{
+  --background:#08080a; --foreground:#f3f1ea; --surface:#111114; --surface-2:#17171b;
+  --muted:#807f78; --line:rgba(243,241,234,0.1); --line-strong:rgba(243,241,234,0.22);
+  --accent:#ff3b1d; --accent-2:#ff6a3d;
+  --gutter:2.5rem; --section:9rem;
+  --font-display:"Anton", sans-serif; --font-sans:"Onest", sans-serif;
+
+  --fs-hero:28rem; --lh-hero:0.78;
+  --fs-mega:13rem; --lh-mega:0.86;
+  --fs-display:7.5rem; --lh-display:0.9;
+  --fs-h1:5rem; --lh-h1:0.95;
+  --fs-h2:3.25rem; --lh-h2:1;
+  --fs-h3:1.75rem; --lh-h3:1.15;
+  --fs-lead:1.375rem; --lh-lead:1.45;
+  --fs-body:1.0625rem; --lh-body:1.6;
+  --fs-eyebrow:0.8125rem; --lh-eyebrow:1.2;
+}
+
+/* ---------- Adaptive rem grid ---------- */
+html{ font-size:16px; background:var(--background); }
+@media (max-width:1920px){ html{ font-size:0.833333vw; } }
+@media (max-width:1440px){ html{ font-size:1.111111vw; } }
+@media (max-width:1024px){ html{ font-size:1.5625vw; } }
+@media (max-width:640px){
+  html{ font-size:4.444444vw; }
+  :root{ --gutter:16px; }
+}
+
+body{
+  background:var(--background); color:var(--foreground); font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; overflow-x:hidden;
+  min-height:100vh;
+}
+::selection{ background:var(--accent); color:var(--background); }
+
+/* ---------- Utility ---------- */
+.eyebrow{
+  display:flex; align-items:center; gap:0.75rem; font-size:var(--fs-eyebrow); line-height:var(--lh-eyebrow);
+  font-weight:500; text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+}
+.eyebrow::before{ content:""; width:0.5rem; height:0.5rem; border-radius:9999px; background:var(--accent); flex-shrink:0; }
+
+.line-reveal{ overflow:hidden; display:block; }
+.line-reveal > span{ display:inline-block; transform:translateY(110%); opacity:0; transition:transform 0.85s cubic-bezier(0.16,1,0.3,1), opacity 0.85s cubic-bezier(0.16,1,0.3,1); will-change:transform; }
+.line-reveal.in > span{ transform:translateY(0); opacity:1; }
+
+.fade-up{ opacity:0; transform:translateY(32px); transition:transform 0.62s cubic-bezier(0.16,1,0.3,1), opacity 0.62s cubic-bezier(0.16,1,0.3,1); }
+.fade-up.in{ opacity:1; transform:translateY(0); }
+
+/* ---------- Preloader ---------- */
+#preloader{
+  position:fixed; inset:0; z-index:100; background:var(--background);
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; gap:0.75rem;
+  padding:var(--gutter);
+}
+@media (min-width:640px){
+  #preloader{ flex-direction:row; align-items:flex-end; justify-content:space-between; gap:1rem; }
+}
+#preloader .pl-brand{
+  font-family:var(--font-display); font-size:var(--fs-h3); text-transform:uppercase; line-height:1;
+  letter-spacing:-0.01em; color:var(--foreground); transition:opacity 0.3s ease;
+}
+#preloader .pl-count{
+  font-family:var(--font-display); font-size:var(--fs-display); line-height:1; color:var(--foreground);
+  font-variant-numeric:tabular-nums; transition:opacity 0.3s ease;
+}
+#preloader .pl-count .pct{ color:var(--accent); }
+#preloader.wipe{ transform:translateY(-100%); transition:transform 0.66s cubic-bezier(0.22,1,0.36,1); pointer-events:none; }
+#preloader.hidden{ display:none; }
+
+/* ---------- Nav ---------- */
+header#site-nav{ position:fixed; inset-inline:0; top:0; z-index:50; pointer-events:none; }
+header#site-nav nav{
+  pointer-events:auto; display:flex; align-items:center; justify-content:space-between;
+  padding:1.5rem var(--gutter);
+}
+.nav-logo{ display:flex; align-items:center; gap:0.75rem; }
+.nav-logo .badge{
+  display:grid; place-items:center; width:2.5rem; height:2.5rem; border-radius:9999px;
+  border:1px solid var(--line-strong); font-weight:600; letter-spacing:-0.01em; font-size:0.9rem;
+}
+.nav-logo .name{
+  font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+}
+@media (max-width:639px){ .nav-logo .name{ display:none; } }
+
+.nav-links{ display:none; gap:2.5rem; }
+@media (min-width:768px){ .nav-links{ display:flex; } }
+.nav-links li{ position:relative; }
+.nav-links a{
+  font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.18em; color:var(--muted);
+  transition:color 0.3s ease;
+}
+.nav-links a::after{
+  content:""; position:absolute; bottom:-0.25rem; left:0; height:1px; width:0; background:var(--accent);
+  transition:width 0.3s ease;
+}
+.nav-links a:hover{ color:var(--foreground); }
+.nav-links a:hover::after{ width:100%; }
+.nav-links a.active{ color:var(--foreground); }
+.nav-links a.active::after{ width:100%; }
+
+.burger{ display:grid; place-items:center; width:2.5rem; height:2.5rem; }
+@media (min-width:768px){ .burger{ display:none; } }
+.burger .bars{ display:flex; flex-direction:column; gap:0.375rem; width:1.5rem; }
+.burger .bars span{ height:0.125rem; width:100%; background:var(--foreground); transition:transform 0.3s ease, opacity 0.3s ease; }
+.burger.open .bars span:nth-child(1){ transform:translateY(0.5rem) rotate(45deg); }
+.burger.open .bars span:nth-child(2){ opacity:0; }
+.burger.open .bars span:nth-child(3){ transform:translateY(-0.5rem) rotate(-45deg); }
+
+#mobile-menu{
+  position:fixed; inset:0; z-index:49; background:var(--background); display:flex; flex-direction:column;
+  align-items:flex-start; justify-content:center; padding-inline:var(--gutter); gap:1rem;
+  opacity:0; pointer-events:none; transition:opacity 0.45s ease;
+}
+#mobile-menu.open{ opacity:1; pointer-events:auto; }
+#mobile-menu a{
+  font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; line-height:1; letter-spacing:-0.01em;
+  transform:translateY(48px); opacity:0; transition:transform 0.42s ease, opacity 0.42s ease;
+}
+#mobile-menu.open a{ transform:translateY(0); opacity:1; }
+
+/* ---------- Hero ---------- */
+main{ position:relative; width:100%; overflow-x:hidden; }
+#top{ position:relative; display:flex; flex-direction:column; min-height:100svh; overflow:hidden; }
+.hero-top{ position:relative; z-index:30; display:flex; flex-direction:column; gap:2rem; padding:8rem var(--gutter) 0; }
+@media (min-width:640px){ .hero-top{ flex-direction:row; align-items:flex-start; justify-content:space-between; gap:1rem; } }
+.hero-roles{
+  font-family:var(--font-display); text-transform:uppercase; line-height:1.05; letter-spacing:-0.01em; color:var(--foreground);
+  font-size:var(--fs-h3);
+}
+@media (min-width:640px){ .hero-roles{ font-size:var(--fs-h2); } }
+.hero-desc{
+  max-width:26rem; font-size:var(--fs-body); color:var(--muted); opacity:0; transform:translateY(16px);
+  transition:opacity 0.55s cubic-bezier(0.16,1,0.3,1), transform 0.55s cubic-bezier(0.16,1,0.3,1);
+}
+.hero-desc.in{ opacity:1; transform:translateY(0); }
+@media (min-width:640px){ .hero-desc{ text-align:right; } }
+
+.hero-portrait-wrap{
+  position:absolute; z-index:20; bottom:0; left:50%; transform:translateX(-50%);
+  height:86vh; width:80vw; pointer-events:none;
+}
+@media (min-width:640px){ .hero-portrait-wrap{ width:48vw; } }
+@media (min-width:1024px){ .hero-portrait-wrap{ width:36vw; } }
+.hero-portrait-wrap figure{
+  position:relative; width:100%; height:100%; overflow:hidden; pointer-events:auto;
+  -webkit-mask-image: radial-gradient(68% 88% at 50% 58%, #000 46%, transparent 92%);
+  mask-image: radial-gradient(68% 88% at 50% 58%, #000 46%, transparent 92%);
+}
+.hero-portrait-wrap img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 12%;
+  filter:url(#liquid-hero) saturate(0.92) contrast(1.03);
+}
+.hero-vignette{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 100%, transparent 30%, rgba(8,8,10,0.55) 68%, rgba(8,8,10,0.92) 100%),
+    radial-gradient(90% 70% at 50% 0%, rgba(8,8,10,0.6), transparent 72%),
+    radial-gradient(70% 90% at 50% 55%, transparent 55%, rgba(8,8,10,0.5) 88%, rgba(8,8,10,0.85) 100%);
+}
+.hero-gradient-base{
+  position:absolute; inset-inline:0; bottom:0; z-index:20; height:26vh;
+  background:linear-gradient(to bottom, transparent, var(--background));
+}
+.hero-name{
+  position:absolute; inset-inline:0; bottom:0; z-index:10; transform:translateY(6%);
+  display:flex; flex-direction:column; align-items:center;
+  font-family:var(--font-display); text-transform:uppercase; line-height:var(--lh-mega); letter-spacing:-0.01em;
+  color:var(--accent); font-size:var(--fs-mega);
+}
+@media (min-width:640px){ .hero-name{ font-size:var(--fs-hero); line-height:var(--lh-hero); } }
+.hero-name .word{ display:block; white-space:nowrap; overflow:hidden; }
+.hero-name .word .letter{ display:inline-block; transform:translateY(100%); opacity:0; transition:transform 0.9s cubic-bezier(0.16,1,0.3,1), opacity 0.9s cubic-bezier(0.16,1,0.3,1); }
+.hero-name .word.in .letter{ transform:translateY(0); opacity:1; }
+
+.scroll-cue{
+  position:absolute; z-index:30; bottom:2rem; left:var(--gutter); display:flex; align-items:center; gap:0.75rem;
+  font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+  opacity:0; transition:opacity 0.6s ease;
+}
+.scroll-cue.in{ opacity:1; }
+.scroll-cue .rule{ width:1px; height:2.5rem; background:var(--accent); }
+
+/* ---------- Marquee ---------- */
+.marquee-section{
+  overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  padding-top:2rem; padding-bottom:2rem;
+}
+.marquee-track{ display:flex; width:max-content; flex-wrap:nowrap; animation:marquee 22s linear infinite; }
+@keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+.marquee-track .word{ font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; letter-spacing:-0.01em; }
+.marquee-track .dot{ margin-inline:2rem; width:0.625rem; height:0.625rem; border-radius:9999px; background:var(--accent); flex-shrink:0; }
+
+/* ---------- Sections generic ---------- */
+section, footer#contact{ padding:var(--section) var(--gutter); position:relative; }
+.section-head{ display:flex; flex-direction:column; gap:0; }
+@media (min-width:640px){ .section-head{ flex-direction:row; align-items:flex-end; justify-content:space-between; } }
+.section-heading{
+  margin-top:1.5rem; max-width:14ch; font-family:var(--font-display); text-transform:uppercase;
+  line-height:0.95; letter-spacing:-0.01em; font-size:var(--fs-h2);
+}
+@media (min-width:640px){ .section-heading{ font-size:var(--fs-h1); } }
+.section-tag{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+
+/* ---------- Story ---------- */
+#story .story-grid{ display:grid; grid-template-columns:1fr; gap:3rem; }
+@media (min-width:1024px){ #story .story-grid{ grid-template-columns:repeat(12,1fr); gap:var(--gutter); } }
+#story .story-left{ }
+@media (min-width:1024px){ #story .story-left{ grid-column:span 6; } }
+#story .story-left h2{ max-width:16ch; }
+#story .story-left p{ margin-top:2rem; max-width:46ch; font-size:var(--fs-lead); line-height:var(--lh-lead); color:var(--muted); }
+#story .story-right{ }
+@media (min-width:1024px){ #story .story-right{ grid-column:span 6; padding-top:0.5rem; } }
+.principle{ display:grid; grid-template-columns:auto 1fr; column-gap:1.5rem; border-top:1px solid var(--line); padding:2rem 0; }
+.principle:last-child{ border-bottom:1px solid var(--line); }
+.principle .num{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; font-variant-numeric:tabular-nums; color:var(--accent); }
+.principle h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; }
+.principle p{ margin-top:0.75rem; max-width:44ch; font-size:var(--fs-body); color:var(--muted); }
+
+/* ---------- Projects ---------- */
+#projects ul.grid{ margin-top:4rem; display:grid; grid-template-columns:1fr; column-gap:var(--gutter); row-gap:4rem; }
+@media (min-width:768px){ #projects ul.grid{ grid-template-columns:1fr 1fr; } }
+#projects li.card:nth-child(2n){ }
+@media (min-width:768px){ #projects li.card:nth-child(2n){ margin-top:6rem; } }
+.project-shot{ position:relative; overflow:hidden; aspect-ratio:16/11; width:100%; border-radius:0.125rem; background:var(--surface); }
+.project-row{ margin-top:1.5rem; border-top:1px solid var(--line); padding-top:1.25rem; display:flex; align-items:flex-start; justify-content:space-between; gap:1.5rem; }
+.project-row h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; transition:color 0.34s ease; }
+.project-row:hover h3, .card:hover .project-row h3{ color:var(--accent); }
+.project-row p{ margin-top:0.5rem; max-width:42ch; font-size:var(--fs-body); color:var(--muted); }
+.project-meta{ flex-shrink:0; text-align:right; }
+.project-meta .year{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.project-meta .outcome{ margin-top:0.5rem; font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.18em; color:var(--accent); }
+.project-cat{ margin-top:0.75rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+
+/* ---------- Liquid image shared ---------- */
+.liquid{ position:relative; overflow:hidden; background:var(--surface); }
+.liquid .placeholder{ position:absolute; inset:0; background:radial-gradient(130% 130% at 30% 15%, var(--surface-2), var(--background)); display:grid; place-items:center; }
+.liquid .placeholder span{ font-family:var(--font-display); font-size:var(--fs-h3); text-transform:uppercase; color:var(--muted); letter-spacing:-0.01em; }
+.liquid .veil{ position:absolute; inset:0; background:var(--surface-2); mix-blend-mode:color; opacity:0.88; transition:opacity 0.38s ease; pointer-events:none; }
+.liquid:hover .veil{ opacity:0; }
+.liquid .glow{ position:absolute; inset:0; opacity:0; transition:opacity 0.38s ease; pointer-events:none;
+  background:linear-gradient(120deg, transparent 30%, color-mix(in srgb, var(--accent) 35%, transparent) 50%, transparent 70%); }
+.liquid:hover .glow{ opacity:1; }
+.liquid .vignette{ position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(120% 120% at 50% 120%, color-mix(in srgb, #08080a 70%, transparent), transparent 60%); }
+
+/* ---------- Skills ---------- */
+dl.stats{ margin-top:4rem; display:grid; grid-template-columns:1fr; border-top:1px solid var(--line); }
+@media (min-width:640px){ dl.stats{ grid-template-columns:1fr 1fr; } }
+@media (min-width:1024px){ dl.stats{ grid-template-columns:repeat(4,1fr); } }
+.stat-cell{ display:flex; flex-direction:column; gap:1rem; border-bottom:1px solid var(--line); padding:2.5rem 0; }
+@media (min-width:1024px){ .stat-cell{ padding:3rem 0; } }
+@media (min-width:640px){ dl.stats .stat-cell:nth-child(2n){ border-left:1px solid var(--line); padding-left:2rem; } }
+@media (min-width:1024px){
+  dl.stats .stat-cell:nth-child(2n){ border-left:none; padding-left:0; }
+  dl.stats .stat-cell:not(:nth-child(4n+1)){ border-left:1px solid var(--line); padding-left:2rem; }
+}
+.stat-figure{ font-family:var(--font-display); font-size:var(--fs-display); line-height:1; letter-spacing:-0.01em; transition:color 0.34s ease; }
+.stat-cell:hover .stat-figure{ color:var(--accent); }
+.stat-label{ max-width:20ch; font-size:var(--fs-body); text-transform:uppercase; letter-spacing:0.14em; color:var(--muted); }
+
+.skill-tags{ margin-top:4rem; display:flex; flex-wrap:wrap; gap:0.75rem; }
+.skill-tags span{
+  font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.14em; color:var(--muted);
+  border:1px solid var(--line-strong); border-radius:9999px; padding:0.6rem 1.1rem; transition:color 0.3s ease, border-color 0.3s ease;
+}
+.skill-tags span:hover{ color:var(--foreground); border-color:var(--accent); }
+
+/* ---------- Testimonials ---------- */
+.voices-body{ margin-top:4rem; display:grid; grid-template-columns:1fr; gap:var(--gutter); }
+@media (min-width:1024px){ .voices-body{ grid-template-columns:repeat(12,1fr); } }
+.voice-select{ }
+@media (min-width:1024px){ .voice-select{ grid-column:span 5; } }
+.voice-btn{ width:100%; display:flex; align-items:baseline; gap:1.25rem; border-top:1px solid var(--line); padding:1.75rem 0; text-align:left; }
+.voice-select li:last-child .voice-btn{ border-bottom:1px solid var(--line); }
+.voice-btn .idx{ font-size:var(--fs-eyebrow); font-variant-numeric:tabular-nums; letter-spacing:0.18em; color:var(--muted); transition:color 0.3s ease; }
+.voice-btn .who h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; color:var(--muted); transition:color 0.3s ease; }
+.voice-btn .who p{ margin-top:0.25rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.voice-btn .rule{ height:1px; width:0; background:var(--accent); transition:width 0.3s ease; margin-left:auto; }
+.voice-btn.active .idx{ color:var(--accent); }
+.voice-btn.active .who h3{ color:var(--foreground); }
+.voice-btn.active .rule{ width:2.5rem; }
+
+.voice-panel{ display:grid; grid-template-columns:1fr; gap:2rem; align-items:flex-start; }
+@media (min-width:1024px){ .voice-panel{ grid-column:span 7; } }
+@media (min-width:640px){ .voice-panel{ grid-template-columns:1fr auto; } }
+.voice-quote{ order:2; }
+@media (min-width:640px){ .voice-quote{ order:1; } }
+.voice-quote p{ max-width:30ch; font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:500; line-height:1.3; letter-spacing:-0.01em; color:var(--foreground); }
+.voice-quote p .w{ display:inline-block; transform:translateY(18px); opacity:0; transition:transform 0.52s cubic-bezier(0.165,0.84,0.44,1), opacity 0.52s cubic-bezier(0.165,0.84,0.44,1); }
+.voice-quote p .w.in{ transform:translateY(0); opacity:1; }
+.voice-quote footer{ margin-top:2rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.voice-portrait{ order:1; width:100%; aspect-ratio:4/5; border-radius:0.125rem; opacity:0; transform:scale(1.06); transition:opacity 0.64s cubic-bezier(0.16,1,0.3,1), transform 0.64s cubic-bezier(0.16,1,0.3,1); }
+@media (min-width:640px){ .voice-portrait{ order:2; width:16rem; } }
+.voice-portrait.in{ opacity:1; transform:scale(1); }
+.voice-portrait img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+/* ---------- Contact / Footer ---------- */
+footer#contact{ padding-bottom:0; }
+footer#contact .contact-lead{ margin-top:2rem; max-width:44ch; font-size:var(--fs-lead); color:var(--muted); }
+.email-link{
+  margin-top:3rem; display:inline-flex; align-items:baseline; gap:0.75rem; font-family:var(--font-sans);
+  font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; word-break:break-all; transition:transform 0.34s ease, color 0.34s ease;
+}
+@media (min-width:640px){ .email-link{ font-size:var(--fs-h1); gap:1rem; } }
+.email-link:hover{ transform:translateX(14px); color:var(--accent); }
+.email-link .arrow{ color:var(--accent); }
+.footer-bar{ margin-top:var(--section); border-top:1px solid var(--line); padding:3rem 0; display:grid; grid-template-columns:1fr; gap:2.5rem; }
+@media (min-width:1024px){ .footer-bar{ grid-template-columns:repeat(12,1fr); } }
+.footer-sig{ }
+@media (min-width:1024px){ .footer-sig{ grid-column:span 6; } }
+.footer-sig p.name{ font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; line-height:1; letter-spacing:-0.01em; }
+.footer-sig p.tag{ margin-top:1rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+.footer-social{ }
+@media (min-width:1024px){ .footer-social{ grid-column:span 3; } }
+.footer-social li{ margin-bottom:0.75rem; }
+.footer-social a{ display:inline-flex; align-items:center; gap:0; font-size:var(--fs-body); color:var(--muted); transition:color 0.3s ease; }
+.footer-social a::before{ content:""; display:inline-block; width:0; height:1px; background:var(--accent); margin-right:0; transition:width 0.3s ease, margin 0.3s ease; }
+.footer-social a:hover{ color:var(--foreground); }
+.footer-social a:hover::before{ width:1.5rem; margin-right:0.75rem; }
+.footer-copy{ }
+@media (min-width:1024px){ .footer-copy{ grid-column:span 3; text-align:right; } }
+.footer-copy p{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  #preloader{ display:none !important; }
+  .marquee-track{ animation:none !important; }
+  .line-reveal > span, .hero-name .letter, .voice-quote p .w{ transform:none !important; opacity:1 !important; transition:none !important; }
+  .fade-up, .hero-desc, .scroll-cue, .voice-portrait{ opacity:1 !important; transform:none !important; transition:none !important; }
+}
+html.no-motion #preloader{ display:none !important; }
+html.no-motion .marquee-track{ animation:none !important; }
+
+
+  header#site-nav{ z-index:120; }
+  header#site-nav nav{
+    position:relative;
+    isolation:isolate;
+    background:linear-gradient(to bottom, rgba(8,8,10,0.96) 0%, rgba(8,8,10,0.86) 62%, rgba(8,8,10,0) 100%);
+  }
+  header#site-nav .nav-logo,
+  header#site-nav .nav-links,
+  header#site-nav .burger{ position:relative; z-index:2; }
+  .nav-links{ gap:1.85rem; }
+  .nav-links a{ text-shadow:0 1px 10px rgba(0,0,0,.8); }
+  @media (min-width:768px) and (max-width:1180px){
+    .nav-links{ gap:1rem; }
+    .nav-links a{ letter-spacing:.13em; }
+  }
+
+
+.proto-wrap{padding:9rem var(--gutter) 7rem;max-width:118rem;margin:0 auto}
+.proto-kicker{margin-top:.75rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.22em;color:var(--muted)}
+.proto-title{margin-top:1.3rem;max-width:13ch;font-family:var(--font-display);font-size:clamp(4.6rem,8vw,9rem);line-height:.88;text-transform:uppercase;letter-spacing:-.015em}
+.proto-intro{margin-top:2rem;max-width:52ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:var(--muted)}
+.proto-grid{margin-top:5rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line)}
+.proto-card{display:block;padding:2.2rem;background:var(--background);min-height:16rem;transition:transform .35s ease,background .35s ease}
+.proto-card:hover{background:var(--surface);transform:translateY(-4px)}
+.proto-num{font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.proto-card h2{margin-top:1.2rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;max-width:24ch}
+.proto-card p{margin-top:.8rem;color:var(--muted);font-size:var(--fs-body);max-width:45ch}
+.proto-card .arrow{display:inline-block;margin-top:2rem;color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.proto-detail{max-width:72rem;margin:0 auto;padding:9rem var(--gutter) 7rem}
+.proto-detail .eyebrow{margin-bottom:1rem}
+.proto-detail h1{font-family:var(--font-display);font-size:clamp(4rem,7vw,8rem);line-height:.9;text-transform:uppercase;max-width:14ch}
+.proto-detail .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.detail-grid{margin-top:4rem;display:grid;grid-template-columns:repeat(12,1fr);gap:2rem}
+.detail-main{grid-column:span 8}.detail-side{grid-column:span 4}
+.detail-section{border-top:1px solid var(--line);padding:1.75rem 0}.detail-section h2{font-size:var(--fs-h3);font-family:var(--font-sans);margin-bottom:1rem}.detail-section p{font-size:var(--fs-body);line-height:1.65;color:var(--muted);margin:.6rem 0}.detail-section ul{padding:0;margin:0}.detail-section li{padding:.55rem 0;color:var(--muted);font-size:var(--fs-body)}.detail-section li::before{content:'•';color:var(--accent);margin-right:.7rem}.detail-links a{display:block;padding:.55rem 0;color:var(--foreground);border-bottom:1px solid var(--line)}.detail-links a:hover{color:var(--accent)}
+.proto-empty{border-top:1px solid var(--line);margin-top:4rem;padding-top:2rem;color:var(--muted)}
+@media(max-width:900px){.proto-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}.detail-main,.detail-side{grid-column:1}.proto-wrap,.proto-detail{padding-top:7rem}}
+</style>
+<style id="mobile-optimization">
+/* Mobile-only optimization: desktop/laptop layout remains unchanged */
+@media (max-width: 639px){
+  html{
+    font-size:16px !important;
+    overflow-x:hidden;
+  }
+
+  body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  header#site-nav{
+    z-index:120;
+  }
+
+  header#site-nav nav{
+    min-height:64px;
+    padding:10px 14px;
+    gap:10px;
+  }
+
+  .nav-logo{
+    min-width:0;
+  }
+
+  .nav-logo .badge{
+    width:40px;
+    height:40px;
+    flex-shrink:0;
+  }
+
+  .nav-logo .name{
+    display:none !important;
+  }
+
+  .burger{
+    width:40px;
+    height:40px;
+    flex-shrink:0;
+  }
+
+  #mobile-menu{
+    padding:80px 16px 24px;
+    gap:12px;
+    overflow-y:auto;
+  }
+
+  #mobile-menu a{
+    font-size:clamp(2rem, 10vw, 3rem);
+    max-width:100%;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-wrap{
+    width:100%;
+    max-width:100%;
+    padding:96px 16px 64px;
+  }
+
+  .proto-title{
+    max-width:100%;
+    font-size:clamp(2.8rem, 13vw, 5rem);
+    line-height:.9;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-kicker{
+    font-size:.75rem;
+    line-height:1.35;
+    letter-spacing:.16em;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-intro{
+    max-width:100%;
+    font-size:1rem;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-grid{
+    grid-template-columns:1fr !important;
+    width:100%;
+    margin-top:3rem;
+  }
+
+  .proto-card{
+    min-width:0;
+    width:100%;
+    padding:1.5rem;
+  }
+
+  section,
+  footer#contact{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .section-head{
+    width:100%;
+  }
+
+  .section-heading{
+    max-width:100%;
+    font-size:clamp(2rem, 10vw, 3.5rem);
+    overflow-wrap:anywhere;
+  }
+
+  img,
+  video,
+  iframe,
+  svg{
+    max-width:100%;
+  }
+
+  p,
+  li,
+  a,
+  h1,
+  h2,
+  h3,
+  h4{
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  .project-row{
+    flex-direction:column;
+    gap:1rem;
+  }
+
+  .project-meta{
+    text-align:left;
+  }
+
+  .voice-panel{
+    grid-template-columns:1fr !important;
+  }
+
+  .voice-portrait{
+    width:100%;
+    max-width:100%;
+  }
+
+  .email-link{
+    max-width:100%;
+    font-size:clamp(1.35rem, 6vw, 2rem);
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  .footer-bar{
+    grid-template-columns:1fr !important;
+  }
+
+  .footer-copy{
+    text-align:left !important;
+  }
+}
+
+@media (max-width:380px){
+  header#site-nav nav{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .proto-wrap{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  section,
+  footer#contact{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .proto-title{
+    font-size:clamp(2.45rem, 12vw, 4rem);
+  }
+}
+</style>
+
+<style id="week7-tasks">main{overflow:visible;overflow-x:clip}
+@media(min-width:640px) and (max-width:1024px){html{font-size:max(1.5625vw,14px)}}
+.tk{max-width:100rem;margin:0 auto;padding:8.5rem var(--gutter) 6rem}
+@media(max-width:639px){.tk{padding:6.5rem var(--gutter) 4rem}}
+.tk h1{margin-top:1.2rem;max-width:18ch;font-family:var(--font-display);font-size:clamp(36px,5vw,84px);line-height:.94;text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
+.tk .lead{margin-top:1.5rem;max-width:56ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:#b9b7ae}
+.tk .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.tk .back:hover{color:var(--accent)}
+.tabs{margin-top:2rem;display:flex;flex-wrap:wrap;gap:.6rem}
+.tabs a{border:1px solid var(--line-strong);border-radius:9999px;padding:.6rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);transition:color .3s,border-color .3s}
+.tabs a.on,.tabs a:hover{color:var(--foreground);border-color:var(--accent)}
+.tk-grid{margin-top:3.5rem;display:grid;grid-template-columns:minmax(0,1fr);gap:3rem}
+@media(min-width:1024px){.tk-grid{grid-template-columns:minmax(0,1fr) 19rem;gap:5rem}}
+.side{display:none}
+@media(min-width:1024px){.side{display:block;position:sticky;top:6.5rem;align-self:start}}
+.side .eyebrow{margin:0 0 .6rem}.side a+.eyebrow{margin-top:2rem}
+.side a{display:block;padding:.5rem 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.12em;transition:color .3s}
+.side a:hover{color:var(--accent)}.side a.on{color:var(--foreground)}
+.sec{border-top:1px solid var(--line);padding:2rem 0;scroll-margin-top:6rem}
+.sec h2{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.1rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;letter-spacing:-.01em}
+.sec h2 em{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.sec p,.sec li{color:#b9b7ae;font-size:var(--fs-body);line-height:1.65}
+.sec p{max-width:70ch;margin:.5rem 0}
+.sec ul{margin:.3rem 0}.sec ul li{position:relative;padding:.4rem 0 .4rem 1.3rem}
+.sec ul li::before{content:"";position:absolute;left:0;top:1.05em;width:.4rem;height:.4rem;border-radius:9999px;background:var(--accent)}
+.sec ol{list-style:decimal;padding-left:1.5rem}.sec ol li{padding:.4rem 0 .4rem .3rem}.sec ol li::marker{color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.cards>*{background:var(--background);padding:1.25rem}
+.cards h3{font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.15);font-weight:600;color:var(--foreground);transition:color .3s}
+.cards p{margin:.5rem 0 0}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
+.flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
+.flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
+.ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
+.ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
+.ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
+pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:.25rem;overflow-x:auto;color:#d9d6cc;font:.85rem/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.btn{display:inline-block;margin-top:.8rem;padding:.8rem 1.4rem;border:1px solid var(--accent);border-radius:9999px;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;transition:background .3s,color .3s}
+.btn:hover{background:var(--accent);color:var(--background)}
+.oth a{display:block}.oth a:hover{background:var(--surface)}.oth a:hover h3{color:var(--accent)}
+.oth b{display:block;margin-bottom:.4rem;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent);font-weight:500}
+.proto-grid .proto-card:last-child{grid-column:1/-1}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+.side{max-height:calc(100vh - 7.5rem);overflow-y:auto;scrollbar-width:thin}.side a{padding:.38rem 0}.pin-table td,.pin-table th{overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}@media(max-width:639px){.pin-table th,.pin-table td{padding:.5rem .5rem}}</style></head><body>
+<header id="site-nav"><nav>
+  <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#story">Story</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#skills">Skills</a></li>
+    <li><a class="active" href="protosem.html">ProtoSem</a></li>
+    <li><a href="index.html#testimonials">Focus</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><span class="bars"><span></span><span></span><span></span></span></button>
+</nav></header>
+<div id="mobile-menu">
+  <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
+  <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
+</div>
+<main><div class="tk"><p class="eyebrow">Week 10 · Task 7 of 8</p><h1>Modbus TCP PLC Simulation</h1><nav class="tabs" aria-label="Week 10 tasks"><a href="protosem-week-10.html">← Week 10</a><a href="protosem-week-10-task-1.html">Task 1</a><a href="protosem-week-10-task-2.html">Task 2</a><a href="protosem-week-10-task-3.html">Task 3</a><a href="protosem-week-10-task-4.html">Task 4</a><a href="protosem-week-10-task-5.html">Task 5</a><a href="protosem-week-10-task-6.html">Task 6</a><a href="protosem-week-10-task-7.html" class="on" aria-current="page">Task 7</a><a href="protosem-week-10-task-8.html">Task 8</a></nav><div class="tk-grid"><article><div class="sec" id="s1"><h2><em>01</em>Overview</h2><p>This task connects LabVIEW to a <b style="color:var(--foreground)">PLC</b> using the <b style="color:var(--foreground)">Modbus TCP</b> protocol. No physical PLC is used: a Modbus TCP server program on the same computer acts as the PLC. LabVIEW reads a group of <b style="color:var(--foreground)">coils</b> (on/off bits) and a group of <b style="color:var(--foreground)">holding registers</b> (numbers) from it, shows them on the front panel, and turns two of the values into text messages: a <b style="color:var(--foreground)">Part Status</b> (Sensed or Idle) and a <b style="color:var(--foreground)">Pos Status</b> (Reached or in-Process).</p><p>The VI is <code>Task6.vi</code> in the <code>Labview Assignment.lvproj</code> project.</p></div><div class="sec" id="s2"><h2><em>02</em>Concepts</h2><div class="cards"><div><h3>PLC</h3><p>A Programmable Logic Controller, the small industrial computer that reads sensors and controls machines. Here its data is provided by a simulator.</p></div><div><h3>Modbus TCP</h3><p>A standard way for a master (LabVIEW) to read and write data in a device (the PLC) over a network. The default port is 502.</p></div><div><h3>Coils</h3><p>Single on/off bits, such as a sensor output or a relay. LabVIEW shows them as an array of round LEDs.</p></div><div><h3>Holding registers</h3><p>16-bit numbers stored in the PLC, such as a position or a setpoint. LabVIEW shows them as an array of numbers.</p></div><div><h3>Index Array and Select</h3><p>Index Array picks one element from an array, and Select chooses between two values based on a True or False input. Together they turn a number or a bit into a text message.</p></div></div></div><div class="sec" id="s3"><h2><em>03</em>Program Flow</h2><div class="flow"><span>PLC IP Address</span><i>&rarr;</i><span>Modbus master (TCP)</span><i>&rarr;</i><span>While Loop</span></div><div class="flow"><span>Read coils</span><i>&rarr;</i><span>coils array</span><i>&rarr;</i><span>pick one coil</span><i>&rarr;</i><span>Sensed / Idle</span><i>&rarr;</i><span>Part Status</span></div><div class="flow"><span>Read holding registers</span><i>&rarr;</i><span>register values</span><i>&rarr;</i><span>pick one value</span><i>&rarr;</i><span>compare with 80</span><i>&rarr;</i><span>Reached / in-Process</span><i>&rarr;</i><span>Pos Status</span></div><table class="pin-table"><thead><tr><th>Front panel item</th><th>Type</th><th>Role in the program</th></tr></thead><tbody><tr><td><b style="color:var(--foreground)">PLC IP Address</b></td><td>String control</td><td>Address of the PLC (or the simulator)</td></tr><tr><td><b style="color:var(--foreground)">starting address, number of inputs</b></td><td>Numeric controls</td><td>First coil to read and how many coils to read</td></tr><tr><td><b style="color:var(--foreground)">starting address 2, number of inputs 2</b></td><td>Numeric controls</td><td>First holding register to read and how many to read</td></tr><tr><td><b style="color:var(--foreground)">coils</b></td><td>Boolean array indicator</td><td>Shows each coil as an LED</td></tr><tr><td><b style="color:var(--foreground)">register values</b></td><td>Numeric array indicator</td><td>Shows each holding register value</td></tr><tr><td><b style="color:var(--foreground)">Part Status</b></td><td>String indicator</td><td>Shows Sensed or Idle</td></tr><tr><td><b style="color:var(--foreground)">Pos Status</b></td><td>String indicator</td><td>Shows Reached or in-Process</td></tr><tr><td><b style="color:var(--foreground)">STOP</b></td><td>Boolean control</td><td>Ends the While Loop</td></tr></tbody></table></div><div class="sec" id="s4"><h2><em>04</em>Hardware & Software</h2><div class="cards"><div><h3>Hardware</h3><p>None. The PLC is simulated, and both the simulator and LabVIEW run on the same computer, which is why the address <code>127.0.0.1</code> is used.</p></div><div><h3>Software &amp; platform</h3><ul><li>NI LabVIEW (version 26.0 shown in the VI toolbar) with Modbus functions</li><li>ICDT MODBUS TCP Server, the simulated PLC (port 502)</li><li>ModbusClientX, a Modbus client used to check the values</li><li>LabVIEW project: <code>Labview Assignment.lvproj</code></li></ul></div></div></div><div class="sec" id="s5"><h2><em>05</em>Front Panel</h2><p>The panel has four groups. The top-left group holds the <b style="color:var(--foreground)">PLC IP Address</b> and the STOP button. Below it are the four settings for what to read. At the right, <b style="color:var(--foreground)">Part Status</b> and <b style="color:var(--foreground)">Pos Status</b> show the two text messages, and under them the <b style="color:var(--foreground)">coils</b> LEDs and the <b style="color:var(--foreground)">register values</b> list show the raw data. Before running, the IP address is empty and everything is 0.</p><div class="media-grid media-wide"><figure><img src="assets/week10/task7/task7-front-panel.png" alt="Task 7 front panel: PLC IP Address, STOP, number of inputs and starting address controls, Part Status, Pos Status, coils and register values" loading="lazy"><figcaption><b style="color:var(--foreground)">Front panel</b>Front panel in edit mode, before running</figcaption></figure></div></div><div class="sec" id="s6"><h2><em>06</em>Block Diagram</h2><p>The program uses a Modbus connection that stays open while a While Loop runs. Reading from left to right:</p><ol><li>The <b style="color:var(--foreground)">PLC IP Address</b> and a <code>New TCP Master</code> selection create the Modbus connection, which passes into the loop through a shift register together with the error wire.</li><li>A <code>Wait (ms)</code> function with the constant <code>100</code> sets how often the loop runs.</li><li>A Modbus read function uses <b style="color:var(--foreground)">starting address</b> and <b style="color:var(--foreground)">number of inputs</b> to read the coils and sends them to the <b style="color:var(--foreground)">coils</b> indicator.</li><li>One coil is picked out of the array. A Select function turns it into the text <code>Sensed</code> (True) or <code>Idle</code> (False) for <b style="color:var(--foreground)">Part Status</b>.</li><li>A second Modbus read function uses <b style="color:var(--foreground)">starting address 2</b> and <b style="color:var(--foreground)">number of inputs 2</b> to read the holding registers and sends them to <b style="color:var(--foreground)">register values</b>.</li><li>One register value is picked out and compared with the constant <code>80</code>. A Select function turns the result into <code>Reached</code> or <code>in-Process</code> for <b style="color:var(--foreground)">Pos Status</b>.</li><li>The <b style="color:var(--foreground)">STOP</b> button ends the loop, and a Modbus close function on the right closes the connection.</li></ol><div class="media-grid media-wide"><figure><img src="assets/week10/task7/task7-block-diagram.png" alt="Task 7 block diagram: Modbus master with two read functions inside a While Loop, Select functions for Part Status and Pos Status, and a close function" loading="lazy"><figcaption><b style="color:var(--foreground)">Block diagram</b>Block diagram: the full program</figcaption></figure></div><p>Enlarged halves of the same diagram: the first shows the connection and the coil reading, the second shows the register reading and Pos Status.</p><div class="media-grid media-wide"><figure><img src="assets/week10/task7/task7-block-diagram-left.png" alt="Left half of the block diagram: PLC IP Address, New TCP Master, coil read and Part Status" loading="lazy"><figcaption><b style="color:var(--foreground)">Left half</b>Left half: connection, coil reading and Part Status</figcaption></figure></div><div class="media-grid media-wide"><figure><img src="assets/week10/task7/task7-block-diagram-right.png" alt="Right half of the block diagram: register read, comparison with 80 and Pos Status, stop and close" loading="lazy"><figcaption><b style="color:var(--foreground)">Right half</b>Right half: register reading, comparison with 80, Pos Status and stop</figcaption></figure></div></div><div class="sec" id="s7"><h2><em>07</em>Simulated PLC Setup</h2><p>The PLC is simulated with two programs. The <b style="color:var(--foreground)">ICDT MODBUS TCP Server</b> plays the PLC. It listens on port 502 and shows 64 registers and 64 coils (as light bulbs), all starting at 0.</p><div class="media-grid"><figure><img src="assets/week10/task7/task7-server-empty.png" alt="ICDT MODBUS TCP Server on port 502 with all registers 0 and all coil bulbs off" loading="lazy"><figcaption><b style="color:var(--foreground)">Simulator, start</b>Server on port 502 with all values at 0</figcaption></figure><figure><img src="assets/week10/task7/task7-server-values.png" alt="ICDT MODBUS TCP Server with registers 0 to 10 set to 70, 50, 60, 75, 78, 79, 30, 40, 20, 10, 5 and coil bulbs 0, 3, 5 and 8 on" loading="lazy"><figcaption><b style="color:var(--foreground)">Simulator, with data</b>Server with values entered: registers 0 to 10 hold 70, 50, 60, 75, 78, 79, 30, 40, 20, 10, 5 and coils 0, 3, 5 and 8 are on</figcaption></figure></div><p><b style="color:var(--foreground)">ModbusClientX</b> is used to check that the simulator really answers over Modbus TCP. It connects to <code>127.0.0.1</code> on port <code>502</code> and reads holding registers.</p><div class="media-grid"><figure><img src="assets/week10/task7/task7-client-connection.png" alt="ModbusClientX connection settings: Modbus TCP, IP address 127.0.0.1, port 502" loading="lazy"><figcaption><b style="color:var(--foreground)">Client, connection</b>ModbusClientX connection settings: Modbus TCP, 127.0.0.1, port 502</figcaption></figure><figure><img src="assets/week10/task7/task7-client-empty-read.png" alt="ModbusClientX connected to 127.0.0.1:502, reading 10 holding registers, all 0" loading="lazy"><figcaption><b style="color:var(--foreground)">Client, before</b>Connected: the first 10 holding registers all read 0</figcaption></figure></div><div class="media-grid media-wide"><figure><img src="assets/week10/task7/task7-client-values-read.png" alt="ModbusClientX reading holding registers 0 to 9 as 70, 50, 60, 75, 78, 79, 30, 40, 20, 10" loading="lazy"><figcaption><b style="color:var(--foreground)">Client, after</b>After the values were entered, ModbusClientX reads 70, 50, 60, 75, 78, 79, 30, 40, 20, 10 from addresses 0 to 9</figcaption></figure></div></div><div class="sec" id="s8"><h2><em>08</em>Configuration</h2><ol><li>Start the <b style="color:var(--foreground)">ICDT MODBUS TCP Server</b> on port 502 and enter the register values and turn on the coils you want.</li><li>Optionally check the data with <b style="color:var(--foreground)">ModbusClientX</b> (Modbus TCP, <code>127.0.0.1</code>, port <code>502</code>).</li><li>Open <code>Labview Assignment.lvproj</code> and double-click <code>Task6.vi</code>.</li><li>Type <code>127.0.0.1</code> into <b style="color:var(--foreground)">PLC IP Address</b>.</li><li>Set <b style="color:var(--foreground)">starting address</b> and <b style="color:var(--foreground)">number of inputs</b> for the coils, and <b style="color:var(--foreground)">starting address 2</b> and <b style="color:var(--foreground)">number of inputs 2</b> for the registers.</li><li>Click <b style="color:var(--foreground)">Run</b>. The coils, register values, Part Status and Pos Status fill in.</li><li>Click <b style="color:var(--foreground)">STOP</b> to end the program.</li></ol></div><div class="sec" id="s9"><h2><em>09</em>Evidence</h2><p>The first screenshot shows the VI in edit mode. The second is a real run connected to the simulator, with the front panel on the left and the block diagram on the right.</p><div class="media-grid media-wide"><figure><img src="assets/week10/task7/task7-edit-side-by-side.png" alt="Task 7 front panel and block diagram side by side in edit mode" loading="lazy"><figcaption><b style="color:var(--foreground)">Edit mode</b>Edit mode: front panel and block diagram side by side</figcaption></figure></div><div class="media-grid media-wide"><figure><img src="assets/week10/task7/task7-run-side-by-side.png" alt="Task 7 running: IP 127.0.0.1, ten coils with four LEDs on, ten register values, Part Status Sensed and Pos Status in-Process" loading="lazy"><figcaption><b style="color:var(--foreground)">Run</b>Running: Part Status shows Sensed, Pos Status shows in-Process, four coil LEDs are on and the register values are filled in</figcaption></figure></div><table class="pin-table"><thead><tr><th>Item</th><th>Value in the test run</th></tr></thead><tbody><tr><td>PLC IP Address</td><td>127.0.0.1</td></tr><tr><td>number of inputs / starting address</td><td>10 / 0</td></tr><tr><td>number of inputs 2 / starting address 2</td><td>10 / 0</td></tr><tr><td>coils on</td><td>1st, 4th, 6th and 9th LEDs (coils 0, 3, 5 and 8)</td></tr><tr><td>register values</td><td>70, 50, 60, 75, 78, 79, 30, 40, 10, 5</td></tr><tr><td>Part Status</td><td>Sensed</td></tr><tr><td>Pos Status</td><td>in-Process</td></tr></tbody></table></div><div class="sec" id="s10"><h2><em>10</em>Observations</h2><ul><li><b style="color:var(--foreground)">The PLC is simulated</b> &mdash; the address <code>127.0.0.1</code> points to the same computer. With a real PLC, the IP address of the PLC is entered instead, and port 502 and the register addresses must match its program.</li><li><b style="color:var(--foreground)">Only one coil and one register drive the status text</b> &mdash; Part Status uses a single coil and Pos Status compares a single register with the fixed value 80. The other values are only displayed.</li><li><b style="color:var(--foreground)">The thresholds are fixed in the diagram</b> &mdash; the value 80 and the picked indexes are constants, so changing them means editing the block diagram. Putting them on the front panel would make them adjustable.</li><li><b style="color:var(--foreground)">There is no error indicator</b> &mdash; if the IP address is wrong or the server is not running, the error is not shown to the user.</li><li><b style="color:var(--foreground)">The IP address starts empty</b> &mdash; the PLC IP Address box has to be filled in before each run.</li></ul></div><div class="sec" id="s11"><h2><em>11</em>Reflection</h2><p>This task shows how LabVIEW talks to industrial equipment. The same Modbus read functions would work with a real PLC, and using a simulator made it possible to test the whole chain on one computer. Turning raw bits and numbers into messages such as Sensed and Reached is the kind of step that makes PLC data readable to an operator.</p></div><div class="sec" id="s12"><h2><em>12</em>Project File</h2><p>The VI is part of the <code>Labview Assignment.lvproj</code> project: <code>Task6.vi</code>.</p><p>Task 7 is also built as a standalone Windows application, <code>Task7.exe</code> (about 1434 KB), so it can run without opening the LabVIEW project. It needs the LabVIEW Run-Time Engine (64-bit) installed on the computer, and the simulated PLC (the ICDT MODBUS TCP Server) has to be running before it is started. Windows may show a security warning because the file is not digitally signed.</p><a class="btn" href="assets/week10/task7/Task7.exe" download>Download Task7.exe &rarr;</a></div><div class="sec"><h2>Other tasks</h2><div class="cards oth"><a href="protosem-week-10-task-1.html"><b>TASK 1</b><h3>Choose Items &amp; Done Operation</h3><p>A For Loop counts up to a chosen number of items, shows the running count and lights a Done Operation LED.</p></a><a href="protosem-week-10-task-2.html"><b>TASK 2</b><h3>Set Temperature &amp; Boiler Temperature</h3><p>A knob sets a temperature in °C, a While Loop converts it to °F and shows it on a boiler thermometer until STOP is pressed.</p></a><a href="protosem-week-10-task-3.html"><b>TASK 3</b><h3>Temperature Unit Switch &amp; SubVI</h3><p>The temperature VI is extended with a Set Unit switch and a reusable SubVI that converts °C to °F.</p></a><a href="protosem-week-10-task-4.html"><b>TASK 4</b><h3>Arduino DHT11 Temperature &amp; Humidity</h3><p>Read DHT11 temperature and humidity from an Arduino over a VISA serial connection and show them on a thermometer and a tank.</p></a><a href="protosem-week-10-task-5.html"><b>TASK 5</b><h3>Waveform Chart Leveller</h3><p>A Slide control sets a level that is plotted over time on a LabVIEW waveform chart until STOP is pressed.</p></a><a href="protosem-week-10-task-6.html"><b>TASK 6</b><h3>MPU6050 Arduino Waveform Chart</h3><p>Read MPU6050 motion data from an Arduino and plot the x, y and z values live on waveform charts.</p></a><a href="protosem-week-10-task-8.html"><b>TASK 8</b><h3>Microphone Input &amp; Filter</h3><p>Record sound from a microphone, filter it with a lower cut-off and show the original and filtered waveforms.</p></a></div></div></article><aside class="side"><p class="eyebrow">Tasks</p><a href="protosem-week-10-task-1.html">1 · Choose Items &amp; Done</a><a href="protosem-week-10-task-2.html">2 · Temperature &amp; Boiler</a><a href="protosem-week-10-task-3.html">3 · Unit Switch &amp; SubVI</a><a href="protosem-week-10-task-4.html">4 · Arduino DHT11</a><a href="protosem-week-10-task-5.html">5 · Waveform Leveller</a><a href="protosem-week-10-task-6.html">6 · MPU6050 Chart</a><a href="protosem-week-10-task-7.html" class="on">7 · Modbus TCP PLC</a><a href="protosem-week-10-task-8.html">8 · Microphone</a><p class="eyebrow">On this page</p><a href="#s1">01 Overview</a><a href="#s2">02 Concepts</a><a href="#s3">03 Program Flow</a><a href="#s4">04 Hardware & Software</a><a href="#s5">05 Front Panel</a><a href="#s6">06 Block Diagram</a><a href="#s7">07 Simulated PLC Setup</a><a href="#s8">08 Configuration</a><a href="#s9">09 Evidence</a><a href="#s10">10 Observations</a><a href="#s11">11 Reflection</a><a href="#s12">12 Project File</a></aside></div></div></main>
+<script>
+const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
+if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}
+</script>
+</body></html>
