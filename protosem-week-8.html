@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 8 — Yet to Unfold | ProtoSem</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 8 — ROS 2 & TurtleSim | ProtoSem</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
 /* ---------- Reset ---------- */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -569,7 +569,111 @@ html.no-motion .marquee-track{ animation:none !important; }
 }
 </style>
 
-</head><body>
+<style id="week7-tasks">main{overflow:visible;overflow-x:clip}
+@media(min-width:640px) and (max-width:1024px){html{font-size:max(1.5625vw,14px)}}
+.tk{max-width:100rem;margin:0 auto;padding:8.5rem var(--gutter) 6rem}
+@media(max-width:639px){.tk{padding:6.5rem var(--gutter) 4rem}}
+.tk h1{margin-top:1.2rem;max-width:18ch;font-family:var(--font-display);font-size:clamp(36px,5vw,84px);line-height:.94;text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
+.tk .lead{margin-top:1.5rem;max-width:56ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:#b9b7ae}
+.tk .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.tk .back:hover{color:var(--accent)}
+.tabs{margin-top:2rem;display:flex;flex-wrap:wrap;gap:.6rem}
+.tabs a{border:1px solid var(--line-strong);border-radius:9999px;padding:.6rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);transition:color .3s,border-color .3s}
+.tabs a.on,.tabs a:hover{color:var(--foreground);border-color:var(--accent)}
+.tk-grid{margin-top:3.5rem;display:grid;grid-template-columns:minmax(0,1fr);gap:3rem}
+@media(min-width:1024px){.tk-grid{grid-template-columns:minmax(0,1fr) 19rem;gap:5rem}}
+.side{display:none}
+@media(min-width:1024px){.side{display:block;position:sticky;top:6.5rem;align-self:start}}
+.side .eyebrow{margin:0 0 .6rem}.side a+.eyebrow{margin-top:2rem}
+.side a{display:block;padding:.5rem 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.12em;transition:color .3s}
+.side a:hover{color:var(--accent)}.side a.on{color:var(--foreground)}
+.sec{border-top:1px solid var(--line);padding:2rem 0;scroll-margin-top:6rem}
+.sec h2{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.1rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;letter-spacing:-.01em}
+.sec h2 em{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.sec p,.sec li{color:#b9b7ae;font-size:var(--fs-body);line-height:1.65}
+.sec p{max-width:70ch;margin:.5rem 0}
+.sec ul{margin:.3rem 0}.sec ul li{position:relative;padding:.4rem 0 .4rem 1.3rem}
+.sec ul li::before{content:"";position:absolute;left:0;top:1.05em;width:.4rem;height:.4rem;border-radius:9999px;background:var(--accent)}
+.sec ol{list-style:decimal;padding-left:1.5rem}.sec ol li{padding:.4rem 0 .4rem .3rem}.sec ol li::marker{color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.cards>*{background:var(--background);padding:1.25rem}
+.cards h3{font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.15);font-weight:600;color:var(--foreground);transition:color .3s}
+.cards p{margin:.5rem 0 0}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
+.flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
+.flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
+.ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
+.ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
+.ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
+pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:.25rem;overflow-x:auto;color:#d9d6cc;font:.85rem/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.btn{display:inline-block;margin-top:.8rem;padding:.8rem 1.4rem;border:1px solid var(--accent);border-radius:9999px;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;transition:background .3s,color .3s}
+.btn:hover{background:var(--accent);color:var(--background)}
+.oth a{display:block}.oth a:hover{background:var(--surface)}.oth a:hover h3{color:var(--accent)}
+.oth b{display:block;margin-bottom:.4rem;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent);font-weight:500}
+.proto-grid .proto-card:last-child{grid-column:1/-1}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+.side{max-height:calc(100vh - 7.5rem);overflow-y:auto;scrollbar-width:thin}.side a{padding:.38rem 0}.pin-table td,.pin-table th{overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}@media(max-width:639px){.pin-table th,.pin-table td{padding:.5rem .5rem}}</style><style id="w11-extra">
+.media-grid figure{position:relative}
+.ph-img{display:grid;place-items:center;height:21rem;background:var(--surface);color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;text-align:center;padding:1rem}
+.media-wide .ph-img{height:27rem}
+.media-grid img{cursor:zoom-in}
+#lb{position:fixed;inset:0;z-index:200;background:rgba(8,8,10,.94);display:none;align-items:center;justify-content:center;padding:2rem;cursor:zoom-out}
+#lb.open{display:flex}#lb img{max-width:96vw;max-height:90vh;object-fit:contain;height:auto;cursor:zoom-out}
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:130}
+.chk{display:flex;align-items:center;gap:.7rem;cursor:pointer;padding:.45rem 0;color:#b9b7ae;font-size:var(--fs-body)}
+.chk input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.chk input:checked+span{color:var(--foreground);text-decoration:line-through;text-decoration-color:var(--accent)}
+details.acc{border:1px solid var(--line);margin-top:.8rem;background:var(--surface)}
+details.acc summary{cursor:pointer;padding:.9rem 1.1rem;color:var(--foreground);font-weight:600;list-style:none}
+details.acc summary::after{content:"+";float:right;color:var(--accent)}
+details.acc[open] summary::after{content:"−"}
+details.acc p{padding:0 1.1rem 1rem}
+.tgl{display:flex;gap:.6rem;margin:.8rem 0}
+.tgl button{border:1px solid var(--line-strong);border-radius:9999px;padding:.55rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.tgl button.on{color:var(--foreground);border-color:var(--accent)}
+@media(max-width:639px){.ph-img{height:17rem}.media-wide .ph-img{height:19rem}}
+
+.chips{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.2rem 0}
+.chips button{border:1px solid var(--line-strong);border-radius:9999px;padding:.55rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.chips button.on{color:var(--foreground);border-color:var(--accent)}
+.sim{border:1px solid var(--line);background:var(--surface);padding:1.2rem;margin-top:1rem}
+.sim h3{margin-bottom:.6rem}
+.sim .row{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin:.6rem 0}
+.sim button.b,.stp button{border:1px solid var(--line-strong);border-radius:9999px;padding:.55rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--foreground)}
+.sim button.b:hover,.stp button:hover{border-color:var(--accent)}
+.sim button.on{border-color:var(--accent);color:var(--accent)}
+.lamp{display:inline-flex;align-items:center;gap:.5rem;color:var(--muted)}
+.lamp i{width:1.1rem;height:1.1rem;border-radius:50%;background:#2a2a2e;border:1px solid var(--line-strong);transition:.15s}
+.lamp.on{color:var(--foreground)}.lamp.on i{background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.bar{height:.55rem;background:#232327;width:100%;margin:.3rem 0 .8rem}
+.bar b{display:block;height:100%;width:0;background:var(--accent)}
+.sw{display:flex;flex-wrap:wrap;gap:1rem;margin:.8rem 0}
+.sw label{display:flex;align-items:center;gap:.5rem;cursor:pointer;color:var(--muted)}
+.sw input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.stp li{padding:.45rem .8rem;border-left:2px solid var(--line);color:var(--muted);list-style:none;margin:.2rem 0}
+.stp li.on{border-color:var(--accent);color:var(--foreground)}
+.stp li.done{color:#8d8b83}
+.stp ol{padding:0}
+.sim select{background:var(--background);color:var(--foreground);border:1px solid var(--line-strong);padding:.4rem .6rem;margin-left:.4rem;font:inherit}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--foreground)}
+.media-grid video{width:100%;height:auto;max-height:40rem;object-fit:contain;background:#000}
+.note{border-left:2px solid var(--accent);padding:.2rem 0 .2rem 1rem;color:#b9b7ae;margin-top:1rem}
+</style><style>pre.code{background:#0d0d10;border:1px solid var(--line);padding:1rem;overflow:auto;margin:1rem 0;font-size:.85rem;line-height:1.5}pre.code code{font-family:ui-monospace,Menlo,Consolas,monospace;color:#d9d7cf}</style></head><body>
 <header id="site-nav"><nav>
   <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
   <ul class="nav-links">
@@ -586,9 +690,45 @@ html.no-motion .marquee-track{ animation:none !important; }
   <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
   <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
 </div>
-<main><section class="proto-detail"><p class="eyebrow">Week 8</p><h1>Yet to Unfold</h1><a class="back" href="protosem.html">← Back to ProtoSem</a><p class="proto-empty">The previous ProtoSem page currently shows “Yet to Unfold” for this week.</p></section></main>
-<script>
-const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
-if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}
-</script>
-</body></html>
+<body><div class="progress" id="prog"></div><div id="lb"><img alt=""></div>
+<header id="site-nav"><nav>
+  <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#story">Story</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#skills">Skills</a></li>
+    <li><a class="active" href="protosem.html">ProtoSem</a></li>
+    <li><a href="index.html#testimonials">Focus</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><span class="bars"><span></span><span></span><span></span></span></button>
+</nav></header>
+<div id="mobile-menu">
+  <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
+  <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
+</div>
+<main><div class="tk"><p class="eyebrow">Week 8</p><h1>ROS 2 &amp; TurtleSim</h1><p class="lead">Five tasks: set up ROS 2 Lyrical, create a Python package, write a node that draws a name in TurtleSim, write a node that monitors it, and build, debug and run them together. Choose a task to open it.</p><a class="back" href="protosem.html">← Back to ProtoSem</a><div class="chips"><button class="on" data-f="all">All</button><button data-f="Setup">Setup</button><button data-f="Nodes">Nodes</button><button data-f="Run">Run</button></div><div class="proto-grid"><a class="proto-card" data-cat="Setup" href="protosem-week-8-task-1.html"><span class="proto-num">TASK 1</span><h2>ROS 2 Setup &amp; Workspace</h2><p>Install ROS 2 Lyrical with TurtleSim and colcon on Ubuntu, then create the sachin_ws workspace.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" data-cat="Setup" href="protosem-week-8-task-2.html"><span class="proto-num">TASK 2</span><h2>Package Structure &amp; Files</h2><p>Create the sachin_turtle_draw Python package with package.xml, setup.py, setup.cfg and the resource marker.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" data-cat="Nodes" href="protosem-week-8-task-3.html"><span class="proto-num">TASK 3</span><h2>Name Writer Node</h2><p>A node that draws the name SACHIN in TurtleSim with a vector font, teleport and pen services.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" data-cat="Nodes" href="protosem-week-8-task-4.html"><span class="proto-num">TASK 4</span><h2>Pose Monitor Node</h2><p>A second node that listens to the turtle pose and the drawing status, and reports the pen travel.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" data-cat="Run" href="protosem-week-8-task-5.html"><span class="proto-num">TASK 5</span><h2>Build, Debug &amp; Run</h2><p>Build with colcon, fix the missing turtlesim module error, and run both nodes to draw SACHIN.</p><span class="arrow">VIEW TASK →</span></a></div><div class="cards oth" style="margin-top:2rem"><a href="protosem-week-7.html"><b>PREVIOUS</b><h3>Week 7</h3><p>IoT tasks.</p></a><a href="protosem-week-9.html"><b>NEXT</b><h3>Week 9</h3><p>Yet to unfold.</p></a></div></div></main><script>
+const burger=document.getElementById('burger'),mobileMenu=document.getElementById('mobile-menu');
+if(burger&&mobileMenu){burger.addEventListener('click',()=>{const o=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(o));mobileMenu.classList.toggle('open',o);});}
+const prog=document.getElementById('prog');
+addEventListener('scroll',()=>{const h=document.documentElement.scrollHeight-innerHeight;prog.style.width=(h>0?scrollY/h*100:0)+'%';},{passive:true});
+// scroll-spy
+const links=[...document.querySelectorAll('.side a[href^="#"]')];
+if(links.length){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id));}})},{rootMargin:'-20% 0px -70% 0px'});
+links.forEach(l=>{const s=document.querySelector(l.getAttribute('href'));if(s)io.observe(s);});}
+// image fallback + lightbox
+const lb=document.getElementById('lb');
+document.querySelectorAll('.media-grid img').forEach(img=>{
+ img.addEventListener('error',()=>{const d=document.createElement('div');d.className='ph-img';d.textContent='Image to be added: '+(img.alt||'');img.replaceWith(d);});
+ img.addEventListener('click',()=>{lb.querySelector('img').src=img.src;lb.classList.add('open');});
+});
+lb&&lb.addEventListener('click',()=>lb.classList.remove('open'));
+addEventListener('keydown',e=>{if(e.key==='Escape')lb&&lb.classList.remove('open');});
+// checklist persistence
+document.querySelectorAll('.chk input').forEach(c=>{const k='w11-'+location.pathname+c.dataset.k;try{c.checked=localStorage.getItem(k)==='1'}catch(e){}c.addEventListener('change',()=>{try{localStorage.setItem(k,c.checked?'1':'0')}catch(e){}})});
+// before/after toggle
+document.querySelectorAll('.tgl').forEach(g=>{const bs=[...g.querySelectorAll('button')];bs.forEach(b=>b.addEventListener('click',()=>{bs.forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll(g.dataset.target+' figure').forEach(f=>f.style.display=f.dataset.state===b.dataset.state?'flex':'none');}));});
+
+// hub filter
+document.querySelectorAll('.chips').forEach(c=>{const bs=[...c.querySelectorAll('button')];bs.forEach(b=>b.addEventListener('click',()=>{bs.forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.proto-card[data-cat]').forEach(a=>a.style.display=(b.dataset.f==='all'||a.dataset.cat===b.dataset.f)?'':'none');}));});
+</script></body></html>
