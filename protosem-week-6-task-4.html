@@ -1,0 +1,1038 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 6 Task 4 — OLED-Based Game with Sensor Input | ProtoSem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
+/* ---------- Reset ---------- */
+*{margin:0;padding:0;box-sizing:border-box}
+img,video{display:block;max-width:100%}
+ul,ol{list-style:none}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;appearance:none;cursor:pointer}
+svg{display:block}
+
+/* ---------- Tokens ---------- */
+:root{
+  --background:#08080a; --foreground:#f3f1ea; --surface:#111114; --surface-2:#17171b;
+  --muted:#807f78; --line:rgba(243,241,234,0.1); --line-strong:rgba(243,241,234,0.22);
+  --accent:#ff3b1d; --accent-2:#ff6a3d;
+  --gutter:2.5rem; --section:9rem;
+  --font-display:"Anton", sans-serif; --font-sans:"Onest", sans-serif;
+
+  --fs-hero:28rem; --lh-hero:0.78;
+  --fs-mega:13rem; --lh-mega:0.86;
+  --fs-display:7.5rem; --lh-display:0.9;
+  --fs-h1:5rem; --lh-h1:0.95;
+  --fs-h2:3.25rem; --lh-h2:1;
+  --fs-h3:1.75rem; --lh-h3:1.15;
+  --fs-lead:1.375rem; --lh-lead:1.45;
+  --fs-body:1.0625rem; --lh-body:1.6;
+  --fs-eyebrow:0.8125rem; --lh-eyebrow:1.2;
+}
+
+/* ---------- Adaptive rem grid ---------- */
+html{ font-size:16px; background:var(--background); }
+@media (max-width:1920px){ html{ font-size:0.833333vw; } }
+@media (max-width:1440px){ html{ font-size:1.111111vw; } }
+@media (max-width:1024px){ html{ font-size:1.5625vw; } }
+@media (max-width:640px){
+  html{ font-size:4.444444vw; }
+  :root{ --gutter:16px; }
+}
+
+body{
+  background:var(--background); color:var(--foreground); font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; overflow-x:hidden;
+  min-height:100vh;
+}
+::selection{ background:var(--accent); color:var(--background); }
+
+/* ---------- Utility ---------- */
+.eyebrow{
+  display:flex; align-items:center; gap:0.75rem; font-size:var(--fs-eyebrow); line-height:var(--lh-eyebrow);
+  font-weight:500; text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+}
+.eyebrow::before{ content:""; width:0.5rem; height:0.5rem; border-radius:9999px; background:var(--accent); flex-shrink:0; }
+
+.line-reveal{ overflow:hidden; display:block; }
+.line-reveal > span{ display:inline-block; transform:translateY(110%); opacity:0; transition:transform 0.85s cubic-bezier(0.16,1,0.3,1), opacity 0.85s cubic-bezier(0.16,1,0.3,1); will-change:transform; }
+.line-reveal.in > span{ transform:translateY(0); opacity:1; }
+
+.fade-up{ opacity:0; transform:translateY(32px); transition:transform 0.62s cubic-bezier(0.16,1,0.3,1), opacity 0.62s cubic-bezier(0.16,1,0.3,1); }
+.fade-up.in{ opacity:1; transform:translateY(0); }
+
+/* ---------- Preloader ---------- */
+#preloader{
+  position:fixed; inset:0; z-index:100; background:var(--background);
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; gap:0.75rem;
+  padding:var(--gutter);
+}
+@media (min-width:640px){
+  #preloader{ flex-direction:row; align-items:flex-end; justify-content:space-between; gap:1rem; }
+}
+#preloader .pl-brand{
+  font-family:var(--font-display); font-size:var(--fs-h3); text-transform:uppercase; line-height:1;
+  letter-spacing:-0.01em; color:var(--foreground); transition:opacity 0.3s ease;
+}
+#preloader .pl-count{
+  font-family:var(--font-display); font-size:var(--fs-display); line-height:1; color:var(--foreground);
+  font-variant-numeric:tabular-nums; transition:opacity 0.3s ease;
+}
+#preloader .pl-count .pct{ color:var(--accent); }
+#preloader.wipe{ transform:translateY(-100%); transition:transform 0.66s cubic-bezier(0.22,1,0.36,1); pointer-events:none; }
+#preloader.hidden{ display:none; }
+
+/* ---------- Nav ---------- */
+header#site-nav{ position:fixed; inset-inline:0; top:0; z-index:50; pointer-events:none; }
+header#site-nav nav{
+  pointer-events:auto; display:flex; align-items:center; justify-content:space-between;
+  padding:1.5rem var(--gutter);
+}
+.nav-logo{ display:flex; align-items:center; gap:0.75rem; }
+.nav-logo .badge{
+  display:grid; place-items:center; width:2.5rem; height:2.5rem; border-radius:9999px;
+  border:1px solid var(--line-strong); font-weight:600; letter-spacing:-0.01em; font-size:0.9rem;
+}
+.nav-logo .name{
+  font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+}
+@media (max-width:639px){ .nav-logo .name{ display:none; } }
+
+.nav-links{ display:none; gap:2.5rem; }
+@media (min-width:768px){ .nav-links{ display:flex; } }
+.nav-links li{ position:relative; }
+.nav-links a{
+  font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.18em; color:var(--muted);
+  transition:color 0.3s ease;
+}
+.nav-links a::after{
+  content:""; position:absolute; bottom:-0.25rem; left:0; height:1px; width:0; background:var(--accent);
+  transition:width 0.3s ease;
+}
+.nav-links a:hover{ color:var(--foreground); }
+.nav-links a:hover::after{ width:100%; }
+.nav-links a.active{ color:var(--foreground); }
+.nav-links a.active::after{ width:100%; }
+
+.burger{ display:grid; place-items:center; width:2.5rem; height:2.5rem; }
+@media (min-width:768px){ .burger{ display:none; } }
+.burger .bars{ display:flex; flex-direction:column; gap:0.375rem; width:1.5rem; }
+.burger .bars span{ height:0.125rem; width:100%; background:var(--foreground); transition:transform 0.3s ease, opacity 0.3s ease; }
+.burger.open .bars span:nth-child(1){ transform:translateY(0.5rem) rotate(45deg); }
+.burger.open .bars span:nth-child(2){ opacity:0; }
+.burger.open .bars span:nth-child(3){ transform:translateY(-0.5rem) rotate(-45deg); }
+
+#mobile-menu{
+  position:fixed; inset:0; z-index:49; background:var(--background); display:flex; flex-direction:column;
+  align-items:flex-start; justify-content:center; padding-inline:var(--gutter); gap:1rem;
+  opacity:0; pointer-events:none; transition:opacity 0.45s ease;
+}
+#mobile-menu.open{ opacity:1; pointer-events:auto; }
+#mobile-menu a{
+  font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; line-height:1; letter-spacing:-0.01em;
+  transform:translateY(48px); opacity:0; transition:transform 0.42s ease, opacity 0.42s ease;
+}
+#mobile-menu.open a{ transform:translateY(0); opacity:1; }
+
+/* ---------- Hero ---------- */
+main{ position:relative; width:100%; overflow-x:hidden; }
+#top{ position:relative; display:flex; flex-direction:column; min-height:100svh; overflow:hidden; }
+.hero-top{ position:relative; z-index:30; display:flex; flex-direction:column; gap:2rem; padding:8rem var(--gutter) 0; }
+@media (min-width:640px){ .hero-top{ flex-direction:row; align-items:flex-start; justify-content:space-between; gap:1rem; } }
+.hero-roles{
+  font-family:var(--font-display); text-transform:uppercase; line-height:1.05; letter-spacing:-0.01em; color:var(--foreground);
+  font-size:var(--fs-h3);
+}
+@media (min-width:640px){ .hero-roles{ font-size:var(--fs-h2); } }
+.hero-desc{
+  max-width:26rem; font-size:var(--fs-body); color:var(--muted); opacity:0; transform:translateY(16px);
+  transition:opacity 0.55s cubic-bezier(0.16,1,0.3,1), transform 0.55s cubic-bezier(0.16,1,0.3,1);
+}
+.hero-desc.in{ opacity:1; transform:translateY(0); }
+@media (min-width:640px){ .hero-desc{ text-align:right; } }
+
+.hero-portrait-wrap{
+  position:absolute; z-index:20; bottom:0; left:50%; transform:translateX(-50%);
+  height:86vh; width:80vw; pointer-events:none;
+}
+@media (min-width:640px){ .hero-portrait-wrap{ width:48vw; } }
+@media (min-width:1024px){ .hero-portrait-wrap{ width:36vw; } }
+.hero-portrait-wrap figure{
+  position:relative; width:100%; height:100%; overflow:hidden; pointer-events:auto;
+  -webkit-mask-image: radial-gradient(68% 88% at 50% 58%, #000 46%, transparent 92%);
+  mask-image: radial-gradient(68% 88% at 50% 58%, #000 46%, transparent 92%);
+}
+.hero-portrait-wrap img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 12%;
+  filter:url(#liquid-hero) saturate(0.92) contrast(1.03);
+}
+.hero-vignette{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 100%, transparent 30%, rgba(8,8,10,0.55) 68%, rgba(8,8,10,0.92) 100%),
+    radial-gradient(90% 70% at 50% 0%, rgba(8,8,10,0.6), transparent 72%),
+    radial-gradient(70% 90% at 50% 55%, transparent 55%, rgba(8,8,10,0.5) 88%, rgba(8,8,10,0.85) 100%);
+}
+.hero-gradient-base{
+  position:absolute; inset-inline:0; bottom:0; z-index:20; height:26vh;
+  background:linear-gradient(to bottom, transparent, var(--background));
+}
+.hero-name{
+  position:absolute; inset-inline:0; bottom:0; z-index:10; transform:translateY(6%);
+  display:flex; flex-direction:column; align-items:center;
+  font-family:var(--font-display); text-transform:uppercase; line-height:var(--lh-mega); letter-spacing:-0.01em;
+  color:var(--accent); font-size:var(--fs-mega);
+}
+@media (min-width:640px){ .hero-name{ font-size:var(--fs-hero); line-height:var(--lh-hero); } }
+.hero-name .word{ display:block; white-space:nowrap; overflow:hidden; }
+.hero-name .word .letter{ display:inline-block; transform:translateY(100%); opacity:0; transition:transform 0.9s cubic-bezier(0.16,1,0.3,1), opacity 0.9s cubic-bezier(0.16,1,0.3,1); }
+.hero-name .word.in .letter{ transform:translateY(0); opacity:1; }
+
+.scroll-cue{
+  position:absolute; z-index:30; bottom:2rem; left:var(--gutter); display:flex; align-items:center; gap:0.75rem;
+  font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+  opacity:0; transition:opacity 0.6s ease;
+}
+.scroll-cue.in{ opacity:1; }
+.scroll-cue .rule{ width:1px; height:2.5rem; background:var(--accent); }
+
+/* ---------- Marquee ---------- */
+.marquee-section{
+  overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  padding-top:2rem; padding-bottom:2rem;
+}
+.marquee-track{ display:flex; width:max-content; flex-wrap:nowrap; animation:marquee 22s linear infinite; }
+@keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+.marquee-track .word{ font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; letter-spacing:-0.01em; }
+.marquee-track .dot{ margin-inline:2rem; width:0.625rem; height:0.625rem; border-radius:9999px; background:var(--accent); flex-shrink:0; }
+
+/* ---------- Sections generic ---------- */
+section, footer#contact{ padding:var(--section) var(--gutter); position:relative; }
+.section-head{ display:flex; flex-direction:column; gap:0; }
+@media (min-width:640px){ .section-head{ flex-direction:row; align-items:flex-end; justify-content:space-between; } }
+.section-heading{
+  margin-top:1.5rem; max-width:14ch; font-family:var(--font-display); text-transform:uppercase;
+  line-height:0.95; letter-spacing:-0.01em; font-size:var(--fs-h2);
+}
+@media (min-width:640px){ .section-heading{ font-size:var(--fs-h1); } }
+.section-tag{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+
+/* ---------- Story ---------- */
+#story .story-grid{ display:grid; grid-template-columns:1fr; gap:3rem; }
+@media (min-width:1024px){ #story .story-grid{ grid-template-columns:repeat(12,1fr); gap:var(--gutter); } }
+#story .story-left{ }
+@media (min-width:1024px){ #story .story-left{ grid-column:span 6; } }
+#story .story-left h2{ max-width:16ch; }
+#story .story-left p{ margin-top:2rem; max-width:46ch; font-size:var(--fs-lead); line-height:var(--lh-lead); color:var(--muted); }
+#story .story-right{ }
+@media (min-width:1024px){ #story .story-right{ grid-column:span 6; padding-top:0.5rem; } }
+.principle{ display:grid; grid-template-columns:auto 1fr; column-gap:1.5rem; border-top:1px solid var(--line); padding:2rem 0; }
+.principle:last-child{ border-bottom:1px solid var(--line); }
+.principle .num{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; font-variant-numeric:tabular-nums; color:var(--accent); }
+.principle h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; }
+.principle p{ margin-top:0.75rem; max-width:44ch; font-size:var(--fs-body); color:var(--muted); }
+
+/* ---------- Projects ---------- */
+#projects ul.grid{ margin-top:4rem; display:grid; grid-template-columns:1fr; column-gap:var(--gutter); row-gap:4rem; }
+@media (min-width:768px){ #projects ul.grid{ grid-template-columns:1fr 1fr; } }
+#projects li.card:nth-child(2n){ }
+@media (min-width:768px){ #projects li.card:nth-child(2n){ margin-top:6rem; } }
+.project-shot{ position:relative; overflow:hidden; aspect-ratio:16/11; width:100%; border-radius:0.125rem; background:var(--surface); }
+.project-row{ margin-top:1.5rem; border-top:1px solid var(--line); padding-top:1.25rem; display:flex; align-items:flex-start; justify-content:space-between; gap:1.5rem; }
+.project-row h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; transition:color 0.34s ease; }
+.project-row:hover h3, .card:hover .project-row h3{ color:var(--accent); }
+.project-row p{ margin-top:0.5rem; max-width:42ch; font-size:var(--fs-body); color:var(--muted); }
+.project-meta{ flex-shrink:0; text-align:right; }
+.project-meta .year{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.project-meta .outcome{ margin-top:0.5rem; font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.18em; color:var(--accent); }
+.project-cat{ margin-top:0.75rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+
+/* ---------- Liquid image shared ---------- */
+.liquid{ position:relative; overflow:hidden; background:var(--surface); }
+.liquid .placeholder{ position:absolute; inset:0; background:radial-gradient(130% 130% at 30% 15%, var(--surface-2), var(--background)); display:grid; place-items:center; }
+.liquid .placeholder span{ font-family:var(--font-display); font-size:var(--fs-h3); text-transform:uppercase; color:var(--muted); letter-spacing:-0.01em; }
+.liquid .veil{ position:absolute; inset:0; background:var(--surface-2); mix-blend-mode:color; opacity:0.88; transition:opacity 0.38s ease; pointer-events:none; }
+.liquid:hover .veil{ opacity:0; }
+.liquid .glow{ position:absolute; inset:0; opacity:0; transition:opacity 0.38s ease; pointer-events:none;
+  background:linear-gradient(120deg, transparent 30%, color-mix(in srgb, var(--accent) 35%, transparent) 50%, transparent 70%); }
+.liquid:hover .glow{ opacity:1; }
+.liquid .vignette{ position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(120% 120% at 50% 120%, color-mix(in srgb, #08080a 70%, transparent), transparent 60%); }
+
+/* ---------- Skills ---------- */
+dl.stats{ margin-top:4rem; display:grid; grid-template-columns:1fr; border-top:1px solid var(--line); }
+@media (min-width:640px){ dl.stats{ grid-template-columns:1fr 1fr; } }
+@media (min-width:1024px){ dl.stats{ grid-template-columns:repeat(4,1fr); } }
+.stat-cell{ display:flex; flex-direction:column; gap:1rem; border-bottom:1px solid var(--line); padding:2.5rem 0; }
+@media (min-width:1024px){ .stat-cell{ padding:3rem 0; } }
+@media (min-width:640px){ dl.stats .stat-cell:nth-child(2n){ border-left:1px solid var(--line); padding-left:2rem; } }
+@media (min-width:1024px){
+  dl.stats .stat-cell:nth-child(2n){ border-left:none; padding-left:0; }
+  dl.stats .stat-cell:not(:nth-child(4n+1)){ border-left:1px solid var(--line); padding-left:2rem; }
+}
+.stat-figure{ font-family:var(--font-display); font-size:var(--fs-display); line-height:1; letter-spacing:-0.01em; transition:color 0.34s ease; }
+.stat-cell:hover .stat-figure{ color:var(--accent); }
+.stat-label{ max-width:20ch; font-size:var(--fs-body); text-transform:uppercase; letter-spacing:0.14em; color:var(--muted); }
+
+.skill-tags{ margin-top:4rem; display:flex; flex-wrap:wrap; gap:0.75rem; }
+.skill-tags span{
+  font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.14em; color:var(--muted);
+  border:1px solid var(--line-strong); border-radius:9999px; padding:0.6rem 1.1rem; transition:color 0.3s ease, border-color 0.3s ease;
+}
+.skill-tags span:hover{ color:var(--foreground); border-color:var(--accent); }
+
+/* ---------- Testimonials ---------- */
+.voices-body{ margin-top:4rem; display:grid; grid-template-columns:1fr; gap:var(--gutter); }
+@media (min-width:1024px){ .voices-body{ grid-template-columns:repeat(12,1fr); } }
+.voice-select{ }
+@media (min-width:1024px){ .voice-select{ grid-column:span 5; } }
+.voice-btn{ width:100%; display:flex; align-items:baseline; gap:1.25rem; border-top:1px solid var(--line); padding:1.75rem 0; text-align:left; }
+.voice-select li:last-child .voice-btn{ border-bottom:1px solid var(--line); }
+.voice-btn .idx{ font-size:var(--fs-eyebrow); font-variant-numeric:tabular-nums; letter-spacing:0.18em; color:var(--muted); transition:color 0.3s ease; }
+.voice-btn .who h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; color:var(--muted); transition:color 0.3s ease; }
+.voice-btn .who p{ margin-top:0.25rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.voice-btn .rule{ height:1px; width:0; background:var(--accent); transition:width 0.3s ease; margin-left:auto; }
+.voice-btn.active .idx{ color:var(--accent); }
+.voice-btn.active .who h3{ color:var(--foreground); }
+.voice-btn.active .rule{ width:2.5rem; }
+
+.voice-panel{ display:grid; grid-template-columns:1fr; gap:2rem; align-items:flex-start; }
+@media (min-width:1024px){ .voice-panel{ grid-column:span 7; } }
+@media (min-width:640px){ .voice-panel{ grid-template-columns:1fr auto; } }
+.voice-quote{ order:2; }
+@media (min-width:640px){ .voice-quote{ order:1; } }
+.voice-quote p{ max-width:30ch; font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:500; line-height:1.3; letter-spacing:-0.01em; color:var(--foreground); }
+.voice-quote p .w{ display:inline-block; transform:translateY(18px); opacity:0; transition:transform 0.52s cubic-bezier(0.165,0.84,0.44,1), opacity 0.52s cubic-bezier(0.165,0.84,0.44,1); }
+.voice-quote p .w.in{ transform:translateY(0); opacity:1; }
+.voice-quote footer{ margin-top:2rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.voice-portrait{ order:1; width:100%; aspect-ratio:4/5; border-radius:0.125rem; opacity:0; transform:scale(1.06); transition:opacity 0.64s cubic-bezier(0.16,1,0.3,1), transform 0.64s cubic-bezier(0.16,1,0.3,1); }
+@media (min-width:640px){ .voice-portrait{ order:2; width:16rem; } }
+.voice-portrait.in{ opacity:1; transform:scale(1); }
+.voice-portrait img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+/* ---------- Contact / Footer ---------- */
+footer#contact{ padding-bottom:0; }
+footer#contact .contact-lead{ margin-top:2rem; max-width:44ch; font-size:var(--fs-lead); color:var(--muted); }
+.email-link{
+  margin-top:3rem; display:inline-flex; align-items:baseline; gap:0.75rem; font-family:var(--font-sans);
+  font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; word-break:break-all; transition:transform 0.34s ease, color 0.34s ease;
+}
+@media (min-width:640px){ .email-link{ font-size:var(--fs-h1); gap:1rem; } }
+.email-link:hover{ transform:translateX(14px); color:var(--accent); }
+.email-link .arrow{ color:var(--accent); }
+.footer-bar{ margin-top:var(--section); border-top:1px solid var(--line); padding:3rem 0; display:grid; grid-template-columns:1fr; gap:2.5rem; }
+@media (min-width:1024px){ .footer-bar{ grid-template-columns:repeat(12,1fr); } }
+.footer-sig{ }
+@media (min-width:1024px){ .footer-sig{ grid-column:span 6; } }
+.footer-sig p.name{ font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; line-height:1; letter-spacing:-0.01em; }
+.footer-sig p.tag{ margin-top:1rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+.footer-social{ }
+@media (min-width:1024px){ .footer-social{ grid-column:span 3; } }
+.footer-social li{ margin-bottom:0.75rem; }
+.footer-social a{ display:inline-flex; align-items:center; gap:0; font-size:var(--fs-body); color:var(--muted); transition:color 0.3s ease; }
+.footer-social a::before{ content:""; display:inline-block; width:0; height:1px; background:var(--accent); margin-right:0; transition:width 0.3s ease, margin 0.3s ease; }
+.footer-social a:hover{ color:var(--foreground); }
+.footer-social a:hover::before{ width:1.5rem; margin-right:0.75rem; }
+.footer-copy{ }
+@media (min-width:1024px){ .footer-copy{ grid-column:span 3; text-align:right; } }
+.footer-copy p{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  #preloader{ display:none !important; }
+  .marquee-track{ animation:none !important; }
+  .line-reveal > span, .hero-name .letter, .voice-quote p .w{ transform:none !important; opacity:1 !important; transition:none !important; }
+  .fade-up, .hero-desc, .scroll-cue, .voice-portrait{ opacity:1 !important; transform:none !important; transition:none !important; }
+}
+html.no-motion #preloader{ display:none !important; }
+html.no-motion .marquee-track{ animation:none !important; }
+
+
+  header#site-nav{ z-index:120; }
+  header#site-nav nav{
+    position:relative;
+    isolation:isolate;
+    background:linear-gradient(to bottom, rgba(8,8,10,0.96) 0%, rgba(8,8,10,0.86) 62%, rgba(8,8,10,0) 100%);
+  }
+  header#site-nav .nav-logo,
+  header#site-nav .nav-links,
+  header#site-nav .burger{ position:relative; z-index:2; }
+  .nav-links{ gap:1.85rem; }
+  .nav-links a{ text-shadow:0 1px 10px rgba(0,0,0,.8); }
+  @media (min-width:768px) and (max-width:1180px){
+    .nav-links{ gap:1rem; }
+    .nav-links a{ letter-spacing:.13em; }
+  }
+
+
+.proto-wrap{padding:9rem var(--gutter) 7rem;max-width:118rem;margin:0 auto}
+.proto-kicker{margin-top:.75rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.22em;color:var(--muted)}
+.proto-title{margin-top:1.3rem;max-width:13ch;font-family:var(--font-display);font-size:clamp(4.6rem,8vw,9rem);line-height:.88;text-transform:uppercase;letter-spacing:-.015em}
+.proto-intro{margin-top:2rem;max-width:52ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:var(--muted)}
+.proto-grid{margin-top:5rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line)}
+.proto-card{display:block;padding:2.2rem;background:var(--background);min-height:16rem;transition:transform .35s ease,background .35s ease}
+.proto-card:hover{background:var(--surface);transform:translateY(-4px)}
+.proto-num{font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.proto-card h2{margin-top:1.2rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;max-width:24ch}
+.proto-card p{margin-top:.8rem;color:var(--muted);font-size:var(--fs-body);max-width:45ch}
+.proto-card .arrow{display:inline-block;margin-top:2rem;color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.proto-detail{max-width:72rem;margin:0 auto;padding:9rem var(--gutter) 7rem}
+.proto-detail .eyebrow{margin-bottom:1rem}
+.proto-detail h1{font-family:var(--font-display);font-size:clamp(4rem,7vw,8rem);line-height:.9;text-transform:uppercase;max-width:14ch}
+.proto-detail .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.detail-grid{margin-top:4rem;display:grid;grid-template-columns:repeat(12,1fr);gap:2rem}
+.detail-main{grid-column:span 8}.detail-side{grid-column:span 4}
+.detail-section{border-top:1px solid var(--line);padding:1.75rem 0}.detail-section h2{font-size:var(--fs-h3);font-family:var(--font-sans);margin-bottom:1rem}.detail-section p{font-size:var(--fs-body);line-height:1.65;color:var(--muted);margin:.6rem 0}.detail-section ul{padding:0;margin:0}.detail-section li{padding:.55rem 0;color:var(--muted);font-size:var(--fs-body)}.detail-section li::before{content:'•';color:var(--accent);margin-right:.7rem}.detail-links a{display:block;padding:.55rem 0;color:var(--foreground);border-bottom:1px solid var(--line)}.detail-links a:hover{color:var(--accent)}
+.proto-empty{border-top:1px solid var(--line);margin-top:4rem;padding-top:2rem;color:var(--muted)}
+@media(max-width:900px){.proto-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}.detail-main,.detail-side{grid-column:1}.proto-wrap,.proto-detail{padding-top:7rem}}
+</style>
+<style id="mobile-optimization">
+/* Mobile-only optimization: desktop/laptop layout remains unchanged */
+@media (max-width: 639px){
+  html{
+    font-size:16px !important;
+    overflow-x:hidden;
+  }
+
+  body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  header#site-nav{
+    z-index:120;
+  }
+
+  header#site-nav nav{
+    min-height:64px;
+    padding:10px 14px;
+    gap:10px;
+  }
+
+  .nav-logo{
+    min-width:0;
+  }
+
+  .nav-logo .badge{
+    width:40px;
+    height:40px;
+    flex-shrink:0;
+  }
+
+  .nav-logo .name{
+    display:none !important;
+  }
+
+  .burger{
+    width:40px;
+    height:40px;
+    flex-shrink:0;
+  }
+
+  #mobile-menu{
+    padding:80px 16px 24px;
+    gap:12px;
+    overflow-y:auto;
+  }
+
+  #mobile-menu a{
+    font-size:clamp(2rem, 10vw, 3rem);
+    max-width:100%;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-wrap{
+    width:100%;
+    max-width:100%;
+    padding:96px 16px 64px;
+  }
+
+  .proto-title{
+    max-width:100%;
+    font-size:clamp(2.8rem, 13vw, 5rem);
+    line-height:.9;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-kicker{
+    font-size:.75rem;
+    line-height:1.35;
+    letter-spacing:.16em;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-intro{
+    max-width:100%;
+    font-size:1rem;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-grid{
+    grid-template-columns:1fr !important;
+    width:100%;
+    margin-top:3rem;
+  }
+
+  .proto-card{
+    min-width:0;
+    width:100%;
+    padding:1.5rem;
+  }
+
+  section,
+  footer#contact{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .section-head{
+    width:100%;
+  }
+
+  .section-heading{
+    max-width:100%;
+    font-size:clamp(2rem, 10vw, 3.5rem);
+    overflow-wrap:anywhere;
+  }
+
+  img,
+  video,
+  iframe,
+  svg{
+    max-width:100%;
+  }
+
+  p,
+  li,
+  a,
+  h1,
+  h2,
+  h3,
+  h4{
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  .project-row{
+    flex-direction:column;
+    gap:1rem;
+  }
+
+  .project-meta{
+    text-align:left;
+  }
+
+  .voice-panel{
+    grid-template-columns:1fr !important;
+  }
+
+  .voice-portrait{
+    width:100%;
+    max-width:100%;
+  }
+
+  .email-link{
+    max-width:100%;
+    font-size:clamp(1.35rem, 6vw, 2rem);
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  .footer-bar{
+    grid-template-columns:1fr !important;
+  }
+
+  .footer-copy{
+    text-align:left !important;
+  }
+}
+
+@media (max-width:380px){
+  header#site-nav nav{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .proto-wrap{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  section,
+  footer#contact{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .proto-title{
+    font-size:clamp(2.45rem, 12vw, 4rem);
+  }
+}
+</style>
+
+<style id="week7-tasks">main{overflow:visible;overflow-x:clip}
+@media(min-width:640px) and (max-width:1024px){html{font-size:max(1.5625vw,14px)}}
+.tk{max-width:100rem;margin:0 auto;padding:8.5rem var(--gutter) 6rem}
+@media(max-width:639px){.tk{padding:6.5rem var(--gutter) 4rem}}
+.tk h1{margin-top:1.2rem;max-width:18ch;font-family:var(--font-display);font-size:clamp(36px,5vw,84px);line-height:.94;text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
+.tk .lead{margin-top:1.5rem;max-width:56ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:#b9b7ae}
+.tk .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.tk .back:hover{color:var(--accent)}
+.tabs{margin-top:2rem;display:flex;flex-wrap:wrap;gap:.6rem}
+.tabs a{border:1px solid var(--line-strong);border-radius:9999px;padding:.6rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);transition:color .3s,border-color .3s}
+.tabs a.on,.tabs a:hover{color:var(--foreground);border-color:var(--accent)}
+.tk-grid{margin-top:3.5rem;display:grid;grid-template-columns:minmax(0,1fr);gap:3rem}
+@media(min-width:1024px){.tk-grid{grid-template-columns:minmax(0,1fr) 19rem;gap:5rem}}
+.side{display:none}
+@media(min-width:1024px){.side{display:block;position:sticky;top:6.5rem;align-self:start}}
+.side .eyebrow{margin:0 0 .6rem}.side a+.eyebrow{margin-top:2rem}
+.side a{display:block;padding:.5rem 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.12em;transition:color .3s}
+.side a:hover{color:var(--accent)}.side a.on{color:var(--foreground)}
+.sec{border-top:1px solid var(--line);padding:2rem 0;scroll-margin-top:6rem}
+.sec h2{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.1rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;letter-spacing:-.01em}
+.sec h2 em{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.sec p,.sec li{color:#b9b7ae;font-size:var(--fs-body);line-height:1.65}
+.sec p{max-width:70ch;margin:.5rem 0}
+.sec ul{margin:.3rem 0}.sec ul li{position:relative;padding:.4rem 0 .4rem 1.3rem}
+.sec ul li::before{content:"";position:absolute;left:0;top:1.05em;width:.4rem;height:.4rem;border-radius:9999px;background:var(--accent)}
+.sec ol{list-style:decimal;padding-left:1.5rem}.sec ol li{padding:.4rem 0 .4rem .3rem}.sec ol li::marker{color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.cards>*{background:var(--background);padding:1.25rem}
+.cards h3{font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.15);font-weight:600;color:var(--foreground);transition:color .3s}
+.cards p{margin:.5rem 0 0}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
+.flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
+.flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
+.ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
+.ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
+.ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
+pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:.25rem;overflow-x:auto;color:#d9d6cc;font:.85rem/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.btn{display:inline-block;margin-top:.8rem;padding:.8rem 1.4rem;border:1px solid var(--accent);border-radius:9999px;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;transition:background .3s,color .3s}
+.btn:hover{background:var(--accent);color:var(--background)}
+.oth a{display:block}.oth a:hover{background:var(--surface)}.oth a:hover h3{color:var(--accent)}
+.oth b{display:block;margin-bottom:.4rem;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent);font-weight:500}
+.proto-grid .proto-card:last-child{grid-column:1/-1}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+</style><style id="week6-extra">
+.sec h3{margin:1.6rem 0 .4rem;font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.2);font-weight:600;color:var(--foreground)}
+.sec h4{margin:1.2rem 0 .3rem;font-size:var(--fs-body);font-weight:600;color:var(--foreground)}
+.sec p a{color:var(--accent);border-bottom:1px solid rgba(255,59,29,.35)}.sec p a:hover{border-bottom-color:var(--accent)}
+.sec p strong{color:var(--foreground);font-weight:600}
+.sec .cap,.sec p.cap{color:var(--muted);font-size:var(--fs-eyebrow)}
+.note{margin:.9rem 0;padding:1rem 1.25rem;border-left:2px solid var(--accent);background:var(--surface);color:#b9b7ae;font-size:var(--fs-body);line-height:1.6;white-space:pre-line;max-width:72ch}
+.tw{overflow-x:auto;margin:.9rem 0}.pin-table{display:table!important;margin:0;table-layout:auto}.pin-table thead{display:table-header-group!important;width:auto}.pin-table tbody{display:table-row-group!important;width:auto}
+.pin-table th{white-space:nowrap}
+.pin-table thead,.pin-table tbody{table-layout:auto}
+pre.code{tab-size:2}
+.media-grid.slides img{height:auto;aspect-ratio:16/9;object-fit:cover}
+</style>
+</head><body>
+<header id="site-nav"><nav>
+  <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#story">Story</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#skills">Skills</a></li>
+    <li><a class="active" href="protosem.html">ProtoSem</a></li>
+    <li><a href="index.html#testimonials">Focus</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><span class="bars"><span></span><span></span><span></span></span></button>
+</nav></header>
+<div id="mobile-menu">
+  <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
+  <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
+</div>
+<main><div class="tk"><p class="eyebrow">Week 6 · Task 4 of 5</p><h1>OLED-Based Game with Sensor Input</h1><p class="lead">ESP32 30-pin development board, a 0.96-inch SSD1306 I2C OLED and a 2-axis analog joystick: first a team-number display, then an Escape-the-Falling-Ball game.</p><nav class="tabs" aria-label="Week 6 tasks"><a href="protosem-week-6.html">← Week 6</a><a href="protosem-week-6-task-1.html">Task 1</a><a href="protosem-week-6-task-2.html">Task 2</a><a href="protosem-week-6-task-3.html">Task 3</a><a href="protosem-week-6-task-4.html" class="on" aria-current="page">Task 4</a><a href="protosem-week-6-task-5.html">Task 5</a></nav><div class="tk-grid"><article><div class="cards"><div><h3>Date</h3><p>14 October 2026</p></div><div><h3>Hardware</h3><p>ESP32 30-pin board, 0.96-inch SSD1306 I2C OLED, 2-axis analog joystick</p></div><div><h3>Software</h3><p>Arduino IDE, ESP32 board package, OLED libraries</p></div></div><div class="sec" id="s1"><h2><em>01</em>ESP32 Architecture Overview</h2>
+<p>The ESP32 is a low-cost, low-power microcontroller with integrated Wi-Fi and Bluetooth capabilities. The main characteristics of the board are listed below.</p>
+<p><em>Dual-core CPU (Xtensa 32-bit LX6) running at up to 240 MHz.</em></p>
+<p><em>4 MB Flash memory (can be expanded up to 16 MB).</em></p>
+<p><em>520 KB SRAM for program execution.</em></p>
+<p><em>802.11 b/g/n Wi-Fi and Bluetooth 4.2/BLE.</em></p>
+<p><em>12-bit ADC (Analog-to-Digital Converter) with 16 channels.</em></p>
+<p><em>8-channel DAC (Digital-to-Analog Converter).</em></p>
+<p><em>2 SPI, 2 I2C, 2 UART and 1 CAN interfaces.</em></p>
+<p><em>PWM outputs on GPIO pins.</em></p>
+<div class="note">Electrical note
+ESP32 GPIO operates at 3.3 V logic and is not 5 V tolerant. Keep the OLED and joystick powered from 3.3 V.</div>
+</div><div class="sec" id="s2"><h2><em>02</em>ESP32 30-Pin Board Pin Diagram &amp; Characteristics</h2>
+<h3>2.1 Pin Configuration Overview</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Pin #</strong></th><th><strong>GPIO</strong></th><th><strong>Function</strong></th><th><strong>Notes</strong></th></tr></thead><tbody><tr><td>1</td><td>GND</td><td>Ground</td><td>Ground reference</td></tr><tr><td>2</td><td>GPIO3</td><td>RX0</td><td>Serial receive</td></tr><tr><td>3</td><td>GPIO1</td><td>TX0</td><td>Serial transmit</td></tr><tr><td>4</td><td>GPIO22</td><td>SCL</td><td>I2C clock (OLED)</td></tr><tr><td>5</td><td>GPIO21</td><td>SDA</td><td>I2C data (OLED)</td></tr><tr><td>6</td><td>GPIO19</td><td>MISO</td><td>SPI receive</td></tr><tr><td>7</td><td>GPIO23</td><td>MOSI</td><td>SPI transmit</td></tr><tr><td>8</td><td>GPIO18</td><td>CLK</td><td>SPI clock</td></tr><tr><td>9</td><td>GPIO5</td><td>GPIO5</td><td>General I/O</td></tr><tr><td>10</td><td>3.3V</td><td>3V3</td><td>Power supply</td></tr><tr><td>11</td><td>GND</td><td>GND</td><td>Ground reference</td></tr><tr><td>12</td><td>GPIO17</td><td>GPIO17</td><td>General I/O</td></tr><tr><td>13</td><td>GPIO16</td><td>GPIO16</td><td>General I/O</td></tr><tr><td>14</td><td>GPIO4</td><td>GPIO4</td><td>General I/O</td></tr><tr><td>15</td><td>GPIO0</td><td>GPIO0</td><td>Boot pin (pull-up)</td></tr><tr><td>16</td><td>GPIO2</td><td>GPIO2</td><td>General I/O</td></tr><tr><td>17</td><td>GPIO15</td><td>GPIO15</td><td>General I/O</td></tr><tr><td>18</td><td>GND</td><td>GND</td><td>Ground reference</td></tr><tr><td>19</td><td>GPIO13</td><td>GPIO13</td><td>General I/O</td></tr><tr><td>20</td><td>GPIO12</td><td>GPIO12</td><td>General I/O</td></tr><tr><td>21</td><td>GPIO14</td><td>GPIO14</td><td>General I/O</td></tr><tr><td>22</td><td>GPIO27</td><td>GPIO27</td><td>General I/O</td></tr><tr><td>23</td><td>GPIO26</td><td>GPIO26</td><td>DAC2 / ADC</td></tr><tr><td>24</td><td>GPIO25</td><td>GPIO25</td><td>DAC1 / ADC</td></tr><tr><td>25</td><td>GPIO33</td><td>GPIO33</td><td>ADC5</td></tr><tr><td>26</td><td>GPIO32</td><td>GPIO32</td><td>ADC4</td></tr><tr><td>27</td><td>GPIO35</td><td>GPIO35</td><td>ADC7 (Joystick X)</td></tr><tr><td>28</td><td>GPIO34</td><td>GPIO34</td><td>ADC6 (Joystick Y)</td></tr><tr><td>29</td><td>GND</td><td>GND</td><td>Ground reference</td></tr><tr><td>30</td><td>3.3V</td><td>3V3</td><td>Power supply</td></tr></tbody></table></div>
+<div class="media-grid"><figure><img src="assets/week6/t4-01.jpg" alt="ESP32 30-PIN BOARD PIN DIAGRAM
+ESP32 30-pin board pinout (source credited in Acknowledgements)" loading="lazy" width="1400" height="716"><figcaption><b>Figure</b>ESP32 30-PIN BOARD PIN DIAGRAM
+ESP32 30-pin board pinout (source credited in Acknowledgements)</figcaption></figure></div>
+<h3>2.2 Key Pin Characteristics</h3>
+<p><em>3.3 V logic level: GPIO pins operate at 3.3 V and are not 5 V tolerant.</em></p>
+<p><em>I2C: GPIO22 = SCL and GPIO21 = SDA.</em></p>
+<p><em>ADC inputs used by this project: GPIO35 (Joystick X) and GPIO34 (Joystick Y).</em></p>
+<p><em>GPIO34 and GPIO35 are input-only pins, which makes them suitable for analog joystick axes.</em></p>
+<p><em>GPIO0 is the boot-mode pin and must be HIGH for normal operation.</em></p>
+</div><div class="sec" id="s3"><h2><em>03</em>Installing Arduino IDE</h2>
+<p><em>Download Arduino IDE from the official Arduino software page.</em></p>
+<p><em>Install the latest supported Arduino IDE version for Windows, macOS or Linux.</em></p>
+<p><em>On Windows, allow USB-driver installation when prompted.</em></p>
+<p><em>Launch Arduino IDE and confirm that the main editor window opens correctly.</em></p>
+<div class="note">Installation checkpoint
+Before proceeding, connect the ESP32 by USB and confirm that the computer detects the board. A charge-only USB cable can prevent the board from appearing.</div>
+</div><div class="sec" id="s4"><h2><em>04</em>Downloading ESP32 Library</h2>
+<p><em>Locate Additional Boards Manager URLs.</em></p>
+<p><em>Paste the </em><a href="https://espressif.github.io/arduino-esp32/package_esp32_index.json" target="_blank" rel="noreferrer noopener">Espressif ESP32 package index</a><em> link into the Additional Boards Manager URLs box and click OK.</em></p>
+<p><em>Search for “ESP32”, select “ESP32 by Espressif Systems”, and install the package.</em></p>
+<div class="note">Verification
+If ESP32 Dev Module does not appear after installation, restart Arduino IDE and check the Boards Manager installation again.</div>
+</div><div class="sec" id="s5"><h2><em>05</em>Selecting Board and COM Port</h2>
+<h3>5.1 Board Settings</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Setting</strong></th><th><strong>Recommended value</strong></th></tr></thead><tbody><tr><td>Board</td><td>ESP32 Dev Module</td></tr><tr><td>CPU Frequency</td><td>240 MHz</td></tr><tr><td>Flash Size</td><td>4 MB</td></tr><tr><td>Upload Speed</td><td>921600 baud (reduce if uploads are unreliable)</td></tr></tbody></table></div>
+<h3>5.2 Selecting the Port</h3>
+<p><em>Connect the ESP32 to the computer using a data-capable USB cable.</em></p>
+<p><em>Select the COM port that appears when the ESP32 is connected (for example, COM3 or COM4 on Windows).</em></p>
+<p><em>If the board is not detected, install the appropriate USB driver and try another USB cable.</em></p>
+</div><div class="sec" id="s6"><h2><em>06</em>Integrating ESP32 with OLED Display</h2>
+<h3>6.1 Hardware Connections</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>OLED Pin</strong></th><th><strong>ESP32 Pin</strong></th><th><strong>Connection / Purpose</strong></th></tr></thead><tbody><tr><td>VCC</td><td>3.3V</td><td>Power</td></tr><tr><td>GND</td><td>GND</td><td>Ground</td></tr><tr><td>SCL</td><td>GPIO22</td><td>I2C clock</td></tr><tr><td>SDA</td><td>GPIO21</td><td>I2C data</td></tr></tbody></table></div>
+<div class="note">OLED address
+The programs in this report use I2C address 0x3C. If the display is not detected, verify the address and wiring before changing the program.<figure><img src="assets/week6/t4-02.jpg" alt="ESP32 + OLED WIRING IMAGE" loading="lazy" width="1280" height="1109"><figcaption><b>Figure</b>ESP32 + OLED WIRING IMAGE</figcaption></figure></div>
+<h3>6.2 Required Libraries</h3>
+<p><em>Adafruit SSD1306 - by Adafruit Industries</em></p>
+<p><em>Adafruit GFX Library </em>- by Adafruit Industries</p>
+<h3>6.3 OLED Test Program</h3>
+<pre class="code"><code>#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SSD1306.h&gt;
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+#define OLED_ADDRESS 0x3C
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &amp;Wire, OLED_RESET);
+void setup() {
+  Serial.begin(115200);
+  Wire.begin(21, 22);
+  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS)) {
+    Serial.println("OLED initialization failed.");
+    while (true) {}
+  }
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println("OLED Connected!");
+  display.display();
+}
+void loop() {
+  delay(1000);
+}</code></pre>
+</div><div class="sec" id="s7"><h2><em>07</em>Task 1: Display Team Number on OLED</h2>
+<h3>7.1 Objective</h3>
+<p>Display a team number on the OLED at startup and keep it visible.</p>
+<h3>7.2 Hardware Required</h3>
+<p><em>ESP32 30-pin development board</em></p>
+<p><em>0.96-inch 128×64 I2C OLED (SSD1306), normally using address 0x3C</em></p>
+<p><em>Jumper wires and USB cable</em></p>
+<p><em>Arduino IDE with Adafruit SSD1306 and Adafruit GFX Library installed</em></p>
+<p>No joystick is required for Task 1.</p>
+<h3>7.3 Complete Task 1 Code</h3>
+<pre class="code"><code>#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SSD1306.h&gt;
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+#define OLED_ADDRESS 0x3C
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &amp;Wire, OLED_RESET);
+const char* TEAM_NUMBER = "10";
+void setup() {
+  Serial.begin(115200);
+  Wire.begin(21, 22);
+  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS)) {
+    Serial.println("SSD1306 allocation failed.");
+    while (true) {}
+  }
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.println("TEAM NUMBER:");
+  display.setTextSize(4);
+  display.setCursor(40, 28);
+  display.println(TEAM_NUMBER);
+  display.display();
+  Serial.println("Team Number Display Initialized!");
+}
+void loop() {
+  delay(1000);
+}</code></pre>
+<div class="note">To change the team number
+Edit the TEAM_NUMBER value near the top of the program. For example, change "10" to "42", then upload the sketch again.<figure><img src="assets/week6/t4-03.jpg" alt="TASK 1 OLED OUTPUT IMAGE" loading="lazy" width="1175" height="1053"><figcaption><b>Figure</b>TASK 1 OLED OUTPUT IMAGE</figcaption></figure></div>
+<p>Video Demonstration Link: <a href="https://drive.google.com/file/d/1nGI9SQ173_fyPk6Q_kK7OehkErAi-pGM/view?usp=sharing" target="_blank" rel="noreferrer noopener">CLICK HERE</a></p>
+<h3>7.4 Expected Output</h3>
+<p>The OLED should show a TEAM NUMBER header and the selected team number in a larger font. The output photo and video link are given in Section 7.3.</p>
+</div><div class="sec" id="s8"><h2><em>08</em>Integrating ESP32 with Joystick</h2>
+<h3>8.1 Corrected Joystick Wiring</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Joystick Pin</strong></th><th><strong>ESP32 Pin</strong></th><th><strong>Purpose</strong></th></tr></thead><tbody><tr><td>VCC</td><td>3.3V</td><td>Joystick power</td></tr><tr><td>GND</td><td>GND</td><td>Common ground</td></tr><tr><td>VRx (X-axis)</td><td>GPIO35</td><td>Analog X input; used by the game</td></tr><tr><td>VRy (Y-axis)</td><td>GPIO34</td><td>Analog Y input; reserved for future use</td></tr><tr><td>SW (Button)</td><td>GPIO25</td><td>Digital button; INPUT_PULLUP</td></tr></tbody></table></div>
+<div class="media-grid"><figure><img src="assets/week6/t4-04.jpg" alt="ESP32 + JOYSTICK WIRING IMAGE" loading="lazy" width="1050" height="1400"><figcaption><b>Figure</b>ESP32 + JOYSTICK WIRING IMAGE</figcaption></figure></div>
+<h3>8.2 Joystick Test Program</h3>
+<pre class="code"><code>#define JOY_X 35
+#define JOY_Y 34
+#define JOY_SW 25
+void setup() {
+  Serial.begin(115200);
+  pinMode(JOY_X, INPUT);
+  pinMode(JOY_Y, INPUT);
+  pinMode(JOY_SW, INPUT_PULLUP);
+}
+void loop() {
+  int x = analogRead(JOY_X);
+  int y = analogRead(JOY_Y);
+  int button = digitalRead(JOY_SW);
+  Serial.print("X: ");
+  Serial.print(x);
+  Serial.print(" | Y: ");
+  Serial.print(y);
+  Serial.print(" | Button: ");
+  Serial.println(button == LOW ? "PRESSED" : "RELEASED");
+  delay(100);
+}</code></pre>
+<p>Open Serial Monitor at 115200 baud. Moving the joystick should change the X/Y ADC values. Pressing the joystick button should change SW from HIGH to LOW.</p>
+</div><div class="sec" id="s9"><h2><em>09</em>Task 2: Escape-the-Falling-Ball Game</h2>
+<h3>9.1 Objective</h3>
+<p>Create an interactive game in which a ball falls from the top of the OLED and the player moves a basket at the bottom using the joystick X-axis. The score increases when the ball is caught; missing the ball ends the game.</p>
+<h3>9.2 Final Hardware &amp; Pin Configuration</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Component</strong></th><th><strong>ESP32 connection</strong></th><th><strong>Purpose / code</strong></th></tr></thead><tbody><tr><td>OLED VCC</td><td>3.3V</td><td>OLED power</td></tr><tr><td>OLED GND</td><td>GND</td><td>Common ground</td></tr><tr><td>OLED SCL</td><td>GPIO22</td><td>I2C clock; Wire.begin(21, 22)</td></tr><tr><td>OLED SDA</td><td>GPIO21</td><td>I2C data; Wire.begin(21, 22)</td></tr><tr><td>Joystick VCC</td><td>3.3V</td><td>Joystick power</td></tr><tr><td>Joystick GND</td><td>GND</td><td>Common ground</td></tr><tr><td>Joystick VRx (X)</td><td>GPIO35</td><td>Analog input; JOY_X</td></tr><tr><td>Joystick VRy (Y)</td><td>GPIO34</td><td>Analog input; JOY_Y</td></tr><tr><td>Joystick SW</td><td>GPIO25</td><td>Digital input; JOY_SW with INPUT_PULLUP</td></tr></tbody></table></div>
+<div class="media-grid"><figure><img src="assets/week6/t4-05.jpg" alt="COMPLETE ESP32 + OLED + JOYSTICK HARDWARE PHOTO" loading="lazy" width="1050" height="1400"><figcaption><b>Figure</b>COMPLETE ESP32 + OLED + JOYSTICK HARDWARE PHOTO</figcaption></figure></div>
+<h3>9.3 Game Features</h3>
+<p><em>Ball starts at a random horizontal position near the top.</em></p>
+<p><em>Joystick left/right movement controls the basket.</em></p>
+<p><em>Each successful catch adds 1 point.</em></p>
+<p><em>Missing the ball changes the game to GAME OVER.</em></p>
+<p><em>Pressing the joystick button after GAME OVER restarts the game.</em></p>
+<p><em>The game uses a dead-zone around the joystick center to reduce unwanted basket movement.</em></p>
+<h3>9.4 Game Concept, Objective and Rules</h3>
+<p>Escape-the-Falling-Ball is a catch-the-ball game for the 128×64 OLED. A ball falls from the top of the screen and the player slides a basket along the bottom edge with the joystick to catch it. The objective is to catch as many balls as possible without missing one.</p>
+<p><em>The ball starts at a random horizontal position at the top and falls straight down.</em></p>
+<p><em>Each ball caught scores 1 point, and a new ball starts at once.</em></p>
+<p><em>If a ball reaches the bottom of the screen without being caught, the game is over.</em></p>
+<p><em>The final score stays on the GAME OVER screen until the joystick button is pressed.</em></p>
+<p><em>Pressing the joystick button after GAME OVER resets the score to 0 and starts a new game.</em></p>
+<h3>9.5 How the Player Interacts</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Player action</strong></th><th><strong>Joystick input</strong></th><th><strong>What happens in the game</strong></th></tr></thead><tbody><tr><td><strong>Move basket left</strong></td><td>Push stick left (X below 1500)</td><td>Basket moves 3 px left, stopping at the left edge</td></tr><tr><td><strong>Move basket right</strong></td><td>Push stick right (X above 2500)</td><td>Basket moves 3 px right, stopping at the right edge</td></tr><tr><td><strong>Hold still</strong></td><td>Stick near centre (1500 to 2500)</td><td>Basket stays where it is (dead zone)</td></tr><tr><td><strong>Restart</strong></td><td>Press the joystick button (SW)</td><td>Only works on the GAME OVER screen; score resets to 0</td></tr></tbody></table></div>
+<h3>9.6 Hardware Components Used</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Component</strong></th><th><strong>Specification</strong></th><th><strong>Role in the game</strong></th></tr></thead><tbody><tr><td><strong>ESP32 30-pin board</strong></td><td>Dual-core, 3.3 V logic, 12-bit ADC</td><td>Runs the game and reads the joystick</td></tr><tr><td><strong>OLED display</strong></td><td>0.96-inch, 128×64, SSD1306, I2C (0x3C)</td><td>Shows the basket, ball, score and GAME OVER screen</td></tr><tr><td><strong>Analog joystick module</strong></td><td>2-axis (VRx, VRy) with push button (SW)</td><td>Player input: basket movement and restart</td></tr><tr><td><strong>Jumper wires and USB cable</strong></td><td>Male-to-female / male-to-male</td><td>Connections and programming / power</td></tr><tr><td><strong>Arduino IDE</strong></td><td>Adafruit SSD1306 and Adafruit GFX libraries</td><td>Writing and uploading the code</td></tr></tbody></table></div>
+<h3>9.7 How the Joystick Works</h3>
+<p>The joystick contains two potentiometers, one for each axis, and a push button. Each potentiometer acts as a voltage divider between 3.3 V and GND, so the voltage on its output pin changes with the position of the stick. The ESP32 reads this voltage with its 12-bit ADC and gets a number from 0 to 4095, which is about 2048 when the stick is centred.</p>
+<p><em>VRx (GPIO35) gives the left/right position and is used to move the basket.</em></p>
+<p><em>VRy (GPIO34) is read in the joystick test program and available for further games.</em></p>
+<p><em>SW (GPIO25) is set to INPUT_PULLUP, so it reads HIGH normally and LOW when pressed. It restarts the game.</em></p>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>ADC reading (X axis)</strong></th><th><strong>Interpretation</strong></th><th><strong>Basket action</strong></th></tr></thead><tbody><tr><td><strong>0 to 1499</strong></td><td>Stick pushed left</td><td>Move left</td></tr><tr><td><strong>1500 to 2500</strong></td><td>Dead zone (stick centred)</td><td>No movement</td></tr><tr><td><strong>2501 to 4095</strong></td><td>Stick pushed right</td><td>Move right</td></tr></tbody></table></div>
+<h3>9.8 Circuit Diagram and Pin Connections</h3>
+<p>Both modules run from the 3V3 pin of the ESP32. The OLED uses the I2C pins and the joystick uses two input-only ADC pins and one digital pin, as shown below and in the pin table in Section 9.2.</p>
+<div class="media-grid"><figure><img src="assets/week6/t4-06.jpg" alt="Photograph" loading="lazy" width="1400" height="915"></figure></div><p><em>Figure: Wiring diagram of the ESP32 30-pin board with the SSD1306 OLED and the joystick module</em></p>
+</div><div class="sec" id="s10"><h2><em>10</em>Task 2 (continued): Complete Code</h2>
+<pre class="code"><code>#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SSD1306.h&gt;
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+#define OLED_ADDRESS 0x3C
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &amp;Wire, OLED_RESET);
+// Joystick pins
+const int JOY_X = 35;   // VRx
+const int JOY_Y = 34;   // VRy - reserved
+const int JOY_SW = 25;  // Push button
+// Joystick calibration / dead zone
+const int JOY_LEFT  = 1500;
+const int JOY_RIGHT = 2500;
+// Basket
+const int BASKET_Y = 56;
+const int BASKET_WIDTH = 20;
+const int BASKET_HEIGHT = 5;
+int basketX = 54;
+// Ball
+const int BALL_SIZE = 4;
+int ballX = 0;
+int ballY = 12;
+const int BALL_SPEED = 2;
+// Game state
+int score = 0;
+bool gameOver = false;
+unsigned long lastBallMove = 0;
+unsigned long lastButtonTime = 0;
+void startGame();
+void drawGame();
+void drawGameOver();
+void setup() {
+  Serial.begin(115200);
+  Wire.begin(21, 22);
+  pinMode(JOY_X, INPUT);
+  pinMode(JOY_Y, INPUT);
+  pinMode(JOY_SW, INPUT_PULLUP);
+  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS)) {
+    Serial.println("OLED not found!");
+    while (true) {}
+  }
+  randomSeed(micros());
+  startGame();
+}
+void loop() {
+  // Read horizontal joystick axis
+  int x = analogRead(JOY_X);
+  if (!gameOver) {
+    // Move basket only when outside the dead zone
+    if (x &lt; JOY_LEFT) {
+      basketX -= 3;
+    } else if (x &gt; JOY_RIGHT) {
+      basketX += 3;
+    }
+    // Keep basket on the screen
+    basketX = constrain(basketX, 0, SCREEN_WIDTH - BASKET_WIDTH);
+    // Move the ball at a fixed interval
+    if (millis() - lastBallMove &gt;= 50) {
+      lastBallMove = millis();
+      ballY += BALL_SPEED;
+      // Check collision with basket
+      bool caught =
+        (ballY + BALL_SIZE &gt;= BASKET_Y) &amp;&amp;
+        (ballY &lt;= BASKET_Y + BASKET_HEIGHT) &amp;&amp;
+        (ballX + BALL_SIZE &gt;= basketX) &amp;&amp;
+        (ballX &lt;= basketX + BASKET_WIDTH);
+      if (caught) {
+        score++;
+        ballX = random(2, SCREEN_WIDTH - BALL_SIZE - 2);
+        ballY = 12;
+      }
+      // Ball missed
+      if (ballY &gt; SCREEN_HEIGHT) {
+        gameOver = true;
+      }
+    }
+    drawGame();
+  } else {
+    drawGameOver();
+    // Active-low joystick button with simple debounce
+    if (digitalRead(JOY_SW) == LOW &amp;&amp;
+        millis() - lastButtonTime &gt; 250) {
+      lastButtonTime = millis();
+      startGame();
+    }
+  }
+  delay(5);
+}
+void startGame() {
+  basketX = (SCREEN_WIDTH - BASKET_WIDTH) / 2;
+  score = 0;
+  gameOver = false;
+  lastBallMove = millis();
+  ballX = random(2, SCREEN_WIDTH - BALL_SIZE - 2);
+  ballY = 12;
+  display.clearDisplay();
+  display.display();
+}
+void drawGame() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  // Score
+  display.setCursor(0, 0);
+  display.print("Score: ");
+  display.println(score);
+  // Separator
+  display.drawLine(0, 9, SCREEN_WIDTH - 1, 9, SSD1306_WHITE);
+  // Ball
+  display.fillCircle(ballX + 2, ballY + 2, 2, SSD1306_WHITE);
+  // Basket
+  display.fillRect(
+    basketX, BASKET_Y,
+    BASKET_WIDTH, BASKET_HEIGHT,
+    SSD1306_WHITE
+  );
+  display.display();
+}
+void drawGameOver() {
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+  display.setTextSize(2);
+  display.setCursor(12, 10);
+  display.println("GAME");
+  display.setCursor(12, 30);
+  display.println("OVER");
+  display.setTextSize(1);
+  display.setCursor(75, 18);
+  display.print("Score:");
+  display.setCursor(75, 30);
+  display.println(score);
+  display.setCursor(18, 54);
+  display.println("PRESS BUTTON");
+  display.display();
+}</code></pre>
+</div><div class="sec" id="s11"><h2><em>11</em>Task 2 (continued): Game Operation and Explanation</h2>
+<h3>9.9 Program Logic</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Function / block</strong></th><th><strong>Role</strong></th></tr></thead><tbody><tr><td>setup()</td><td>Initializes Serial, I2C, joystick pins, OLED and random-number generation.</td></tr><tr><td>startGame()</td><td>Resets score, basket position, ball position and game state.</td></tr><tr><td>Joystick reading</td><td>Reads GPIO35. Values below 1500 move left; values above 2500 move right; the center range is a dead zone.</td></tr><tr><td>Ball update</td><td>Every 50 ms the ball moves downward by 2 pixels.</td></tr><tr><td>Collision detection</td><td>Checks overlap between the ball and basket.</td></tr><tr><td>Score</td><td>Increases by 1 for each successful catch.</td></tr><tr><td>GAME OVER</td><td>Occurs when the ball moves below the OLED display.</td></tr><tr><td>Restart</td><td>A LOW reading on GPIO25 after debounce restarts the game.</td></tr></tbody></table></div>
+<h3>9.10 Game Algorithm and Program Flow</h3>
+<p>The program runs in setup() once and then repeats loop() continuously. Each pass of loop() follows these steps:</p>
+<p><em>1.setup(): start Serial, set the pin modes (joystick button on INPUT_PULLUP), start I2C on GPIO21/GPIO22 and initialise the OLED.</em></p>
+<p><em>2.startGame(): set the score to 0, clear gameOver, place the basket at the centre and drop a new ball from a random column.</em></p>
+<p><em>3.Input detection: read the joystick X value with analogRead(). Below 1500 moves the basket left, above 2500 moves it right, anything between is ignored.</em></p>
+<p><em>4.Game logic: every 50 ms the ball moves down by 2 px. If the ball box overlaps the basket box, it is caught: the score increases by 1 and a new ball is created.</em></p>
+<p><em>5.Miss check: if the ball goes below the bottom of the screen, gameOver is set to true.</em></p>
+<p><em>6.Display update: the OLED is cleared and the basket, ball and score are redrawn, then the buffer is sent to the screen.</em></p>
+<p><em>7.GAME OVER: drawGameOver() shows the final score. The joystick button is checked with a 250 ms debounce, and a press calls startGame() again.</em></p>
+<div class="media-grid"><figure><img src="assets/week6/t4-07.jpg" alt="Photograph" loading="lazy" width="1266" height="1400"></figure></div><p><em>Figure: Flowchart of the Escape-the-Falling-Ball game</em></p>
+<h3>9.11 Difficulty Tuning</h3>
+<p><em>Make the game easier: increase BASKET_WIDTH, for example from 20 to 30.</em></p>
+<p><em>Make the game harder: increase BALL_SPEED or reduce the 50 ms update interval.</em></p>
+<p><em>Change joystick sensitivity by adjusting JOY_LEFT and JOY_RIGHT.</em></p>
+<p><em>Change the score increment by replacing score++ with a larger increment.</em></p>
+<h3>9.12 Expected Behaviour</h3>
+<p><em>The game starts with score 0 and a ball at a random horizontal position.</em></p>
+<p><em>Moving the joystick left/right moves the basket smoothly.</em></p>
+<p><em>Catching the ball increases the score by 1 and creates a new ball.</em></p>
+<p><em>Missing the ball changes the display to GAME OVER.</em></p>
+<p><em>Pressing the joystick button restarts the game with score 0.</em></p>
+<div class="media-grid"><figure><img src="assets/week6/t4-08.jpg" alt="GAMEPLAY  — BALL FALLING / SCORE" loading="lazy" width="1280" height="1010"><figcaption><b>Figure</b>GAMEPLAY  — BALL FALLING / SCORE</figcaption></figure><figure><img src="assets/week6/t4-09.jpg" alt="GAME OVER" loading="lazy" width="960" height="1280"><figcaption><b>Figure</b>GAME OVER</figcaption></figure></div>
+<p><strong>Video Demonstration Link: </strong><a href="https://drive.google.com/file/d/10gkopC_NgVG04XUs53qJr9A9MwqEnAAR/view?usp=drive_link" target="_blank" rel="noreferrer noopener">CLICK HERE</a></p>
+<h3>9.13 Challenges Faced, Debugging and Improvements</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Challenge</strong></th><th><strong>How it was debugged / solved</strong></th><th><strong>Improvement made</strong></th></tr></thead><tbody><tr><td><strong>Joystick wiring was inconsistent across the first programs</strong></td><td>Printed the raw X and Y values on the Serial Monitor at 115200 baud and compared them with the pins used in the code</td><td>Fixed one wiring scheme (VRx = GPIO35, VRy = GPIO34, SW = GPIO25) and used it everywhere; see Section 8.1</td></tr><tr><td><strong>Basket drifted when the stick was centred</strong></td><td>Observed that the centre reading is not exactly 2048 on every module</td><td>Added a dead zone (1500 to 2500) so small variations are ignored</td></tr><tr><td><strong>One button press restarted the game several times</strong></td><td>Mechanical bounce made one press read as many</td><td>Added a 250 ms debounce delay on the restart button</td></tr><tr><td><strong>OLED stayed blank at first</strong></td><td>Ran an I2C scanner to confirm the address and checked SDA/SCL wiring</td><td>Used address 0x3C and Wire.begin(21, 22) in the code</td></tr><tr><td><strong>Game speed and difficulty needed tuning</strong></td><td>Changed values one at a time and replayed the game</td><td>Kept speed, basket width and thresholds as constants at the top of the code (Section 9.11)</td></tr></tbody></table></div>
+<p>Possible future improvements: increase the ball speed as the score rises, keep a high score in flash memory, add a buzzer for catches and misses, and add more than one falling ball.</p>
+</div><div class="sec" id="s12"><h2><em>12</em>Troubleshooting &amp; Resources</h2>
+<h3>10.1 Common Problems</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Issue</strong></th><th><strong>Recommended checks</strong></th></tr></thead><tbody><tr><td>ESP32 not detected</td><td>Install the required USB driver; try a different data-capable USB cable; hold BOOT while uploading if necessary.</td></tr><tr><td>OLED not initializing</td><td></td></tr><tr><td>Joystick values erratic</td><td>Run the joystick test program; verify common ground and 3.3V power; check the joystick center/dead zone.</td></tr><tr><td>ESP32 resets repeatedly</td><td>Check stable 3.3V/USB power, add a short startup delay if needed, and reduce upload speed to 115200 if uploads are unreliable.</td></tr><tr><td>Game basket does not move</td><td>Confirm VRx is connected to GPIO35 and the game uses JOY_X = 35.</td></tr><tr><td>Button does not restart</td><td>Confirm SW is connected to GPIO25 and configured with INPUT_PULLUP; the pressed state is LOW.</td></tr></tbody></table></div>
+<h3>10.2 Debugging</h3>
+<p><em>Open Serial Monitor at 115200 baud.</em></p>
+<p><em>Print analogRead(JOY_X) to observe the raw X-axis range.</em></p>
+<p><em>Use an I2C scanner if the OLED address is uncertain.</em></p>
+<p><em>Adjust the joystick dead-zone thresholds if the basket moves while the stick is centered.</em></p>
+<h3>10.3 Reference Links</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Resource</strong></th><th><strong>URL</strong></th></tr></thead><tbody><tr><td>ESP32 30-pin board reference</td><td><a href="https://www.espboards.dev/esp32/esp32-30pin-devkit-generic/" target="_blank" rel="noreferrer noopener">Link</a></td></tr><tr><td>SSD1306 0.96-inch OLED reference</td><td><a href="https://solderhub.com/displays/ssd1306-096-oled" target="_blank" rel="noreferrer noopener">Link</a></td></tr><tr><td>Arduino joystick module reference</td><td><a href="https://arduinogetstarted.com/tutorials/arduino-joystick" target="_blank" rel="noreferrer noopener">Link</a></td></tr><tr><td>Official Espressif ESP32 datasheet</td><td><a href="https://documentation.espressif.com/esp32_datasheet_en.html" target="_blank" rel="noreferrer noopener">Link</a></td></tr><tr><td>Arduino IDE</td><td><a href="https://www.arduino.cc/en/software" target="_blank" rel="noreferrer noopener">Link</a></td></tr><tr><td>Arduino-ESP32 GitHub</td><td><a href="https://github.com/espressif/arduino-esp32" target="_blank" rel="noreferrer noopener">Link</a></td></tr><tr><td>Adafruit SSD1306 Library</td><td><a href="https://github.com/adafruit/Adafruit_SSD1306" target="_blank" rel="noreferrer noopener">Link</a></td></tr><tr><td>Adafruit GFX Library</td><td><a href="https://github.com/adafruit/Adafruit-GFX-Library" target="_blank" rel="noreferrer noopener">Link</a></td></tr></tbody></table></div>
+<h3>10.4 Acknowledgements</h3>
+<p>The OLED display is driven with the <a href="https://github.com/adafruit/Adafruit_SSD1306" target="_blank" rel="noreferrer noopener">Adafruit SSD1306</a> and <a href="https://github.com/adafruit/Adafruit-GFX-Library" target="_blank" rel="noreferrer noopener">Adafruit GFX</a> libraries by Adafruit Industries, and the ESP32 is programmed through the <a href="https://github.com/espressif/arduino-esp32" target="_blank" rel="noreferrer noopener">Arduino-ESP32 core</a> by Espressif Systems.</p>
+<p>We understood how the analog joystick works from the <a href="https://arduinogetstarted.com/tutorials/arduino-joystick" target="_blank" rel="noreferrer noopener">Arduino Getting Started joystick tutorial</a> and the OLED wiring from the <a href="https://solderhub.com/displays/ssd1306-096-oled" target="_blank" rel="noreferrer noopener">SSD1306 guide by SolderHub</a>.</p>
+<p>The ESP32 30-pin pinout image in Section 2 was taken from the internet and belongs to its original owner. The game design, wiring, code and testing were done by our team.</p>
+</div><div class="sec" id="s13"><h2><em>13</em>Conclusion</h2>
+<p>This revised report provides a consistent hardware and software path for integrating an ESP32 30-pin development board with a 128×64 SSD1306 I2C OLED and a two-axis analog joystick.</p>
+<p><em>ESP32 development environment setup and board selection.</em></p>
+<p><em>Stable OLED wiring using GPIO21 (SDA) and GPIO22 (SCL).</em></p>
+<p><em>Consistent joystick wiring using GPIO35 for VRx, GPIO34 for VRy, and GPIO25 for SW.</em></p>
+<p><em>A dedicated joystick diagnostic sketch that reports both axes and button state.</em></p>
+<p><em>A revised </em>Escape<em>-</em>the<em>-Falling-Ball game with a dead zone, collision detection, score handling, game-over state and button restart.</em></p>
+<p><em>Troubleshooting steps for the most common hardware and upload problems.</em></p>
+<h3>Final Wiring at a Glance</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Device</strong></th><th><strong>Pin</strong></th><th><strong>ESP32 GPIO / Power</strong></th></tr></thead><tbody><tr><td>OLED</td><td>VCC</td><td>3.3V</td></tr><tr><td>OLED</td><td>GND</td><td>GND</td></tr><tr><td>OLED</td><td>SCL</td><td>GPIO22</td></tr><tr><td>OLED</td><td>SDA</td><td>GPIO21</td></tr><tr><td>Joystick</td><td>VCC</td><td>3.3V</td></tr><tr><td>Joystick</td><td>GND</td><td>GND</td></tr><tr><td>Joystick</td><td>VRx</td><td>GPIO35</td></tr><tr><td>Joystick</td><td>VRy</td><td>GPIO34</td></tr><tr><td>Joystick</td><td>SW</td><td>GPIO25</td></tr></tbody></table></div></div><div class="sec"><h2>Other tasks</h2><div class="cards oth"><a href="protosem-week-6-task-1.html"><b>TASK 1</b><h3>LED Interfacing with Arduino UNO</h3><p>Four LEDs on Arduino pins D8 to D11: first blinking together, then chasing one after another.</p></a><a href="protosem-week-6-task-2.html"><b>TASK 2</b><h3>Soldering a 555 Timer Two-LED Flasher</h3><p>A 555 timer wired as an astable oscillator and soldered on a perfboard to flash two LEDs alternately.</p></a><a href="protosem-week-6-task-3.html"><b>TASK 3</b><h3>Sensor and Actuator Presentation</h3><p>Closed-loop speed and position control of a PMDC motor using a rotary encoder.</p></a><a href="protosem-week-6-task-5.html"><b>TASK 5</b><h3>FreeRTOS Temperature Alert System</h3><p>A DHT11 alert on an ESP32 that flashes an LED once and waits for a button acknowledge, built with FreeRTOS tasks.</p></a></div></div></article><aside class="side"><p class="eyebrow">Tasks</p><a href="protosem-week-6-task-1.html">1 · LED Interfacing</a><a href="protosem-week-6-task-2.html">2 · 555 Timer Flasher</a><a href="protosem-week-6-task-3.html">3 · Sensor &amp; Actuator Deck</a><a href="protosem-week-6-task-4.html" class="on">4 · OLED Joystick Game</a><a href="protosem-week-6-task-5.html">5 · FreeRTOS Temp Alert</a><p class="eyebrow">On this page</p><a href="#s1">01 ESP32 Architecture Overview</a><a href="#s2">02 ESP32 30-Pin Board Pin Diagram &amp; Characteristics</a><a href="#s3">03 Installing Arduino IDE</a><a href="#s4">04 Downloading ESP32 Library</a><a href="#s5">05 Selecting Board and COM Port</a><a href="#s6">06 Integrating ESP32 with OLED Display</a><a href="#s7">07 Task 1: Display Team Number on OLED</a><a href="#s8">08 Integrating ESP32 with Joystick</a><a href="#s9">09 Task 2: Escape-the-Falling-Ball Game</a><a href="#s10">10 Task 2 (continued): Complete Code</a><a href="#s11">11 Task 2 (continued): Game Operation and Explanation</a><a href="#s12">12 Troubleshooting &amp; Resources</a><a href="#s13">13 Conclusion</a></aside></div></div></main>
+<script>
+const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
+if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}
+</script>
+</body></html>

@@ -1,0 +1,1051 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 6 Task 5 — FreeRTOS Temperature Alert System | ProtoSem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
+/* ---------- Reset ---------- */
+*{margin:0;padding:0;box-sizing:border-box}
+img,video{display:block;max-width:100%}
+ul,ol{list-style:none}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;appearance:none;cursor:pointer}
+svg{display:block}
+
+/* ---------- Tokens ---------- */
+:root{
+  --background:#08080a; --foreground:#f3f1ea; --surface:#111114; --surface-2:#17171b;
+  --muted:#807f78; --line:rgba(243,241,234,0.1); --line-strong:rgba(243,241,234,0.22);
+  --accent:#ff3b1d; --accent-2:#ff6a3d;
+  --gutter:2.5rem; --section:9rem;
+  --font-display:"Anton", sans-serif; --font-sans:"Onest", sans-serif;
+
+  --fs-hero:28rem; --lh-hero:0.78;
+  --fs-mega:13rem; --lh-mega:0.86;
+  --fs-display:7.5rem; --lh-display:0.9;
+  --fs-h1:5rem; --lh-h1:0.95;
+  --fs-h2:3.25rem; --lh-h2:1;
+  --fs-h3:1.75rem; --lh-h3:1.15;
+  --fs-lead:1.375rem; --lh-lead:1.45;
+  --fs-body:1.0625rem; --lh-body:1.6;
+  --fs-eyebrow:0.8125rem; --lh-eyebrow:1.2;
+}
+
+/* ---------- Adaptive rem grid ---------- */
+html{ font-size:16px; background:var(--background); }
+@media (max-width:1920px){ html{ font-size:0.833333vw; } }
+@media (max-width:1440px){ html{ font-size:1.111111vw; } }
+@media (max-width:1024px){ html{ font-size:1.5625vw; } }
+@media (max-width:640px){
+  html{ font-size:4.444444vw; }
+  :root{ --gutter:16px; }
+}
+
+body{
+  background:var(--background); color:var(--foreground); font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; overflow-x:hidden;
+  min-height:100vh;
+}
+::selection{ background:var(--accent); color:var(--background); }
+
+/* ---------- Utility ---------- */
+.eyebrow{
+  display:flex; align-items:center; gap:0.75rem; font-size:var(--fs-eyebrow); line-height:var(--lh-eyebrow);
+  font-weight:500; text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+}
+.eyebrow::before{ content:""; width:0.5rem; height:0.5rem; border-radius:9999px; background:var(--accent); flex-shrink:0; }
+
+.line-reveal{ overflow:hidden; display:block; }
+.line-reveal > span{ display:inline-block; transform:translateY(110%); opacity:0; transition:transform 0.85s cubic-bezier(0.16,1,0.3,1), opacity 0.85s cubic-bezier(0.16,1,0.3,1); will-change:transform; }
+.line-reveal.in > span{ transform:translateY(0); opacity:1; }
+
+.fade-up{ opacity:0; transform:translateY(32px); transition:transform 0.62s cubic-bezier(0.16,1,0.3,1), opacity 0.62s cubic-bezier(0.16,1,0.3,1); }
+.fade-up.in{ opacity:1; transform:translateY(0); }
+
+/* ---------- Preloader ---------- */
+#preloader{
+  position:fixed; inset:0; z-index:100; background:var(--background);
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; gap:0.75rem;
+  padding:var(--gutter);
+}
+@media (min-width:640px){
+  #preloader{ flex-direction:row; align-items:flex-end; justify-content:space-between; gap:1rem; }
+}
+#preloader .pl-brand{
+  font-family:var(--font-display); font-size:var(--fs-h3); text-transform:uppercase; line-height:1;
+  letter-spacing:-0.01em; color:var(--foreground); transition:opacity 0.3s ease;
+}
+#preloader .pl-count{
+  font-family:var(--font-display); font-size:var(--fs-display); line-height:1; color:var(--foreground);
+  font-variant-numeric:tabular-nums; transition:opacity 0.3s ease;
+}
+#preloader .pl-count .pct{ color:var(--accent); }
+#preloader.wipe{ transform:translateY(-100%); transition:transform 0.66s cubic-bezier(0.22,1,0.36,1); pointer-events:none; }
+#preloader.hidden{ display:none; }
+
+/* ---------- Nav ---------- */
+header#site-nav{ position:fixed; inset-inline:0; top:0; z-index:50; pointer-events:none; }
+header#site-nav nav{
+  pointer-events:auto; display:flex; align-items:center; justify-content:space-between;
+  padding:1.5rem var(--gutter);
+}
+.nav-logo{ display:flex; align-items:center; gap:0.75rem; }
+.nav-logo .badge{
+  display:grid; place-items:center; width:2.5rem; height:2.5rem; border-radius:9999px;
+  border:1px solid var(--line-strong); font-weight:600; letter-spacing:-0.01em; font-size:0.9rem;
+}
+.nav-logo .name{
+  font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+}
+@media (max-width:639px){ .nav-logo .name{ display:none; } }
+
+.nav-links{ display:none; gap:2.5rem; }
+@media (min-width:768px){ .nav-links{ display:flex; } }
+.nav-links li{ position:relative; }
+.nav-links a{
+  font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.18em; color:var(--muted);
+  transition:color 0.3s ease;
+}
+.nav-links a::after{
+  content:""; position:absolute; bottom:-0.25rem; left:0; height:1px; width:0; background:var(--accent);
+  transition:width 0.3s ease;
+}
+.nav-links a:hover{ color:var(--foreground); }
+.nav-links a:hover::after{ width:100%; }
+.nav-links a.active{ color:var(--foreground); }
+.nav-links a.active::after{ width:100%; }
+
+.burger{ display:grid; place-items:center; width:2.5rem; height:2.5rem; }
+@media (min-width:768px){ .burger{ display:none; } }
+.burger .bars{ display:flex; flex-direction:column; gap:0.375rem; width:1.5rem; }
+.burger .bars span{ height:0.125rem; width:100%; background:var(--foreground); transition:transform 0.3s ease, opacity 0.3s ease; }
+.burger.open .bars span:nth-child(1){ transform:translateY(0.5rem) rotate(45deg); }
+.burger.open .bars span:nth-child(2){ opacity:0; }
+.burger.open .bars span:nth-child(3){ transform:translateY(-0.5rem) rotate(-45deg); }
+
+#mobile-menu{
+  position:fixed; inset:0; z-index:49; background:var(--background); display:flex; flex-direction:column;
+  align-items:flex-start; justify-content:center; padding-inline:var(--gutter); gap:1rem;
+  opacity:0; pointer-events:none; transition:opacity 0.45s ease;
+}
+#mobile-menu.open{ opacity:1; pointer-events:auto; }
+#mobile-menu a{
+  font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; line-height:1; letter-spacing:-0.01em;
+  transform:translateY(48px); opacity:0; transition:transform 0.42s ease, opacity 0.42s ease;
+}
+#mobile-menu.open a{ transform:translateY(0); opacity:1; }
+
+/* ---------- Hero ---------- */
+main{ position:relative; width:100%; overflow-x:hidden; }
+#top{ position:relative; display:flex; flex-direction:column; min-height:100svh; overflow:hidden; }
+.hero-top{ position:relative; z-index:30; display:flex; flex-direction:column; gap:2rem; padding:8rem var(--gutter) 0; }
+@media (min-width:640px){ .hero-top{ flex-direction:row; align-items:flex-start; justify-content:space-between; gap:1rem; } }
+.hero-roles{
+  font-family:var(--font-display); text-transform:uppercase; line-height:1.05; letter-spacing:-0.01em; color:var(--foreground);
+  font-size:var(--fs-h3);
+}
+@media (min-width:640px){ .hero-roles{ font-size:var(--fs-h2); } }
+.hero-desc{
+  max-width:26rem; font-size:var(--fs-body); color:var(--muted); opacity:0; transform:translateY(16px);
+  transition:opacity 0.55s cubic-bezier(0.16,1,0.3,1), transform 0.55s cubic-bezier(0.16,1,0.3,1);
+}
+.hero-desc.in{ opacity:1; transform:translateY(0); }
+@media (min-width:640px){ .hero-desc{ text-align:right; } }
+
+.hero-portrait-wrap{
+  position:absolute; z-index:20; bottom:0; left:50%; transform:translateX(-50%);
+  height:86vh; width:80vw; pointer-events:none;
+}
+@media (min-width:640px){ .hero-portrait-wrap{ width:48vw; } }
+@media (min-width:1024px){ .hero-portrait-wrap{ width:36vw; } }
+.hero-portrait-wrap figure{
+  position:relative; width:100%; height:100%; overflow:hidden; pointer-events:auto;
+  -webkit-mask-image: radial-gradient(68% 88% at 50% 58%, #000 46%, transparent 92%);
+  mask-image: radial-gradient(68% 88% at 50% 58%, #000 46%, transparent 92%);
+}
+.hero-portrait-wrap img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 12%;
+  filter:url(#liquid-hero) saturate(0.92) contrast(1.03);
+}
+.hero-vignette{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 100%, transparent 30%, rgba(8,8,10,0.55) 68%, rgba(8,8,10,0.92) 100%),
+    radial-gradient(90% 70% at 50% 0%, rgba(8,8,10,0.6), transparent 72%),
+    radial-gradient(70% 90% at 50% 55%, transparent 55%, rgba(8,8,10,0.5) 88%, rgba(8,8,10,0.85) 100%);
+}
+.hero-gradient-base{
+  position:absolute; inset-inline:0; bottom:0; z-index:20; height:26vh;
+  background:linear-gradient(to bottom, transparent, var(--background));
+}
+.hero-name{
+  position:absolute; inset-inline:0; bottom:0; z-index:10; transform:translateY(6%);
+  display:flex; flex-direction:column; align-items:center;
+  font-family:var(--font-display); text-transform:uppercase; line-height:var(--lh-mega); letter-spacing:-0.01em;
+  color:var(--accent); font-size:var(--fs-mega);
+}
+@media (min-width:640px){ .hero-name{ font-size:var(--fs-hero); line-height:var(--lh-hero); } }
+.hero-name .word{ display:block; white-space:nowrap; overflow:hidden; }
+.hero-name .word .letter{ display:inline-block; transform:translateY(100%); opacity:0; transition:transform 0.9s cubic-bezier(0.16,1,0.3,1), opacity 0.9s cubic-bezier(0.16,1,0.3,1); }
+.hero-name .word.in .letter{ transform:translateY(0); opacity:1; }
+
+.scroll-cue{
+  position:absolute; z-index:30; bottom:2rem; left:var(--gutter); display:flex; align-items:center; gap:0.75rem;
+  font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted);
+  opacity:0; transition:opacity 0.6s ease;
+}
+.scroll-cue.in{ opacity:1; }
+.scroll-cue .rule{ width:1px; height:2.5rem; background:var(--accent); }
+
+/* ---------- Marquee ---------- */
+.marquee-section{
+  overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  padding-top:2rem; padding-bottom:2rem;
+}
+.marquee-track{ display:flex; width:max-content; flex-wrap:nowrap; animation:marquee 22s linear infinite; }
+@keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+.marquee-track .word{ font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; letter-spacing:-0.01em; }
+.marquee-track .dot{ margin-inline:2rem; width:0.625rem; height:0.625rem; border-radius:9999px; background:var(--accent); flex-shrink:0; }
+
+/* ---------- Sections generic ---------- */
+section, footer#contact{ padding:var(--section) var(--gutter); position:relative; }
+.section-head{ display:flex; flex-direction:column; gap:0; }
+@media (min-width:640px){ .section-head{ flex-direction:row; align-items:flex-end; justify-content:space-between; } }
+.section-heading{
+  margin-top:1.5rem; max-width:14ch; font-family:var(--font-display); text-transform:uppercase;
+  line-height:0.95; letter-spacing:-0.01em; font-size:var(--fs-h2);
+}
+@media (min-width:640px){ .section-heading{ font-size:var(--fs-h1); } }
+.section-tag{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+
+/* ---------- Story ---------- */
+#story .story-grid{ display:grid; grid-template-columns:1fr; gap:3rem; }
+@media (min-width:1024px){ #story .story-grid{ grid-template-columns:repeat(12,1fr); gap:var(--gutter); } }
+#story .story-left{ }
+@media (min-width:1024px){ #story .story-left{ grid-column:span 6; } }
+#story .story-left h2{ max-width:16ch; }
+#story .story-left p{ margin-top:2rem; max-width:46ch; font-size:var(--fs-lead); line-height:var(--lh-lead); color:var(--muted); }
+#story .story-right{ }
+@media (min-width:1024px){ #story .story-right{ grid-column:span 6; padding-top:0.5rem; } }
+.principle{ display:grid; grid-template-columns:auto 1fr; column-gap:1.5rem; border-top:1px solid var(--line); padding:2rem 0; }
+.principle:last-child{ border-bottom:1px solid var(--line); }
+.principle .num{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; font-variant-numeric:tabular-nums; color:var(--accent); }
+.principle h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; }
+.principle p{ margin-top:0.75rem; max-width:44ch; font-size:var(--fs-body); color:var(--muted); }
+
+/* ---------- Projects ---------- */
+#projects ul.grid{ margin-top:4rem; display:grid; grid-template-columns:1fr; column-gap:var(--gutter); row-gap:4rem; }
+@media (min-width:768px){ #projects ul.grid{ grid-template-columns:1fr 1fr; } }
+#projects li.card:nth-child(2n){ }
+@media (min-width:768px){ #projects li.card:nth-child(2n){ margin-top:6rem; } }
+.project-shot{ position:relative; overflow:hidden; aspect-ratio:16/11; width:100%; border-radius:0.125rem; background:var(--surface); }
+.project-row{ margin-top:1.5rem; border-top:1px solid var(--line); padding-top:1.25rem; display:flex; align-items:flex-start; justify-content:space-between; gap:1.5rem; }
+.project-row h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; transition:color 0.34s ease; }
+.project-row:hover h3, .card:hover .project-row h3{ color:var(--accent); }
+.project-row p{ margin-top:0.5rem; max-width:42ch; font-size:var(--fs-body); color:var(--muted); }
+.project-meta{ flex-shrink:0; text-align:right; }
+.project-meta .year{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.project-meta .outcome{ margin-top:0.5rem; font-size:var(--fs-eyebrow); font-weight:500; text-transform:uppercase; letter-spacing:0.18em; color:var(--accent); }
+.project-cat{ margin-top:0.75rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+
+/* ---------- Liquid image shared ---------- */
+.liquid{ position:relative; overflow:hidden; background:var(--surface); }
+.liquid .placeholder{ position:absolute; inset:0; background:radial-gradient(130% 130% at 30% 15%, var(--surface-2), var(--background)); display:grid; place-items:center; }
+.liquid .placeholder span{ font-family:var(--font-display); font-size:var(--fs-h3); text-transform:uppercase; color:var(--muted); letter-spacing:-0.01em; }
+.liquid .veil{ position:absolute; inset:0; background:var(--surface-2); mix-blend-mode:color; opacity:0.88; transition:opacity 0.38s ease; pointer-events:none; }
+.liquid:hover .veil{ opacity:0; }
+.liquid .glow{ position:absolute; inset:0; opacity:0; transition:opacity 0.38s ease; pointer-events:none;
+  background:linear-gradient(120deg, transparent 30%, color-mix(in srgb, var(--accent) 35%, transparent) 50%, transparent 70%); }
+.liquid:hover .glow{ opacity:1; }
+.liquid .vignette{ position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(120% 120% at 50% 120%, color-mix(in srgb, #08080a 70%, transparent), transparent 60%); }
+
+/* ---------- Skills ---------- */
+dl.stats{ margin-top:4rem; display:grid; grid-template-columns:1fr; border-top:1px solid var(--line); }
+@media (min-width:640px){ dl.stats{ grid-template-columns:1fr 1fr; } }
+@media (min-width:1024px){ dl.stats{ grid-template-columns:repeat(4,1fr); } }
+.stat-cell{ display:flex; flex-direction:column; gap:1rem; border-bottom:1px solid var(--line); padding:2.5rem 0; }
+@media (min-width:1024px){ .stat-cell{ padding:3rem 0; } }
+@media (min-width:640px){ dl.stats .stat-cell:nth-child(2n){ border-left:1px solid var(--line); padding-left:2rem; } }
+@media (min-width:1024px){
+  dl.stats .stat-cell:nth-child(2n){ border-left:none; padding-left:0; }
+  dl.stats .stat-cell:not(:nth-child(4n+1)){ border-left:1px solid var(--line); padding-left:2rem; }
+}
+.stat-figure{ font-family:var(--font-display); font-size:var(--fs-display); line-height:1; letter-spacing:-0.01em; transition:color 0.34s ease; }
+.stat-cell:hover .stat-figure{ color:var(--accent); }
+.stat-label{ max-width:20ch; font-size:var(--fs-body); text-transform:uppercase; letter-spacing:0.14em; color:var(--muted); }
+
+.skill-tags{ margin-top:4rem; display:flex; flex-wrap:wrap; gap:0.75rem; }
+.skill-tags span{
+  font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.14em; color:var(--muted);
+  border:1px solid var(--line-strong); border-radius:9999px; padding:0.6rem 1.1rem; transition:color 0.3s ease, border-color 0.3s ease;
+}
+.skill-tags span:hover{ color:var(--foreground); border-color:var(--accent); }
+
+/* ---------- Testimonials ---------- */
+.voices-body{ margin-top:4rem; display:grid; grid-template-columns:1fr; gap:var(--gutter); }
+@media (min-width:1024px){ .voices-body{ grid-template-columns:repeat(12,1fr); } }
+.voice-select{ }
+@media (min-width:1024px){ .voice-select{ grid-column:span 5; } }
+.voice-btn{ width:100%; display:flex; align-items:baseline; gap:1.25rem; border-top:1px solid var(--line); padding:1.75rem 0; text-align:left; }
+.voice-select li:last-child .voice-btn{ border-bottom:1px solid var(--line); }
+.voice-btn .idx{ font-size:var(--fs-eyebrow); font-variant-numeric:tabular-nums; letter-spacing:0.18em; color:var(--muted); transition:color 0.3s ease; }
+.voice-btn .who h3{ font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; color:var(--muted); transition:color 0.3s ease; }
+.voice-btn .who p{ margin-top:0.25rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.voice-btn .rule{ height:1px; width:0; background:var(--accent); transition:width 0.3s ease; margin-left:auto; }
+.voice-btn.active .idx{ color:var(--accent); }
+.voice-btn.active .who h3{ color:var(--foreground); }
+.voice-btn.active .rule{ width:2.5rem; }
+
+.voice-panel{ display:grid; grid-template-columns:1fr; gap:2rem; align-items:flex-start; }
+@media (min-width:1024px){ .voice-panel{ grid-column:span 7; } }
+@media (min-width:640px){ .voice-panel{ grid-template-columns:1fr auto; } }
+.voice-quote{ order:2; }
+@media (min-width:640px){ .voice-quote{ order:1; } }
+.voice-quote p{ max-width:30ch; font-family:var(--font-sans); font-size:var(--fs-h3); font-weight:500; line-height:1.3; letter-spacing:-0.01em; color:var(--foreground); }
+.voice-quote p .w{ display:inline-block; transform:translateY(18px); opacity:0; transition:transform 0.52s cubic-bezier(0.165,0.84,0.44,1), opacity 0.52s cubic-bezier(0.165,0.84,0.44,1); }
+.voice-quote p .w.in{ transform:translateY(0); opacity:1; }
+.voice-quote footer{ margin-top:2rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+.voice-portrait{ order:1; width:100%; aspect-ratio:4/5; border-radius:0.125rem; opacity:0; transform:scale(1.06); transition:opacity 0.64s cubic-bezier(0.16,1,0.3,1), transform 0.64s cubic-bezier(0.16,1,0.3,1); }
+@media (min-width:640px){ .voice-portrait{ order:2; width:16rem; } }
+.voice-portrait.in{ opacity:1; transform:scale(1); }
+.voice-portrait img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+/* ---------- Contact / Footer ---------- */
+footer#contact{ padding-bottom:0; }
+footer#contact .contact-lead{ margin-top:2rem; max-width:44ch; font-size:var(--fs-lead); color:var(--muted); }
+.email-link{
+  margin-top:3rem; display:inline-flex; align-items:baseline; gap:0.75rem; font-family:var(--font-sans);
+  font-size:var(--fs-h3); font-weight:600; letter-spacing:-0.01em; word-break:break-all; transition:transform 0.34s ease, color 0.34s ease;
+}
+@media (min-width:640px){ .email-link{ font-size:var(--fs-h1); gap:1rem; } }
+.email-link:hover{ transform:translateX(14px); color:var(--accent); }
+.email-link .arrow{ color:var(--accent); }
+.footer-bar{ margin-top:var(--section); border-top:1px solid var(--line); padding:3rem 0; display:grid; grid-template-columns:1fr; gap:2.5rem; }
+@media (min-width:1024px){ .footer-bar{ grid-template-columns:repeat(12,1fr); } }
+.footer-sig{ }
+@media (min-width:1024px){ .footer-sig{ grid-column:span 6; } }
+.footer-sig p.name{ font-family:var(--font-display); font-size:var(--fs-h2); text-transform:uppercase; line-height:1; letter-spacing:-0.01em; }
+.footer-sig p.tag{ margin-top:1rem; font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.22em; color:var(--muted); }
+.footer-social{ }
+@media (min-width:1024px){ .footer-social{ grid-column:span 3; } }
+.footer-social li{ margin-bottom:0.75rem; }
+.footer-social a{ display:inline-flex; align-items:center; gap:0; font-size:var(--fs-body); color:var(--muted); transition:color 0.3s ease; }
+.footer-social a::before{ content:""; display:inline-block; width:0; height:1px; background:var(--accent); margin-right:0; transition:width 0.3s ease, margin 0.3s ease; }
+.footer-social a:hover{ color:var(--foreground); }
+.footer-social a:hover::before{ width:1.5rem; margin-right:0.75rem; }
+.footer-copy{ }
+@media (min-width:1024px){ .footer-copy{ grid-column:span 3; text-align:right; } }
+.footer-copy p{ font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  #preloader{ display:none !important; }
+  .marquee-track{ animation:none !important; }
+  .line-reveal > span, .hero-name .letter, .voice-quote p .w{ transform:none !important; opacity:1 !important; transition:none !important; }
+  .fade-up, .hero-desc, .scroll-cue, .voice-portrait{ opacity:1 !important; transform:none !important; transition:none !important; }
+}
+html.no-motion #preloader{ display:none !important; }
+html.no-motion .marquee-track{ animation:none !important; }
+
+
+  header#site-nav{ z-index:120; }
+  header#site-nav nav{
+    position:relative;
+    isolation:isolate;
+    background:linear-gradient(to bottom, rgba(8,8,10,0.96) 0%, rgba(8,8,10,0.86) 62%, rgba(8,8,10,0) 100%);
+  }
+  header#site-nav .nav-logo,
+  header#site-nav .nav-links,
+  header#site-nav .burger{ position:relative; z-index:2; }
+  .nav-links{ gap:1.85rem; }
+  .nav-links a{ text-shadow:0 1px 10px rgba(0,0,0,.8); }
+  @media (min-width:768px) and (max-width:1180px){
+    .nav-links{ gap:1rem; }
+    .nav-links a{ letter-spacing:.13em; }
+  }
+
+
+.proto-wrap{padding:9rem var(--gutter) 7rem;max-width:118rem;margin:0 auto}
+.proto-kicker{margin-top:.75rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.22em;color:var(--muted)}
+.proto-title{margin-top:1.3rem;max-width:13ch;font-family:var(--font-display);font-size:clamp(4.6rem,8vw,9rem);line-height:.88;text-transform:uppercase;letter-spacing:-.015em}
+.proto-intro{margin-top:2rem;max-width:52ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:var(--muted)}
+.proto-grid{margin-top:5rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line)}
+.proto-card{display:block;padding:2.2rem;background:var(--background);min-height:16rem;transition:transform .35s ease,background .35s ease}
+.proto-card:hover{background:var(--surface);transform:translateY(-4px)}
+.proto-num{font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.proto-card h2{margin-top:1.2rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;max-width:24ch}
+.proto-card p{margin-top:.8rem;color:var(--muted);font-size:var(--fs-body);max-width:45ch}
+.proto-card .arrow{display:inline-block;margin-top:2rem;color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.proto-detail{max-width:72rem;margin:0 auto;padding:9rem var(--gutter) 7rem}
+.proto-detail .eyebrow{margin-bottom:1rem}
+.proto-detail h1{font-family:var(--font-display);font-size:clamp(4rem,7vw,8rem);line-height:.9;text-transform:uppercase;max-width:14ch}
+.proto-detail .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.detail-grid{margin-top:4rem;display:grid;grid-template-columns:repeat(12,1fr);gap:2rem}
+.detail-main{grid-column:span 8}.detail-side{grid-column:span 4}
+.detail-section{border-top:1px solid var(--line);padding:1.75rem 0}.detail-section h2{font-size:var(--fs-h3);font-family:var(--font-sans);margin-bottom:1rem}.detail-section p{font-size:var(--fs-body);line-height:1.65;color:var(--muted);margin:.6rem 0}.detail-section ul{padding:0;margin:0}.detail-section li{padding:.55rem 0;color:var(--muted);font-size:var(--fs-body)}.detail-section li::before{content:'•';color:var(--accent);margin-right:.7rem}.detail-links a{display:block;padding:.55rem 0;color:var(--foreground);border-bottom:1px solid var(--line)}.detail-links a:hover{color:var(--accent)}
+.proto-empty{border-top:1px solid var(--line);margin-top:4rem;padding-top:2rem;color:var(--muted)}
+@media(max-width:900px){.proto-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}.detail-main,.detail-side{grid-column:1}.proto-wrap,.proto-detail{padding-top:7rem}}
+</style>
+<style id="mobile-optimization">
+/* Mobile-only optimization: desktop/laptop layout remains unchanged */
+@media (max-width: 639px){
+  html{
+    font-size:16px !important;
+    overflow-x:hidden;
+  }
+
+  body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  header#site-nav{
+    z-index:120;
+  }
+
+  header#site-nav nav{
+    min-height:64px;
+    padding:10px 14px;
+    gap:10px;
+  }
+
+  .nav-logo{
+    min-width:0;
+  }
+
+  .nav-logo .badge{
+    width:40px;
+    height:40px;
+    flex-shrink:0;
+  }
+
+  .nav-logo .name{
+    display:none !important;
+  }
+
+  .burger{
+    width:40px;
+    height:40px;
+    flex-shrink:0;
+  }
+
+  #mobile-menu{
+    padding:80px 16px 24px;
+    gap:12px;
+    overflow-y:auto;
+  }
+
+  #mobile-menu a{
+    font-size:clamp(2rem, 10vw, 3rem);
+    max-width:100%;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-wrap{
+    width:100%;
+    max-width:100%;
+    padding:96px 16px 64px;
+  }
+
+  .proto-title{
+    max-width:100%;
+    font-size:clamp(2.8rem, 13vw, 5rem);
+    line-height:.9;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-kicker{
+    font-size:.75rem;
+    line-height:1.35;
+    letter-spacing:.16em;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-intro{
+    max-width:100%;
+    font-size:1rem;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+  }
+
+  .proto-grid{
+    grid-template-columns:1fr !important;
+    width:100%;
+    margin-top:3rem;
+  }
+
+  .proto-card{
+    min-width:0;
+    width:100%;
+    padding:1.5rem;
+  }
+
+  section,
+  footer#contact{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .section-head{
+    width:100%;
+  }
+
+  .section-heading{
+    max-width:100%;
+    font-size:clamp(2rem, 10vw, 3.5rem);
+    overflow-wrap:anywhere;
+  }
+
+  img,
+  video,
+  iframe,
+  svg{
+    max-width:100%;
+  }
+
+  p,
+  li,
+  a,
+  h1,
+  h2,
+  h3,
+  h4{
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  .project-row{
+    flex-direction:column;
+    gap:1rem;
+  }
+
+  .project-meta{
+    text-align:left;
+  }
+
+  .voice-panel{
+    grid-template-columns:1fr !important;
+  }
+
+  .voice-portrait{
+    width:100%;
+    max-width:100%;
+  }
+
+  .email-link{
+    max-width:100%;
+    font-size:clamp(1.35rem, 6vw, 2rem);
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  .footer-bar{
+    grid-template-columns:1fr !important;
+  }
+
+  .footer-copy{
+    text-align:left !important;
+  }
+}
+
+@media (max-width:380px){
+  header#site-nav nav{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .proto-wrap{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  section,
+  footer#contact{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .proto-title{
+    font-size:clamp(2.45rem, 12vw, 4rem);
+  }
+}
+</style>
+
+<style id="week7-tasks">main{overflow:visible;overflow-x:clip}
+@media(min-width:640px) and (max-width:1024px){html{font-size:max(1.5625vw,14px)}}
+.tk{max-width:100rem;margin:0 auto;padding:8.5rem var(--gutter) 6rem}
+@media(max-width:639px){.tk{padding:6.5rem var(--gutter) 4rem}}
+.tk h1{margin-top:1.2rem;max-width:18ch;font-family:var(--font-display);font-size:clamp(36px,5vw,84px);line-height:.94;text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
+.tk .lead{margin-top:1.5rem;max-width:56ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:#b9b7ae}
+.tk .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.tk .back:hover{color:var(--accent)}
+.tabs{margin-top:2rem;display:flex;flex-wrap:wrap;gap:.6rem}
+.tabs a{border:1px solid var(--line-strong);border-radius:9999px;padding:.6rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);transition:color .3s,border-color .3s}
+.tabs a.on,.tabs a:hover{color:var(--foreground);border-color:var(--accent)}
+.tk-grid{margin-top:3.5rem;display:grid;grid-template-columns:minmax(0,1fr);gap:3rem}
+@media(min-width:1024px){.tk-grid{grid-template-columns:minmax(0,1fr) 19rem;gap:5rem}}
+.side{display:none}
+@media(min-width:1024px){.side{display:block;position:sticky;top:6.5rem;align-self:start}}
+.side .eyebrow{margin:0 0 .6rem}.side a+.eyebrow{margin-top:2rem}
+.side a{display:block;padding:.5rem 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.12em;transition:color .3s}
+.side a:hover{color:var(--accent)}.side a.on{color:var(--foreground)}
+.sec{border-top:1px solid var(--line);padding:2rem 0;scroll-margin-top:6rem}
+.sec h2{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.1rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;letter-spacing:-.01em}
+.sec h2 em{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.sec p,.sec li{color:#b9b7ae;font-size:var(--fs-body);line-height:1.65}
+.sec p{max-width:70ch;margin:.5rem 0}
+.sec ul{margin:.3rem 0}.sec ul li{position:relative;padding:.4rem 0 .4rem 1.3rem}
+.sec ul li::before{content:"";position:absolute;left:0;top:1.05em;width:.4rem;height:.4rem;border-radius:9999px;background:var(--accent)}
+.sec ol{list-style:decimal;padding-left:1.5rem}.sec ol li{padding:.4rem 0 .4rem .3rem}.sec ol li::marker{color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.cards>*{background:var(--background);padding:1.25rem}
+.cards h3{font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.15);font-weight:600;color:var(--foreground);transition:color .3s}
+.cards p{margin:.5rem 0 0}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
+.flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
+.flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
+.ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
+.ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
+.ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
+pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:.25rem;overflow-x:auto;color:#d9d6cc;font:.85rem/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.btn{display:inline-block;margin-top:.8rem;padding:.8rem 1.4rem;border:1px solid var(--accent);border-radius:9999px;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;transition:background .3s,color .3s}
+.btn:hover{background:var(--accent);color:var(--background)}
+.oth a{display:block}.oth a:hover{background:var(--surface)}.oth a:hover h3{color:var(--accent)}
+.oth b{display:block;margin-bottom:.4rem;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent);font-weight:500}
+.proto-grid .proto-card:last-child{grid-column:1/-1}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+</style><style id="week6-extra">
+.sec h3{margin:1.6rem 0 .4rem;font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.2);font-weight:600;color:var(--foreground)}
+.sec h4{margin:1.2rem 0 .3rem;font-size:var(--fs-body);font-weight:600;color:var(--foreground)}
+.sec p a{color:var(--accent);border-bottom:1px solid rgba(255,59,29,.35)}.sec p a:hover{border-bottom-color:var(--accent)}
+.sec p strong{color:var(--foreground);font-weight:600}
+.sec .cap,.sec p.cap{color:var(--muted);font-size:var(--fs-eyebrow)}
+.note{margin:.9rem 0;padding:1rem 1.25rem;border-left:2px solid var(--accent);background:var(--surface);color:#b9b7ae;font-size:var(--fs-body);line-height:1.6;white-space:pre-line;max-width:72ch}
+.tw{overflow-x:auto;margin:.9rem 0}.pin-table{display:table!important;margin:0;table-layout:auto}.pin-table thead{display:table-header-group!important;width:auto}.pin-table tbody{display:table-row-group!important;width:auto}
+.pin-table th{white-space:nowrap}
+.pin-table thead,.pin-table tbody{table-layout:auto}
+pre.code{tab-size:2}
+.media-grid.slides img{height:auto;aspect-ratio:16/9;object-fit:cover}
+</style>
+</head><body>
+<header id="site-nav"><nav>
+  <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#story">Story</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#skills">Skills</a></li>
+    <li><a class="active" href="protosem.html">ProtoSem</a></li>
+    <li><a href="index.html#testimonials">Focus</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><span class="bars"><span></span><span></span><span></span></span></button>
+</nav></header>
+<div id="mobile-menu">
+  <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
+  <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
+</div>
+<main><div class="tk"><p class="eyebrow">Week 6 · Task 5 of 5</p><h1>FreeRTOS Temperature Alert System</h1><p class="lead">Task notifications and one queue: a DHT11 alert that flashes an LED once and waits for a button acknowledge.</p><nav class="tabs" aria-label="Week 6 tasks"><a href="protosem-week-6.html">← Week 6</a><a href="protosem-week-6-task-1.html">Task 1</a><a href="protosem-week-6-task-2.html">Task 2</a><a href="protosem-week-6-task-3.html">Task 3</a><a href="protosem-week-6-task-4.html">Task 4</a><a href="protosem-week-6-task-5.html" class="on" aria-current="page">Task 5</a></nav><div class="tk-grid"><article><div class="cards"><div><h3>Date</h3><p>14 October 2026</p></div><div><h3>Hardware</h3><p>ESP32 Dev Module, DHT11 sensor, LED, push button</p></div><div><h3>Software</h3><p>Arduino IDE 2.3.10, DHT library, FreeRTOS (built into the ESP32 core)</p></div></div><div class="sec" id="s1"><h2><em>01</em>Aim and Overview</h2>
+<p>This project is a FreeRTOS temperature alert system on an ESP32. It reads a DHT11 sensor once a second, flashes an LED for 100 ms when the temperature reaches 29 °C, and lets a push button acknowledge the alert. Four tasks do the work, and they talk to each other only through FreeRTOS task notifications and one length-1 queue. No shared variable carries the alert.</p>
+<p><em><strong>Board:</strong></em><em> ESP32 Dev Module (ESP32-D0WD-V3), programmed from Arduino IDE 2.3.10 over COM9 at 115200 baud.</em></p>
+<p><em><strong>Sensor and I/O:</strong></em><em> DHT11 on GPIO 4, LED on GPIO 2, push button on GPIO 15.</em></p>
+<p><em><strong>Rule followed throughout:</strong></em><em> the Temperature Task never touches the LED. It only notifies the LED Task, which owns the LED.</em></p>
+<p><em><strong>Alert behaviour:</strong></em><em> one notification when the temperature first reaches the threshold, not one per sample, so the LED does not blink continuously.</em></p>
+</div><div class="sec" id="s2"><h2><em>02</em>Hardware and Wiring</h2>
+<h3>2.1 Hardware</h3>
+<p>The project uses a small set of parts, all on one breadboard and powered over USB.</p>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Component</strong></th><th><strong>Used for</strong></th></tr></thead><tbody><tr><td>ESP32 Dev Module (ESP32-D0WD-V3)</td><td>Runs the FreeRTOS program: dual core, 240 MHz, with a micro-USB port for power, upload and serial output</td></tr><tr><td>DHT11 temperature sensor module</td><td>Measures the room temperature that the Temperature Task reads once a second</td></tr><tr><td>LED</td><td>Alert indicator that flashes for 100 ms when the threshold is reached</td></tr><tr><td>Push button</td><td>Lets the user acknowledge the alert</td></tr><tr><td>Breadboard and jumper wires</td><td>Connects the parts without soldering</td></tr><tr><td>USB cable</td><td>Power, programming and serial monitor output at 115200 baud</td></tr></tbody></table></div>
+<div class="media-grid"><figure><img src="assets/week6/t5-01.jpg" alt="Parts before assembly. The IR sensor module in this photo is not used." loading="lazy" width="720" height="780"><figcaption><b>Figure 1</b>Parts before assembly. The IR sensor module in this photo is not used.</figcaption></figure></div>
+<h3>2.2 Wiring</h3>
+<p>Each part connects to its own GPIO pin, so the three tasks that use them never share a pin. The button is wired as active-low, so pressing it reads LOW.</p>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Part</strong></th><th><strong>ESP32 pin</strong></th><th><strong>Role</strong></th></tr></thead><tbody><tr><td>DHT11 sensor</td><td>GPIO 4</td><td>Data line for temperature readings</td></tr><tr><td>LED</td><td>GPIO 2</td><td>Alert indicator, driven HIGH for 100 ms</td></tr><tr><td>Push button (leg 1)</td><td>GPIO 15</td><td>Acknowledge input, active-low with the internal pull-up (INPUT_PULLUP), so pressing reads LOW</td></tr><tr><td>Push button (leg 2)</td><td>GND</td><td>Diagonally opposite leg of the button, so pressing it connects GPIO 15 to GND</td></tr><tr><td>USB cable</td><td>Micro-USB port</td><td>Power and serial output (115200 baud)</td></tr></tbody></table></div>
+<div class="media-grid"><figure><img src="assets/week6/t5-02.jpg" alt="Assembled circuit on the breadboard." loading="lazy" width="960" height="820"><figcaption><b>Figure 2</b>Assembled circuit on the breadboard.</figcaption></figure></div>
+</div><div class="sec" id="s3"><h2><em>03</em>Timing Parameters and Design Justification</h2>
+<p>The sensor is sampled once per second, which is the fastest the DHT11 allows, and the LED must turn on within 100 ms of the alert being detected. The values below are design targets chosen from the sensor limits and the RTOS behaviour.</p>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Parameter</strong></th><th><strong>Value</strong></th><th><strong>Why this value</strong></th></tr></thead><tbody><tr><td>Sensor sampling period</td><td>1000 ms</td><td>The DHT11 needs about 1 s between reads, and room temperature changes slowly, so 200 ms would give repeated or failed reads.</td></tr><tr><td>Alert deadline</td><td>100 ms</td><td>From the Temperature Task detecting the threshold to the LED turning ON. This is the response a person can notice as immediate.</td></tr><tr><td>Maximum alert latency</td><td></td><td>A task notification only marks the LED Task ready. The LED Task has higher priority than the Temperature Task, so it runs as soon as it is notified.</td></tr><tr><td>Acceptable jitter</td><td>±25 ms on sampling, ±5 ms on the 100 ms LED pulse</td><td>The DHT11 read blocks the Temperature Task for a few tens of milliseconds, and vTaskDelay adds that to the period. The LED pulse is a plain 100 ms delay on a 1 ms tick.</td></tr><tr><td>UART print period</td><td>500 ms</td><td>Fast enough to watch changes live, slow enough not to flood the serial monitor.</td></tr><tr><td>Button debounce</td><td>30 ms</td><td>Long enough to skip contact bounce, short enough to feel instant.</td></tr></tbody></table></div>
+<p>In the serial logs the lines arrive about 460 to 530 ms apart against the 500 ms setting. The log timestamps are added by the PC, so they include USB serial delay on top of the board's own jitter.</p>
+<p><strong>Why these priorities suit the alert.</strong> The LED Task and Button Task are at priority 3 because their work is tiny and must happen immediately. The Temperature Task is at 2 because reading the DHT11 takes tens of milliseconds and must not delay a pending LED or button response. The UART Task is at 1 because printing is slow and not time-critical.</p>
+<p><strong>Why a task notification.</strong> It wakes one specific blocked task directly. It is faster and uses less RAM than a queue or semaphore, it needs no polling, and the LED Task stays blocked at no cost until there is something to do.</p>
+<p><strong>Why a shared variable is not required.</strong> A shared "alert" flag would need the LED Task to poll it and would need protection against races. With notifications, the event itself wakes the right task, and the alert state lives in one place, the Temperature Task.</p>
+</div><div class="sec" id="s4"><h2><em>04</em>Task Architecture</h2>
+<p>Four tasks run under FreeRTOS, and each one blocks or sleeps whenever it has nothing to do. The LED and Button tasks sit at priority 3 so they respond at once. The Temperature Task sits at 2, and the slow, non-urgent UART printing sits at 1.</p>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Task</strong></th><th><strong>Priority</strong></th><th><strong>Normally</strong></th><th><strong>Wakes when</strong></th><th><strong>What it does</strong></th></tr></thead><tbody><tr><td>LED Task</td><td>3</td><td>Blocked on ulTaskNotifyTake</td><td>Temperature Task notifies it</td><td>LED ON for 100 ms, then OFF, then blocks again</td></tr><tr><td>Button Task</td><td>3</td><td>Blocked on ulTaskNotifyTake</td><td>The button ISR gives a notification on any pin change</td><td>Waits 30 ms (debounce), reads the pin, sends one acknowledgement per clean press</td></tr><tr><td>Temperature Task</td><td>2</td><td>Sleeping in vTaskDelay (1000 ms)</td><td>Its 1 s delay ends</td><td>Reads the DHT11, detects the rising edge across 29 °C, notifies the LED Task, checks for an acknowledgement, publishes a status snapshot</td></tr><tr><td>UART Task</td><td>1</td><td>Sleeping in vTaskDelay (500 ms)</td><td>Its 500 ms delay ends</td><td>Prints temperature, threshold and alert status</td></tr></tbody></table></div>
+<h4>How the tasks communicate</h4>
+<p><em><strong>Temperature to LED:</strong></em><em> xTaskNotifyGive(ledTaskHandle). This is the alert signal.</em></p>
+<p><em><strong>Button ISR to Button Task:</strong></em><em> vTaskNotifyGiveFromISR. The ISR only wakes the task, and all logic stays in the task.</em></p>
+<p><em><strong>Button Task to Temperature Task:</strong></em><em> xTaskNotifyGive(tempTaskHandle). This is the acknowledgement.</em></p>
+<p><em><strong>Temperature to UART:</strong></em><em> a queue of length 1. xQueueOverwrite always stores the latest status, and xQueuePeek reads it without removing it. This only carries data for printing. It is not the alert signal, so the UART Task stays independent of the other three.</em></p>
+</div><div class="sec" id="s5"><h2><em>05</em>Flowchart</h2>
+<p>The Temperature Task is the only task with branching logic, so it gets its own chart. It sends the LED notification only when the temperature newly reaches the threshold, not on every sample.</p>
+<div class="media-grid"><figure><img src="assets/week6/t5-03.jpg" alt="Temperature Task flowchart." loading="lazy" width="1344" height="1250"><figcaption><b>Figure 3</b>Temperature Task flowchart.</figcaption></figure></div>
+<p>The other three tasks follow the same pattern: wait, act once, return to waiting. The Button Task's "not held" check is what stops a held button from producing repeated events.</p>
+<div class="media-grid"><figure><img src="assets/week6/t5-04.jpg" alt="LED, Button and UART task flowcharts." loading="lazy" width="1344" height="1004"><figcaption><b>Figure 4</b>LED, Button and UART task flowcharts.</figcaption></figure></div>
+</div><div class="sec" id="s6"><h2><em>06</em>Source Code and Explanation</h2>
+<p>The complete sketch is below, followed by what each part does and then a line-by-line walkthrough.</p>
+<pre class="code"><code>#include &lt;Arduino.h&gt;
+#include &lt;DHT.h&gt;
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#define DHT_PIN            4
+#define DHT_TYPE           DHT11
+#define LED_PIN            2
+#define BUTTON_PIN         15
+#define TEMP_THRESHOLD_C       29.0f
+#define SENSOR_SAMPLE_PERIOD_MS 1000   // DHT11 hardware minimum ~1 s between reads
+#define UART_PRINT_PERIOD_MS    500
+#define LED_ON_TIME_MS           100
+#define BUTTON_DEBOUNCE_MS        30
+// Task priorities (higher number = higher priority)
+#define PRIORITY_UART   1
+#define PRIORITY_TEMP   2
+#define PRIORITY_BUTTON 3
+#define PRIORITY_LED    3
+enum AlertState : uint8_t { ALERT_NONE = 0, ALERT_ACTIVE, ALERT_ACKED };
+struct StatusMsg {
+  float   temperature;
+  float   threshold;
+  uint8_t alertState;
+};
+static TaskHandle_t ledTaskHandle    = nullptr;
+static TaskHandle_t tempTaskHandle   = nullptr;
+static TaskHandle_t buttonTaskHandle = nullptr;
+static TaskHandle_t uartTaskHandle   = nullptr;
+static QueueHandle_t statusQueue;   // length 1, holds latest StatusMsg
+static DHT dht(DHT_PIN, DHT_TYPE);
+void IRAM_ATTR buttonISR() {
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  vTaskNotifyGiveFromISR(buttonTaskHandle, &amp;xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+void TemperatureTask(void *pvParameters) {
+  bool wasAboveThreshold = false;
+  uint8_t alertState = ALERT_NONE;
+  for (;;) {
+    float temperature = dht.readTemperature();
+    if (isnan(temperature)) {
+      vTaskDelay(pdMS_TO_TICKS(SENSOR_SAMPLE_PERIOD_MS));
+      continue;
+    }
+    bool isAboveThreshold = (temperature &gt;= TEMP_THRESHOLD_C);
+    if (isAboveThreshold &amp;&amp; !wasAboveThreshold) {   // rising edge only
+      alertState = ALERT_ACTIVE;
+      xTaskNotifyGive(ledTaskHandle);
+    }
+    if (!isAboveThreshold) {
+      alertState = ALERT_NONE;
+    }
+    wasAboveThreshold = isAboveThreshold;
+    uint32_t notifyValue = 0;
+    if (xTaskNotifyWait(0, ULONG_MAX, &amp;notifyValue, 0) == pdTRUE) {
+      if (alertState == ALERT_ACTIVE) {
+        alertState = ALERT_ACKED;
+      }
+    }
+    StatusMsg msg = { temperature, TEMP_THRESHOLD_C, alertState };
+    xQueueOverwrite(statusQueue, &amp;msg);
+    vTaskDelay(pdMS_TO_TICKS(SENSOR_SAMPLE_PERIOD_MS));
+  }
+}
+void LedTask(void *pvParameters) {
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+  for (;;) {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);   // blocked until notified
+    digitalWrite(LED_PIN, HIGH);
+    vTaskDelay(pdMS_TO_TICKS(LED_ON_TIME_MS));
+    digitalWrite(LED_PIN, LOW);
+  }
+}
+void ButtonTask(void *pvParameters) {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  bool buttonHeld = false;
+  for (;;) {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    vTaskDelay(pdMS_TO_TICKS(BUTTON_DEBOUNCE_MS));
+    bool pressed = (digitalRead(BUTTON_PIN) == LOW);
+    if (pressed &amp;&amp; !buttonHeld) {
+      buttonHeld = true;
+      xTaskNotifyGive(tempTaskHandle);   // one acknowledgement per press
+    } else if (!pressed &amp;&amp; buttonHeld) {
+      buttonHeld = false;                // released: re-arm
+    }
+  }
+}
+void UartTask(void *pvParameters) {
+  StatusMsg msg = { 0, TEMP_THRESHOLD_C, ALERT_NONE };
+  for (;;) {
+    xQueuePeek(statusQueue, &amp;msg, 0);
+    const char *stateStr =
+        (msg.alertState == ALERT_ACTIVE) ? "ALERT (unacknowledged)" :
+        (msg.alertState == ALERT_ACKED)  ? "ALERT (acknowledged)"   :
+                                            "OK";
+    Serial.print("Temp: ");
+    Serial.print(msg.temperature, 1);
+    Serial.print(" C | Threshold: ");
+    Serial.print(msg.threshold, 1);
+    Serial.print(" C | Status: ");
+    Serial.println(stateStr);
+    vTaskDelay(pdMS_TO_TICKS(UART_PRINT_PERIOD_MS));
+  }
+}
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+  statusQueue = xQueueCreate(1, sizeof(StatusMsg));
+  xTaskCreate(TemperatureTask, "TempTask", 4096, nullptr, PRIORITY_TEMP,   &amp;tempTaskHandle);
+  xTaskCreate(LedTask,         "LedTask",  2048, nullptr, PRIORITY_LED,    &amp;ledTaskHandle);
+  xTaskCreate(ButtonTask,      "BtnTask",  2048, nullptr, PRIORITY_BUTTON, &amp;buttonTaskHandle);
+  xTaskCreate(UartTask,        "UartTask", 2048, nullptr, PRIORITY_UART,   &amp;uartTaskHandle);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonISR, CHANGE);
+}
+void loop() {
+  vTaskDelay(pdMS_TO_TICKS(1000));   // everything happens in the tasks
+}</code></pre>
+<p><strong>Configuration and data.</strong> The #define block holds the pins, the 29 °C threshold and every timing value, so each one can be changed in one place. StatusMsg is a small struct (temperature, threshold, alert state) that the UART Task prints. AlertState has three values: none, active and acknowledged.</p>
+<p><strong>Button ISR.</strong> buttonISR runs on every pin change and does one thing: it gives a notification to the Button Task. All decisions stay in the task, because an interrupt handler must be short.</p>
+<p><strong>Temperature Task.</strong> Each second it reads the DHT11 and skips the cycle if the read fails (isnan). It compares the reading with the threshold and sends xTaskNotifyGive to the LED Task only on the rising edge, when the previous sample was below the threshold. Staying above the threshold sends nothing more, so the LED does not keep blinking. When the temperature drops below the threshold the alert state is cleared, so the next rise creates a new alert. It then checks for an acknowledgement with xTaskNotifyWait and a 0 timeout, which returns at once, and moves an active alert to acknowledged. Finally it writes the latest status to the queue and sleeps for 1000 ms.</p>
+<p><strong>LED Task.</strong> It sits in ulTaskNotifyTake(pdTRUE, portMAX_DELAY), which is the blocked state, and uses no CPU while waiting. On a notification it turns the LED ON, waits 100 ms with vTaskDelay, turns it OFF and goes back to waiting.</p>
+<p><strong>Button Task.</strong> The ISR wakes it, it waits 30 ms for the contact bounce to settle, then reads the pin (LOW means pressed, because of INPUT_PULLUP). A press is accepted only when the button was not already held, so one press sends exactly one acknowledgement. Holding the button sends nothing more until it is released and pressed again.</p>
+<p><strong>UART Task.</strong> It peeks at the status queue, which copies the latest status without removing it, and prints temperature, threshold and alert status every 500 ms. It never waits for the other tasks, so it keeps running on its own schedule.</p>
+<p><strong>setup() and loop().</strong> setup starts the serial port and the sensor, creates the queue, creates the four tasks with their priorities and handles, and attaches the button interrupt on both edges. loop is empty apart from a long delay because all the work is in the tasks.</p>
+<h3>6.1 Line-by-line walkthrough</h3>
+<h4>Part A: headers, pins and settings</h4>
+<pre class="code"><code>#include &lt;Arduino.h&gt;
+#include &lt;DHT.h&gt;
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"</code></pre>
+<p><em>Arduino.h gives pinMode, digitalWrite, digitalRead and Serial.</em></p>
+<p><em>DHT.h is the DHT sensor library. It provides the DHT class and readTemperature().</em></p>
+<p><em>FreeRTOS.h is the FreeRTOS core. task.h gives tasks, delays and task notifications. queue.h gives queues. The ESP32 Arduino core already includes FreeRTOS, so nothing extra is installed.</em></p>
+<pre class="code"><code>#define DHT_PIN            4
+#define DHT_TYPE           DHT11
+#define LED_PIN            2
+#define BUTTON_PIN         15</code></pre>
+<p><em>These four lines name the hardware: the DHT11 data pin is GPIO 4, the LED is on GPIO 2, and the button is on GPIO 15. Changing a pin later means editing only this block.</em></p>
+<pre class="code"><code>#define TEMP_THRESHOLD_C       29.0f
+#define SENSOR_SAMPLE_PERIOD_MS 1000
+#define UART_PRINT_PERIOD_MS    500
+#define LED_ON_TIME_MS           100
+#define BUTTON_DEBOUNCE_MS        30</code></pre>
+<p><em>TEMP_THRESHOLD_C is the alert temperature. The f suffix makes it a float.</em></p>
+<p><em>SENSOR_SAMPLE_PERIOD_MS is 1000 because the DHT11 cannot be read faster than about once a second.</em></p>
+<p><em>UART_PRINT_PERIOD_MS is how often the status line is printed.</em></p>
+<p><em>LED_ON_TIME_MS is the required 100 ms alert pulse.</em></p>
+<p><em>BUTTON_DEBOUNCE_MS is how long the Button Task waits for contact bounce to settle.</em></p>
+<pre class="code"><code>#define PRIORITY_UART   1
+#define PRIORITY_TEMP   2
+#define PRIORITY_BUTTON 3
+#define PRIORITY_LED    3</code></pre>
+<p><em>A higher number means a higher priority in FreeRTOS. The scheduler always runs the highest-priority ready task. UART is lowest because printing is not urgent, and the LED and Button tasks are highest because they must react immediately.</em></p>
+<pre class="code"><code>enum AlertState : uint8_t { ALERT_NONE = 0, ALERT_ACTIVE, ALERT_ACKED };
+struct StatusMsg {
+  float   temperature;
+  float   threshold;
+  uint8_t alertState;
+};</code></pre>
+<p><em>AlertState names the three states: no alert, alert raised and not yet acknowledged, alert acknowledged. Using names instead of 0, 1, 2 makes the code readable, and uint8_t keeps each value to one byte.</em></p>
+<p><em>StatusMsg is the packet the Temperature Task hands to the UART Task: the latest temperature, the threshold and the alert state.</em></p>
+<pre class="code"><code>static TaskHandle_t ledTaskHandle    = nullptr;
+static TaskHandle_t tempTaskHandle   = nullptr;
+static TaskHandle_t buttonTaskHandle = nullptr;
+static TaskHandle_t uartTaskHandle   = nullptr;
+static QueueHandle_t statusQueue;
+static DHT dht(DHT_PIN, DHT_TYPE);</code></pre>
+<p><em>A task handle is how one task refers to another. Notifications are sent to a handle, so the LED, Temperature and Button handles are needed. xTaskCreate fills each handle in setup().</em></p>
+<p><em>statusQueue is the handle of the queue that carries StatusMsg.</em></p>
+<p><em>dht is the sensor object, created with its pin and type.</em></p>
+<h4>Part B: the button interrupt</h4>
+<pre class="code"><code>void IRAM_ATTR buttonISR() {
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  vTaskNotifyGiveFromISR(buttonTaskHandle, &amp;xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}</code></pre>
+<p><em>IRAM_ATTR keeps this function in the ESP32's internal RAM so it can always run when the interrupt fires.</em></p>
+<p><em>xHigherPriorityTaskWoken starts as pdFALSE. FreeRTOS sets it to pdTRUE if the notification woke a task with higher priority than the one that was interrupted.</em></p>
+<p><em>vTaskNotifyGiveFromISR is the interrupt-safe way to send a notification. It wakes the blocked Button Task.</em></p>
+<p><em>portYIELD_FROM_ISR switches to that task as soon as the ISR returns, instead of waiting for the next tick.</em></p>
+<p><em>The ISR does no debouncing and reads no pin. An interrupt handler must stay very short, so all logic is left to the task.</em></p>
+<h4>Part C: Temperature Task</h4>
+<pre class="code"><code>void TemperatureTask(void *pvParameters) {
+  bool wasAboveThreshold = false;
+  uint8_t alertState = ALERT_NONE;</code></pre>
+<p><em>Every FreeRTOS task is a function that takes a void pointer parameter. This task does not use it.</em></p>
+<p><em>wasAboveThreshold remembers the previous sample, which is how a rising edge is detected. alertState is the alert state, kept as a local variable inside the task, so nothing else can change it.</em></p>
+<pre class="code"><code>  for (;;) {
+    float temperature = dht.readTemperature();
+    if (isnan(temperature)) {
+      vTaskDelay(pdMS_TO_TICKS(SENSOR_SAMPLE_PERIOD_MS));
+      continue;
+    }</code></pre>
+<p><em>for (;;) is the endless loop every task needs, because a task must never return.</em></p>
+<p><em>readTemperature() returns the temperature in °C, or NaN if the read failed. On a failed read the task sleeps for the normal period and tries again, so a bad reading never raises a false alert.</em></p>
+<p><em>pdMS_TO_TICKS converts milliseconds into FreeRTOS ticks, so the delay is correct whatever the tick rate is.</em></p>
+<pre class="code"><code>    bool isAboveThreshold = (temperature &gt;= TEMP_THRESHOLD_C);
+    if (isAboveThreshold &amp;&amp; !wasAboveThreshold) {
+      alertState = ALERT_ACTIVE;
+      xTaskNotifyGive(ledTaskHandle);
+    }</code></pre>
+<p><em>The alert condition is "reaches or goes above" the threshold, so the test is &gt;=.</em></p>
+<p><em>The if fires only when the temperature is above the threshold now and was not above it last time. That is the rising edge, so one crossing gives exactly one notification.</em></p>
+<p><em>xTaskNotifyGive(ledTaskHandle) is the alert signal. It wakes the blocked LED Task. The Temperature Task never touches the LED pin.</em></p>
+<pre class="code"><code>    if (!isAboveThreshold) {
+      alertState = ALERT_NONE;
+    }
+    wasAboveThreshold = isAboveThreshold;</code></pre>
+<p><em>When the temperature falls below the threshold the alert is cleared, so the next rise counts as a new alert.</em></p>
+<p><em>The current result is saved for the next loop.</em></p>
+<pre class="code"><code>    uint32_t notifyValue = 0;
+    if (xTaskNotifyWait(0, ULONG_MAX, &amp;notifyValue, 0) == pdTRUE) {
+      if (alertState == ALERT_ACTIVE) {
+        alertState = ALERT_ACKED;
+      }
+    }</code></pre>
+<p><em>xTaskNotifyWait checks whether the Button Task has sent an acknowledgement. Its four arguments are: bits to clear on entry (0), bits to clear on exit (ULONG_MAX clears all), where to store the value, and how long to wait.</em></p>
+<p><em>The wait is 0, so it does not block. It returns pdTRUE at once if a notification was pending, otherwise pdFALSE, and the sampling loop carries on.</em></p>
+<p><em>A button press only changes the state if an alert is active. It moves ACTIVE to ACKED. A press when there is no alert changes nothing.</em></p>
+<pre class="code"><code>    StatusMsg msg = { temperature, TEMP_THRESHOLD_C, alertState };
+    xQueueOverwrite(statusQueue, &amp;msg);
+    vTaskDelay(pdMS_TO_TICKS(SENSOR_SAMPLE_PERIOD_MS));
+  }
+}</code></pre>
+<p><em>The status packet is filled and written to the queue. xQueueOverwrite is made for a queue of length 1: it replaces the old item, so the queue always holds the newest status and this task never waits for the UART Task.</em></p>
+<p><em>vTaskDelay puts the task to sleep for 1000 ms. While it sleeps it uses no CPU and the other tasks run.</em></p>
+<h4>Part D: LED Task</h4>
+<pre class="code"><code>void LedTask(void *pvParameters) {
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+  for (;;) {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    digitalWrite(LED_PIN, HIGH);
+    vTaskDelay(pdMS_TO_TICKS(LED_ON_TIME_MS));
+    digitalWrite(LED_PIN, LOW);
+  }
+}</code></pre>
+<p><em>The pin is set as an output and the LED starts OFF. Only this task ever touches the LED.</em></p>
+<p><em>ulTaskNotifyTake(pdTRUE, portMAX_DELAY) is the blocked state. portMAX_DELAY means wait forever, so the task uses no CPU until the Temperature Task notifies it. pdTRUE resets the notification count to zero on exit, so one alert gives exactly one flash.</em></p>
+<p><em>When woken, the LED goes HIGH for 100 ms and then LOW, and the loop returns to waiting. It flashes again only after a new notification.</em></p>
+<h4>Part E: Button Task</h4>
+<pre class="code"><code>void ButtonTask(void *pvParameters) {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  bool buttonHeld = false;
+  for (;;) {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    vTaskDelay(pdMS_TO_TICKS(BUTTON_DEBOUNCE_MS));
+    bool pressed = (digitalRead(BUTTON_PIN) == LOW);</code></pre>
+<p><em>INPUT_PULLUP turns on the internal pull-up resistor, so the pin reads HIGH when the button is open and LOW when it is pressed (the button connects the pin to ground).</em></p>
+<p><em>buttonHeld remembers whether the current press has already been reported.</em></p>
+<p><em>The task blocks until the ISR notifies it. The interrupt fires on every change, so both a press and a release wake it.</em></p>
+<p><em>It then waits 30 ms for the contact bounce to settle and reads the pin once. pressed is true when the pin is LOW.</em></p>
+<pre class="code"><code>    if (pressed &amp;&amp; !buttonHeld) {
+      buttonHeld = true;
+      xTaskNotifyGive(tempTaskHandle);
+    } else if (!pressed &amp;&amp; buttonHeld) {
+      buttonHeld = false;
+    }
+  }
+}</code></pre>
+<p><em>A press that was not already reported sets buttonHeld and sends one acknowledgement to the Temperature Task.</em></p>
+<p><em>A release clears buttonHeld, which re-arms the button, and sends nothing.</em></p>
+<p><em>While the button stays held there are no pin changes, so no interrupts and no events. Pressing again sends a new event only after a release.</em></p>
+<h4>Part F: UART Task</h4>
+<pre class="code"><code>void UartTask(void *pvParameters) {
+  StatusMsg msg = { 0, TEMP_THRESHOLD_C, ALERT_NONE };
+  for (;;) {
+    xQueuePeek(statusQueue, &amp;msg, 0);
+    const char *stateStr =
+        (msg.alertState == ALERT_ACTIVE) ? "ALERT (unacknowledged)" :
+        (msg.alertState == ALERT_ACKED)  ? "ALERT (acknowledged)"   :
+                                            "OK";</code></pre>
+<p><em>msg starts with safe default values, so the first print is valid even before the Temperature Task has produced a reading.</em></p>
+<p><em>xQueuePeek copies the latest status without removing it, with a wait of 0. If the queue is empty the old values stay, so the UART Task never blocks.</em></p>
+<p><em>The nested ?: turns the alert state into the text shown on the serial monitor.</em></p>
+<pre class="code"><code>    Serial.print("Temp: ");
+    Serial.print(msg.temperature, 1);
+    Serial.print(" C | Threshold: ");
+    Serial.print(msg.threshold, 1);
+    Serial.print(" C | Status: ");
+    Serial.println(stateStr);
+    vTaskDelay(pdMS_TO_TICKS(UART_PRINT_PERIOD_MS));
+  }
+}</code></pre>
+<p><em>The line is printed in pieces, with temperature and threshold to one decimal place. This produces output such as: Temp: 24.1 C | Threshold: 29.0 C | Status: OK</em></p>
+<p><em>The task then sleeps for 500 ms. It shares nothing but the queue with the other tasks, so it keeps printing on its own schedule.</em></p>
+<h4>Part G: setup() and loop()</h4>
+<pre class="code"><code>void setup() {
+  Serial.begin(115200);
+  dht.begin();
+  statusQueue = xQueueCreate(1, sizeof(StatusMsg));</code></pre>
+<p><em>Serial.begin(115200) opens the serial port at the speed set in the serial monitor. dht.begin() starts the sensor.</em></p>
+<p><em>xQueueCreate(1, sizeof(StatusMsg)) makes a queue with one slot, big enough for one StatusMsg.</em></p>
+<pre class="code"><code>  xTaskCreate(TemperatureTask, "TempTask", 4096, nullptr, PRIORITY_TEMP,   &amp;tempTaskHandle);
+  xTaskCreate(LedTask,         "LedTask",  2048, nullptr, PRIORITY_LED,    &amp;ledTaskHandle);
+  xTaskCreate(ButtonTask,      "BtnTask",  2048, nullptr, PRIORITY_BUTTON, &amp;buttonTaskHandle);
+  xTaskCreate(UartTask,        "UartTask", 2048, nullptr, PRIORITY_UART,   &amp;uartTaskHandle);</code></pre>
+<p><em>The six arguments of xTaskCreate are: the task function, a name for debugging, the stack size (in bytes on the ESP32), a parameter (unused here), the priority, and a place to store the handle.</em></p>
+<p><em>The Temperature Task gets the larger 4096-byte stack because it calls the sensor library. The others need less.</em></p>
+<pre class="code"><code>  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonISR, CHANGE);
+}
+void loop() {
+  vTaskDelay(pdMS_TO_TICKS(1000));
+}</code></pre>
+<p><em>attachInterrupt with CHANGE calls buttonISR on both the falling and the rising edge. The tasks are created first so the ISR never runs before buttonTaskHandle is valid.</em></p>
+<p><em>The Arduino loop() runs as its own low-priority task. It has nothing to do, so it just sleeps, and all real work happens in the four tasks.</em></p>
+<h3>6.2 FreeRTOS functions used</h3>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Function</strong></th><th><strong>What it does in this project</strong></th></tr></thead><tbody><tr><td>xTaskCreate</td><td>Creates a task with its own stack and priority, and returns its handle</td></tr><tr><td>vTaskDelay</td><td>Puts the calling task to sleep for a number of ticks (the Blocked state)</td></tr><tr><td>pdMS_TO_TICKS</td><td>Converts milliseconds to ticks</td></tr><tr><td>xTaskNotifyGive</td><td>Sends a notification to a task, which wakes it if it is blocked waiting</td></tr><tr><td>ulTaskNotifyTake</td><td>Blocks until a notification arrives, then clears the count</td></tr><tr><td>xTaskNotifyWait</td><td>Checks for a notification, and with a timeout of 0 returns at once</td></tr><tr><td>vTaskNotifyGiveFromISR</td><td>Interrupt-safe version of xTaskNotifyGive</td></tr><tr><td>portYIELD_FROM_ISR</td><td>Switches straight to the woken task when the ISR ends</td></tr><tr><td>xQueueCreate</td><td>Creates the status queue</td></tr><tr><td>xQueueOverwrite</td><td>Writes the newest status, replacing the old one</td></tr><tr><td>xQueuePeek</td><td>Reads the status without removing it</td></tr></tbody></table></div>
+<h3>6.3 Behaviour notes</h3>
+<p><em><strong>Task states:</strong></em><em> the LED and Button tasks are Blocked almost all the time, the Temperature and UART tasks are Blocked in vTaskDelay between runs, and a task is Running only for the short moment it has work to do.</em></p>
+<p><em><strong>Acknowledgement timing:</strong></em><em> the Temperature Task checks for the button notification once per cycle, so the status changes to acknowledged within about 1 second of the press.</em></p>
+<p><em><strong>First reading:</strong></em><em> if the very first valid reading is already at or above 29 °C, it counts as a rising edge and the LED flashes once.</em></p>
+</div><div class="sec" id="s7"><h2><em>07</em>Demonstration and Output</h2>
+<p>The board reads 24.1 °C and reports OK, then reports an alert once the temperature reaches the 29 °C threshold, and the button changes the status to acknowledged.</p>
+<h4>Arduino IDE evidence</h4>
+<p>These screenshots are taken straight from Arduino IDE 2.3.10 with the ESP32 Dev Module selected on COM9. They show the sketch being built, uploaded to the board, and running with the serial monitor open at 115200 baud.</p>
+<div class="media-grid"><figure><img src="assets/week6/t5-05.jpg" alt="Arduino IDE compiling the sketch (Building sketch, ESP32 Dev Module on COM9)." loading="lazy" width="1400" height="826"><figcaption><b>Figure 5</b>Arduino IDE compiling the sketch (Building sketch, ESP32 Dev Module on COM9).</figcaption></figure></div>
+<p>The upload log reports a program size of 277204 bytes (21% of program storage), global variables of 22636 bytes (6% of dynamic memory), esptool v5.3.1 connecting on COM9, and the chip as an ESP32-D0WD-V3 (revision v3.1) with Wi-Fi, Bluetooth and dual core at 240 MHz.</p>
+<div class="media-grid"><figure><img src="assets/week6/t5-06.jpg" alt="Upload log: memory use and ESP32 chip details." loading="lazy" width="1400" height="826"><figcaption><b>Figure 6</b>Upload log: memory use and ESP32 chip details.</figcaption></figure><figure><img src="assets/week6/t5-07.jpg" alt="Full IDE view with the serial monitor open: Temp 24.1 C, Status OK." loading="lazy" width="1400" height="831"><figcaption><b>Figure 7</b>Full IDE view with the serial monitor open: Temp 24.1 C, Status OK.</figcaption></figure><figure><img src="assets/week6/t5-08.jpg" alt="Full IDE view with the serial monitor open: Temp 31.8 C then 31.3 C, Status ALERT (acknowledged)." loading="lazy" width="1400" height="831"><figcaption><b>Figure 8</b>Full IDE view with the serial monitor open: Temp 31.8 C then 31.3 C, Status ALERT (acknowledged).</figcaption></figure><figure><img src="assets/week6/t5-09.jpg" alt="Photograph" loading="lazy" width="1024" height="576"></figure></div><p><em>Click the preview to open the demo video on Google Drive.</em></p>
+<p><strong>Video Demonstration Link: </strong><a href="https://drive.google.com/file/d/1UG0mmTf4HB1F7q9zf9cHeS3kF59ILaUh/view?usp=sharing" target="_blank" rel="noreferrer noopener"><strong>CLICK HERE</strong></a></p>
+<h4>Normal operation, temperature below the threshold</h4>
+<pre class="code"><code>16:18:13.415 -&gt; Temp: 24.1 C | Threshold: 29.0 C | Status: OK
+16:18:13.913 -&gt; Temp: 24.1 C | Threshold: 29.0 C | Status: OK
+16:18:14.419 -&gt; Temp: 24.1 C | Threshold: 29.0 C | Status: OK
+16:18:14.917 -&gt; Temp: 24.1 C | Threshold: 29.0 C | Status: OK</code></pre>
+<div class="media-grid"><figure><img src="assets/week6/t5-10.jpg" alt="Serial monitor while the temperature is below the threshold." loading="lazy" width="800" height="295"><figcaption><b>Figure 9</b>Serial monitor while the temperature is below the threshold.</figcaption></figure></div>
+<h4>Alert raised and acknowledged</h4>
+<pre class="code"><code>16:18:56.915 -&gt; Temp: 31.8 C | Threshold: 29.0 C | Status: ALERT (acknowledged)
+16:18:57.435 -&gt; Temp: 31.8 C | Threshold: 29.0 C | Status: ALERT (acknowledged)
+16:18:57.902 -&gt; Temp: 31.3 C | Threshold: 29.0 C | Status: ALERT (acknowledged)
+16:18:58.396 -&gt; Temp: 31.3 C | Threshold: 29.0 C | Status: ALERT (acknowledged)</code></pre>
+<div class="media-grid"><figure><img src="assets/week6/t5-11.jpg" alt="Serial monitor after the temperature crossed 29 °C and the button was pressed." loading="lazy" width="800" height="295"><figcaption><b>Figure 10</b>Serial monitor after the temperature crossed 29 °C and the button was pressed.</figcaption></figure><figure><img src="assets/week6/t5-12.jpg" alt="1. Blowing warm air on the DHT11" loading="lazy" width="576" height="700"><figcaption><b>Figure</b>1. Blowing warm air on the DHT11</figcaption></figure><figure><img src="assets/week6/t5-13.jpg" alt="2. Just before the alert: LED off" loading="lazy" width="576" height="700"><figcaption><b>Figure</b>2. Just before the alert: LED off</figcaption></figure><figure><img src="assets/week6/t5-14.jpg" alt="3. Threshold crossed: LED flashes" loading="lazy" width="576" height="700"><figcaption><b>Figure</b>3. Threshold crossed: LED flashes</figcaption></figure></div>
+<p class="cap"><em>Figure 11. Frames from the demonstration video: I blow warm air on the DHT11, the temperature rises, and the LED flashes once when it crosses 29 °C.</em></p>
+<h4>Where each required behaviour is shown</h4>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>#</strong></th><th><strong>Behaviour</strong></th><th><strong>Where it is shown</strong></th></tr></thead><tbody><tr><td>1</td><td>Normal temperature monitoring</td><td>Figure 9: a reading every second, printed every 500 ms</td></tr><tr><td>2</td><td>Temperature below the threshold</td><td>Figure 9: 24.1 °C against 29.0 °C, status OK</td></tr><tr><td>3</td><td>Temperature reaching the threshold</td><td>Figure 10: 31.8 °C is above 29.0 °C, so the alert is active</td></tr><tr><td>4</td><td>Temperature Task sending the notification</td><td>Rising-edge check in TemperatureTask, then xTaskNotifyGive(ledTaskHandle)</td></tr><tr><td>5</td><td>LED Task waking from the blocked state</td><td>ulTaskNotifyTake returns when the notification arrives</td></tr><tr><td>6</td><td>LED turning ON for 100 ms</td><td>Figure 11 and the demo video: one short LED flash when the threshold is crossed</td></tr><tr><td>7</td><td>LED Task going back to the blocked state</td><td>Loop returns to ulTaskNotifyTake, so no second flash without a new rising edge</td></tr><tr><td>8</td><td>Button generating the acknowledgement</td><td>Figure 10: status changes to ALERT (acknowledged)</td></tr><tr><td>9</td><td>Button held without repeated events</td><td>buttonHeld flag: only one notification until release</td></tr><tr><td>10</td><td>UART status continuing independently</td><td>Figures 9 and 10: prints continue every 500 ms in both states</td></tr></tbody></table></div>
+</div><div class="sec" id="s8"><h2><em>08</em>Conclusion</h2>
+<p>The system meets the assignment: the Temperature Task detects the threshold crossing and signals the LED Task with a task notification, the LED Task stays blocked until then, the Button Task turns each press into a single acknowledgement, and the UART Task reports status on its own schedule. Using notifications and a one-slot queue instead of a shared alert variable removed the need for polling and for protection against race conditions.</p>
+<p>Two limits are worth stating. The 1 s sampling period is set by the DHT11, so the alert can lag the real temperature by up to a second. The latency and jitter figures are design targets, not measurements taken with a logic analyser.</p>
+</div><div class="sec" id="s9"><h2><em>09</em>References and Acknowledgements</h2>
+<p><strong>9.1 References</strong></p>
+<div class="tw"><table class="pin-table"><thead><tr><th><strong>Type</strong></th><th><strong>Reference</strong></th><th><strong>Used for</strong></th></tr></thead><tbody><tr><td>Library</td><td><a href="https://github.com/adafruit/DHT-sensor-library" target="_blank" rel="noreferrer noopener">DHT sensor library by Adafruit</a></td><td>Reading the DHT11 temperature (DHT.h, readTemperature())</td></tr><tr><td>Board support</td><td><a href="https://github.com/espressif/arduino-esp32" target="_blank" rel="noreferrer noopener">Arduino-ESP32 core by Espressif</a></td><td>ESP32 Dev Module support and the built-in FreeRTOS</td></tr><tr><td>Documentation</td><td><a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/freertos.html" target="_blank" rel="noreferrer noopener">ESP-IDF FreeRTOS documentation</a></td><td>Task creation, task notifications and queue functions</td></tr><tr><td>Documentation</td><td><a href="https://www.freertos.org/" target="_blank" rel="noreferrer noopener">FreeRTOS website</a></td><td>FreeRTOS concepts such as priorities and blocking</td></tr><tr><td>Source code</td><td><a href="https://github.com/ShawnHymel/introduction-to-rtos" target="_blank" rel="noreferrer noopener">introduction-to-rtos by Shawn Hymel (DigiKey)</a></td><td>ESP32 Arduino examples of creating FreeRTOS tasks and queues, referred to for the task structure</td></tr><tr><td>Source code</td><td><a href="https://github.com/adafruit/DHT-sensor-library/tree/master/examples/DHTtester" target="_blank" rel="noreferrer noopener">DHTtester example, Adafruit DHT library</a></td><td>Example of setting up the DHT11 and calling readTemperature()</td></tr><tr><td>Connections</td><td><a href="https://randomnerdtutorials.com/esp32-dht11-dht22-temperature-humidity-sensor-arduino-ide/" target="_blank" rel="noreferrer noopener">ESP32 with DHT11/DHT22 (Random Nerd Tutorials)</a></td><td>DHT11 wiring with the data pin on GPIO 4</td></tr><tr><td>Connections</td><td><a href="https://esp32io.com/tutorials/esp32-button-led" target="_blank" rel="noreferrer noopener">ESP32 Button LED tutorial (ESP32IO)</a></td><td>Button with INPUT_PULLUP to GND and LED with a series resistor (the tutorial uses other GPIO pins)</td></tr></tbody></table></div>
+<p><strong>9.2 Acknowledgements</strong></p>
+<p>I would like to credit the authors of the <a href="https://github.com/adafruit/DHT-sensor-library" target="_blank" rel="noreferrer noopener">DHT sensor library</a> (Adafruit) and the <a href="https://github.com/espressif/arduino-esp32" target="_blank" rel="noreferrer noopener">Arduino-ESP32 core</a> (Espressif Systems), which this program depends on, and the <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/freertos.html" target="_blank" rel="noreferrer noopener">ESP-IDF FreeRTOS documentation</a> that explains the task notification and queue functions.</p>
+<p>The task structure follows the FreeRTOS examples in the <a href="https://github.com/ShawnHymel/introduction-to-rtos" target="_blank" rel="noreferrer noopener">introduction-to-rtos</a> series by Shawn Hymel, and the wiring follows the <a href="https://randomnerdtutorials.com/esp32-dht11-dht22-temperature-humidity-sensor-arduino-ide/" target="_blank" rel="noreferrer noopener">Random Nerd Tutorials DHT11 guide</a> and the <a href="https://esp32io.com/tutorials/esp32-button-led" target="_blank" rel="noreferrer noopener">ESP32IO button and LED tutorial</a>. The circuit photograph and the serial monitor and Arduino IDE screenshots in this report are from my own setup.</p></div><div class="sec"><h2>Other tasks</h2><div class="cards oth"><a href="protosem-week-6-task-1.html"><b>TASK 1</b><h3>LED Interfacing with Arduino UNO</h3><p>Four LEDs on Arduino pins D8 to D11: first blinking together, then chasing one after another.</p></a><a href="protosem-week-6-task-2.html"><b>TASK 2</b><h3>Soldering a 555 Timer Two-LED Flasher</h3><p>A 555 timer wired as an astable oscillator and soldered on a perfboard to flash two LEDs alternately.</p></a><a href="protosem-week-6-task-3.html"><b>TASK 3</b><h3>Sensor and Actuator Presentation</h3><p>Closed-loop speed and position control of a PMDC motor using a rotary encoder.</p></a><a href="protosem-week-6-task-4.html"><b>TASK 4</b><h3>OLED-Based Game with Sensor Input</h3><p>An Escape-the-Falling-Ball game on a 0.96-inch OLED, played with an analog joystick on an ESP32.</p></a></div></div></article><aside class="side"><p class="eyebrow">Tasks</p><a href="protosem-week-6-task-1.html">1 · LED Interfacing</a><a href="protosem-week-6-task-2.html">2 · 555 Timer Flasher</a><a href="protosem-week-6-task-3.html">3 · Sensor &amp; Actuator Deck</a><a href="protosem-week-6-task-4.html">4 · OLED Joystick Game</a><a href="protosem-week-6-task-5.html" class="on">5 · FreeRTOS Temp Alert</a><p class="eyebrow">On this page</p><a href="#s1">01 Aim and Overview</a><a href="#s2">02 Hardware and Wiring</a><a href="#s3">03 Timing Parameters and Design Justification</a><a href="#s4">04 Task Architecture</a><a href="#s5">05 Flowchart</a><a href="#s6">06 Source Code and Explanation</a><a href="#s7">07 Demonstration and Output</a><a href="#s8">08 Conclusion</a><a href="#s9">09 References and Acknowledgements</a></aside></div></div></main>
+<script>
+const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
+if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}
+</script>
+</body></html>

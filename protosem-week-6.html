@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 6 — Yet to Unfold | ProtoSem</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Week 6 — Embedded Systems Tasks | ProtoSem</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet"><style>
 /* ---------- Reset ---------- */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -569,6 +569,77 @@ html.no-motion .marquee-track{ animation:none !important; }
 }
 </style>
 
+<style id="week7-tasks">main{overflow:visible;overflow-x:clip}
+@media(min-width:640px) and (max-width:1024px){html{font-size:max(1.5625vw,14px)}}
+.tk{max-width:100rem;margin:0 auto;padding:8.5rem var(--gutter) 6rem}
+@media(max-width:639px){.tk{padding:6.5rem var(--gutter) 4rem}}
+.tk h1{margin-top:1.2rem;max-width:18ch;font-family:var(--font-display);font-size:clamp(36px,5vw,84px);line-height:.94;text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
+.tk .lead{margin-top:1.5rem;max-width:56ch;font-size:var(--fs-lead);line-height:var(--lh-lead);color:#b9b7ae}
+.tk .back{display:inline-block;margin-top:2rem;color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.2em}
+.tk .back:hover{color:var(--accent)}
+.tabs{margin-top:2rem;display:flex;flex-wrap:wrap;gap:.6rem}
+.tabs a{border:1px solid var(--line-strong);border-radius:9999px;padding:.6rem 1.1rem;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);transition:color .3s,border-color .3s}
+.tabs a.on,.tabs a:hover{color:var(--foreground);border-color:var(--accent)}
+.tk-grid{margin-top:3.5rem;display:grid;grid-template-columns:minmax(0,1fr);gap:3rem}
+@media(min-width:1024px){.tk-grid{grid-template-columns:minmax(0,1fr) 19rem;gap:5rem}}
+.side{display:none}
+@media(min-width:1024px){.side{display:block;position:sticky;top:6.5rem;align-self:start}}
+.side .eyebrow{margin:0 0 .6rem}.side a+.eyebrow{margin-top:2rem}
+.side a{display:block;padding:.5rem 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.12em;transition:color .3s}
+.side a:hover{color:var(--accent)}.side a.on{color:var(--foreground)}
+.sec{border-top:1px solid var(--line);padding:2rem 0;scroll-margin-top:6rem}
+.sec h2{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.1rem;font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:600;letter-spacing:-.01em}
+.sec h2 em{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent)}
+.sec p,.sec li{color:#b9b7ae;font-size:var(--fs-body);line-height:1.65}
+.sec p{max-width:70ch;margin:.5rem 0}
+.sec ul{margin:.3rem 0}.sec ul li{position:relative;padding:.4rem 0 .4rem 1.3rem}
+.sec ul li::before{content:"";position:absolute;left:0;top:1.05em;width:.4rem;height:.4rem;border-radius:9999px;background:var(--accent)}
+.sec ol{list-style:decimal;padding-left:1.5rem}.sec ol li{padding:.4rem 0 .4rem .3rem}.sec ol li::marker{color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.cards>*{background:var(--background);padding:1.25rem}
+.cards h3{font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.15);font-weight:600;color:var(--foreground);transition:color .3s}
+.cards p{margin:.5rem 0 0}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.8rem 0}
+.flow span{border:1px solid var(--line-strong);border-radius:.25rem;padding:.6rem 1rem;background:var(--surface);color:var(--foreground);font-size:var(--fs-body)}
+.flow i{font-style:normal;color:var(--accent)}
+.pin-table{width:100%;margin-top:.8rem;border-collapse:collapse;font-size:var(--fs-body);overflow-x:auto;display:block}
+.pin-table thead,.pin-table tbody{display:table;width:100%;table-layout:fixed}
+.pin-table th,.pin-table td{padding:.65rem .9rem;border:1px solid var(--line);text-align:left;vertical-align:top}
+.pin-table th{background:var(--surface);color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.pin-table td{color:#b9b7ae}
+.pin-table td code,.pin-table td b{color:var(--foreground)}
+.pin-table tbody tr:nth-child(even){background:var(--surface)}
+.ph{display:flex;flex-direction:column;gap:.35rem;color:#b9b7ae;font-size:var(--fs-body)}
+.ph b{color:var(--accent);font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;font-weight:500}
+.ph small{color:var(--muted);font-size:var(--fs-eyebrow)}
+pre.code{margin:.8rem 0;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:.25rem;overflow-x:auto;color:#d9d6cc;font:.85rem/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.btn{display:inline-block;margin-top:.8rem;padding:.8rem 1.4rem;border:1px solid var(--accent);border-radius:9999px;font-size:var(--fs-eyebrow);text-transform:uppercase;letter-spacing:.18em;transition:background .3s,color .3s}
+.btn:hover{background:var(--accent);color:var(--background)}
+.oth a{display:block}.oth a:hover{background:var(--surface)}.oth a:hover h3{color:var(--accent)}
+.oth b{display:block;margin-bottom:.4rem;font-size:var(--fs-eyebrow);letter-spacing:.18em;color:var(--accent);font-weight:500}
+.proto-grid .proto-card:last-child{grid-column:1/-1}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:.8rem}
+.media-grid figure{background:var(--background);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.media-grid img,.media-grid video{display:block;width:100%;height:21rem;object-fit:contain;object-position:center;background:var(--surface)}
+.media-grid figcaption{padding:.85rem 1rem 1rem;font-size:var(--fs-eyebrow);letter-spacing:.05em;color:#b9b7ae;line-height:1.4}
+.media-grid figcaption b{display:block;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.3rem;font-weight:500}
+.media-wide img,.media-wide video{height:27rem}
+.arch-diagram{margin-top:1rem;padding:1.5rem;border:1px solid var(--line);border-radius:.25rem;background:var(--surface);overflow-x:auto}
+.arch-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+@media(max-width:639px){.media-grid img,.media-grid video{height:17rem}.media-wide img,.media-wide video{height:19rem}}
+</style><style id="week6-extra">
+.sec h3{margin:1.6rem 0 .4rem;font-family:var(--font-sans);font-size:calc(var(--fs-body)*1.2);font-weight:600;color:var(--foreground)}
+.sec h4{margin:1.2rem 0 .3rem;font-size:var(--fs-body);font-weight:600;color:var(--foreground)}
+.sec p a{color:var(--accent);border-bottom:1px solid rgba(255,59,29,.35)}.sec p a:hover{border-bottom-color:var(--accent)}
+.sec p strong{color:var(--foreground);font-weight:600}
+.sec .cap,.sec p.cap{color:var(--muted);font-size:var(--fs-eyebrow)}
+.note{margin:.9rem 0;padding:1rem 1.25rem;border-left:2px solid var(--accent);background:var(--surface);color:#b9b7ae;font-size:var(--fs-body);line-height:1.6;white-space:pre-line;max-width:72ch}
+.tw{overflow-x:auto;margin:.9rem 0}.pin-table{display:table!important;margin:0;table-layout:auto}.pin-table thead{display:table-header-group!important;width:auto}.pin-table tbody{display:table-row-group!important;width:auto}
+.pin-table th{white-space:nowrap}
+.pin-table thead,.pin-table tbody{table-layout:auto}
+pre.code{tab-size:2}
+.media-grid.slides img{height:auto;aspect-ratio:16/9;object-fit:cover}
+</style>
 </head><body>
 <header id="site-nav"><nav>
   <a href="index.html" class="nav-logo"><span class="badge">S</span><span class="name">Sachin</span></a>
@@ -586,7 +657,7 @@ html.no-motion .marquee-track{ animation:none !important; }
   <a href="index.html#story">Story</a><a href="index.html#projects">Projects</a>
   <a href="index.html#skills">Skills</a><a class="active" href="protosem.html">ProtoSem</a><a href="index.html#testimonials">Focus</a><a href="index.html#contact">Contact</a>
 </div>
-<main><section class="proto-detail"><p class="eyebrow">Week 6</p><h1>Yet to Unfold</h1><a class="back" href="protosem.html">← Back to ProtoSem</a><p class="proto-empty">The previous ProtoSem page currently shows “Yet to Unfold” for this week.</p></section></main>
+<main><div class="tk"><p class="eyebrow">Week 6</p><h1>Embedded Systems Tasks</h1><p class="lead">Five embedded systems assignments, each documented on its own page: Arduino LEDs, a soldered 555 timer flasher, a sensor and actuator presentation, an OLED joystick game, and a FreeRTOS temperature alert. Choose a task to open it.</p><a class="back" href="protosem.html">← Back to ProtoSem</a><div class="proto-grid"><a class="proto-card" href="protosem-week-6-task-1.html"><span class="proto-num">TASK 1</span><h2>LED Interfacing with Arduino UNO</h2><p>Four LEDs on Arduino pins D8 to D11: first blinking together, then chasing one after another.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-6-task-2.html"><span class="proto-num">TASK 2</span><h2>Soldering a 555 Timer Two-LED Flasher</h2><p>A 555 timer wired as an astable oscillator and soldered on a perfboard to flash two LEDs alternately.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-6-task-3.html"><span class="proto-num">TASK 3</span><h2>Sensor and Actuator Presentation</h2><p>Closed-loop speed and position control of a PMDC motor using a rotary encoder.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-6-task-4.html"><span class="proto-num">TASK 4</span><h2>OLED-Based Game with Sensor Input</h2><p>An Escape-the-Falling-Ball game on a 0.96-inch OLED, played with an analog joystick on an ESP32.</p><span class="arrow">VIEW TASK →</span></a><a class="proto-card" href="protosem-week-6-task-5.html"><span class="proto-num">TASK 5</span><h2>FreeRTOS Temperature Alert System</h2><p>A DHT11 alert on an ESP32 that flashes an LED once and waits for a button acknowledge, built with FreeRTOS tasks.</p><span class="arrow">VIEW TASK →</span></a></div></div></main>
 <script>
 const burger=document.getElementById('burger'), mobileMenu=document.getElementById('mobile-menu');
 if(burger&&mobileMenu){burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');burger.setAttribute('aria-expanded',String(open));mobileMenu.classList.toggle('open',open);});}
